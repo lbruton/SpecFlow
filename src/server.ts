@@ -10,9 +10,10 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { registerTools, handleToolCall } from './tools/index.js';
 import { registerPrompts, handlePromptList, handlePromptGet } from './prompts/index.js';
+import { ToolContext } from './types.js';
 import { validateProjectPath, PathUtils } from './core/path-utils.js';
 import { WorkspaceInitializer } from './core/workspace-initializer.js';
-import { loadOrCreateConfig } from './core/config-loader.js';
+import { loadOrCreateConfig, loadConfig } from './core/config-loader.js';
 import { needsMigration, migrateToDocVault } from './core/migration.js';
 import { ProjectRegistry } from './core/project-registry.js';
 import { DashboardSessionManager } from './core/dashboard-session.js';
@@ -198,8 +199,44 @@ export class SpecWorkflowMCPServer {
     }));
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      // In degraded mode, return a clear error for every tool call
+      const args = request.params.arguments || {};
+
+      // In degraded mode, try to resolve a project on-the-fly from args.projectPath
       if (context.degraded) {
+        const overridePath = args.projectPath as string | undefined;
+
+        if (overridePath) {
+          try {
+            await validateProjectPath(overridePath);
+            const config = await loadConfig(overridePath);
+            // Global state — acceptable here because degraded mode has no prior
+            // config set, so we're going from nothing to something. Concurrent
+            // calls with different projectPath values would race; a future refactor
+            // should thread config through ToolContext instead.
+            PathUtils.initializeDocVault(config);
+            const callContext: ToolContext = {
+              projectPath: overridePath,
+              dashboardUrl: context.dashboardUrl,
+              lang: context.lang,
+            };
+            return await handleToolCall(request.params.name, args, callContext);
+          } catch (configError: any) {
+            return {
+              content: [
+                {
+                  type: 'text' as const,
+                  text:
+                    `SpecFlow MCP server started without a valid project (startup error: ${context.degradedReason}).\n\n` +
+                    `Attempted on-demand config load for projectPath="${overridePath}" but it also failed:\n` +
+                    `${configError.message}\n\n` +
+                    `Ensure the project has a valid .specflow/config.json with a "docvault" path.`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        }
+
         return {
           content: [
             {
@@ -207,13 +244,11 @@ export class SpecWorkflowMCPServer {
               text:
                 `SpecFlow MCP server is running in degraded mode — no valid project found.\n\n` +
                 `Error: ${context.degradedReason}\n\n` +
-                `The server was launched without a valid project path. To fix this:\n` +
-                `1. Ensure your MCP config passes the project directory as an argument:\n` +
-                `   npx -y @lbruton/specflow@latest .\n` +
-                `2. Or specify an absolute path:\n` +
-                `   npx -y @lbruton/specflow@latest /path/to/your/project\n` +
-                `3. Ensure the project has a .specflow/config.json file\n\n` +
-                `Current path: ${context.projectPath}`,
+                `To use this tool, pass the "projectPath" parameter with the absolute path to your project directory.\n` +
+                `The project must have a .specflow/config.json file.\n\n` +
+                `Example: { "projectPath": "/path/to/your/project", ... }\n\n` +
+                `Alternatively, fix the MCP config to pass the project path at startup:\n` +
+                `  npx -y @lbruton/specflow@latest /path/to/your/project`,
             },
           ],
           isError: true,
@@ -221,7 +256,7 @@ export class SpecWorkflowMCPServer {
       }
 
       try {
-        return await handleToolCall(request.params.name, request.params.arguments || {}, context);
+        return await handleToolCall(request.params.name, args, context);
       } catch (error: any) {
         throw new McpError(ErrorCode.InternalError, error.message);
       }
