@@ -184,31 +184,6 @@ describe('generateUserTemplates', () => {
   });
 });
 
-describe('bundled tasks-template.md', () => {
-  it('should contain MANDATORY GATES comment and no upstream sample references', () => {
-    // Read the source template directly from disk
-    const templatePath = join(
-      __dirname_test,
-      '..',
-      '..',
-      'markdown',
-      'templates',
-      'tasks-template.md',
-    );
-    const content = readFileSync(templatePath, 'utf-8');
-
-    // Must contain the MANDATORY GATES HTML comment
-    expect(content).toContain('MANDATORY GATES');
-
-    // Must NOT contain upstream Pimzino TypeScript/React/Express sample references
-    expect(content).not.toContain('TypeScript');
-    expect(content).not.toContain('React');
-    expect(content).not.toContain('Express');
-    expect(content).not.toContain('IFeatureService');
-    expect(content).not.toContain('BaseComponent');
-  });
-});
-
 describe('writeUserTemplates', () => {
   it('should not overwrite existing user-template files', async () => {
     // Simulate that the design template already exists

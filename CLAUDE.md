@@ -6,7 +6,8 @@ MCP server plugin for spec-driven development with a real-time web dashboard. Lo
 
 | Field | Value |
 |-------|-------|
-| Package | `@lbruton/specflow` (version: see `package.json`) |
+| Package | `@lbruton/specflow` |
+| Version | `3.7.2` |
 | Origin | [lbruton/specflow](https://github.com/lbruton/specflow) — fork of [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mcp) |
 | Branch | `main` — signed commits + PR + status checks |
 | Skills/commands ship | `specflow/skills/` and `specflow/commands/` — users copy → `~/.claude/{skills,commands}/` |

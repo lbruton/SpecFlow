@@ -18,7 +18,7 @@ export const writeSpecDocTool: Tool = {
       },
       documentType: {
         type: 'string',
-        enum: ['requirements', 'discovery', 'design', 'tasks', 'test-checklist'],
+        enum: ['requirements', 'discovery', 'design', 'tasks'],
         description: 'Type of spec document to write',
       },
       content: {
@@ -37,7 +37,7 @@ export const writeSpecDocTool: Tool = {
 export async function writeSpecDocHandler(
   args: {
     specName: string;
-    documentType: 'requirements' | 'discovery' | 'design' | 'tasks' | 'test-checklist';
+    documentType: 'requirements' | 'discovery' | 'design' | 'tasks';
     content: string;
     projectPath?: string;
   },
@@ -46,7 +46,7 @@ export async function writeSpecDocHandler(
   const { specName, documentType, content } = args;
   const projectPath = args.projectPath || context.projectPath;
 
-  const validDocTypes = ['requirements', 'discovery', 'design', 'tasks', 'test-checklist'];
+  const validDocTypes = ['requirements', 'discovery', 'design', 'tasks'];
   if (!validDocTypes.includes(documentType)) {
     return {
       success: false,
