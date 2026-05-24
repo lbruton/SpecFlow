@@ -184,6 +184,32 @@ describe('generateUserTemplates', () => {
   });
 });
 
+describe('bundled tasks-template.md', () => {
+  it('should define the peer review dispatch chain without disabled rescue paths', () => {
+    const templatePath = join(
+      __dirname_test,
+      '..',
+      '..',
+      'markdown',
+      'templates',
+      'tasks-template.md',
+    );
+    const content = readFileSync(templatePath, 'utf-8');
+
+    const peerReviewTask = content.slice(
+      content.indexOf('- [ ] N+4. Cross-Model Peer Review'),
+      content.indexOf('- [ ] N+5. Loop or proceed to shipping'),
+    );
+
+    expect(peerReviewTask).toContain('pr-review-toolkit:review-pr');
+    expect(peerReviewTask).toContain('Critical/High/Medium/Low severity contract');
+    expect(peerReviewTask).toContain('/sketch review <issue> <phase> <reviewer>');
+    expect(peerReviewTask).toContain('gemini:rescue');
+    expect(peerReviewTask).not.toContain('codex:rescue`)**');
+    expect(peerReviewTask).not.toContain('$CODEX_SESSION');
+    expect(peerReviewTask).not.toContain('Critical/Important');
+  });
+});
 describe('writeUserTemplates', () => {
   it('should not overwrite existing user-template files', async () => {
     // Simulate that the design template already exists
