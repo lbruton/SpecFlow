@@ -65,7 +65,7 @@ CRITICAL: Only provide filePath parameter for requests - the dashboard reads fil
       filePath: {
         type: 'string',
         description:
-          'Path to the file that needs approval, relative to project root (required for request action)',
+          'Path to the file that needs approval, relative to the specflow workflow root (e.g. specs/SPEC-NAME/requirements.md). Must NOT contain ".." path traversal — the dashboard rejects such paths. Required for request action.',
       },
       type: {
         type: 'string',
@@ -209,6 +209,14 @@ async function handleRequestApproval(
     return {
       success: false,
       message: 'Project path is required but not provided in context or arguments',
+    };
+  }
+
+  if (args.filePath.includes('..')) {
+    return {
+      success: false,
+      message:
+        'filePath must not contain ".." path traversal. Use a path relative to the specflow workflow root (e.g. "specs/SPEC-NAME/requirements.md"), not relative to the project root.',
     };
   }
 

@@ -192,6 +192,23 @@ describe('Tool projectPath fallback behavior', () => {
       expect(result.message).not.toContain('PathUtils.translatePath is not available');
     });
 
+    it('should reject request filePath values containing path traversal', async () => {
+      const result = await approvalsHandler(
+        {
+          action: 'request',
+          title: 'Review requirements',
+          filePath: '../StakTrakr/specs/test-spec/requirements.md',
+          type: 'document',
+          category: 'spec',
+          categoryName: 'test-spec',
+        },
+        mockContext,
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('filePath must not contain ".." path traversal');
+    });
+
     it('should block approval request for markdown with MDX-incompatible content', async () => {
       const tempProject = await createTempProject('specwf-mdx-');
       const relativePath = '.specflow/specs/test-spec/requirements.md';
