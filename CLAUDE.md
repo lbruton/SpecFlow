@@ -10,7 +10,7 @@ MCP server plugin for spec-driven development with a real-time web dashboard. Lo
 | Version | `3.7.2` |
 | Origin | [lbruton/specflow](https://github.com/lbruton/specflow) — fork of [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mcp) |
 | Branch | `main` — signed commits + PR + status checks |
-| Skills/commands ship | `specflow/skills/` and `specflow/commands/` — users copy → `~/.claude/{skills,commands}/` |
+| Skills/commands ship | `skills/` and `commands/` — users copy → `~/.claude/{skills,commands}/` |
 | MCP install (npm) | `npx -y @lbruton/specflow@latest .` in `~/.claude/settings.json` |
 | Dashboard | Singleton Node process, default `:5000` (lbruton uses `:5051`). State: `~/.specflow-mcp/activeSession.json` |
 | Issue prefix | `SFLW` — Plane workspace `https://plane.lbruton.cc/lbruton/projects/72fd0b33-6719-47fa-92a5-97e9ba511f32/` |
@@ -30,7 +30,7 @@ Installing one does NOT install the other. README must say both.
 
 Hard rules:
 - Orphan dirs from pre-v3.6.0 (`plugin/`, `.claude-plugin/`, `~/.claude/plugins/marketplaces/`) — delete on sight, never edit.
-- User-level (`~/.claude/skills/<n>/SKILL.md`) and repo copy (`specflow/skills/<n>/SKILL.md`) are intentionally separate files. Promote via `cp`, not symlinks.
+- User-level (`~/.claude/skills/<n>/SKILL.md`) and repo copy (`skills/<n>/SKILL.md`) are intentionally separate files. Promote via `cp`, not symlinks.
 
 ## DocVault SpecFlow Layout
 
@@ -131,7 +131,7 @@ Hand off step 5 to user; wait for confirmation before step 6. Rationale: mem0 `f
 After battle-testing at `~/.claude/skills/<n>/SKILL.md`:
 
 1. **Sanitize** — strip lbruton paths, personal prefs, workspace assumptions. Must work for any user/project.
-2. **Copy** — `cp ~/.claude/skills/<n>/SKILL.md specflow/skills/<n>/SKILL.md` (mkdir if new).
+2. **Copy** — `cp ~/.claude/skills/<n>/SKILL.md skills/<n>/SKILL.md` (mkdir if new).
 3. **Verify** — `diff` should show only sanitization changes.
 4. **PR** — worktree → commit → push → PR. Same flow as source.
 5. **README** — update inventory in the same PR if skill is new.
@@ -140,7 +140,7 @@ Same flow for `commands/`. No build, no npm.
 
 **Reverse-sync (shipped → user-level)** after a PR sanitizes the shipped copy:
 
-1. `cp specflow/skills/<n>/SKILL.md ~/.claude/skills/<n>/SKILL.md`
+1. `cp skills/<n>/SKILL.md ~/.claude/skills/<n>/SKILL.md`
 2. Re-personalize any `{owner}` → `lbruton` placeholders.
 3. `diff` — only re-personalization changes should appear.
 
