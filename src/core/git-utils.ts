@@ -78,12 +78,24 @@ export function resolveGitRoot(projectPath: string): string {
     const gitIndex = gitCommonDirRaw.lastIndexOf('.git');
     if (gitIndex > 0) {
       const mainRepoPath = gitCommonDirRaw.substring(0, gitIndex - 1);
-      // Resolve to canonical absolute path — breaks taint chain from execSync
-      // Use path.isAbsolute() for cross-platform reliability (handles UNC paths on Windows)
-      const resolvedPath = isAbsolute(mainRepoPath)
-        ? resolve(mainRepoPath)
-        : resolve(projectPath, mainRepoPath);
-      if (!isAbsolute(resolvedPath)) {
+      // Break the taint chain from execSync output. Windows absolute paths (C:\...) are
+      // returned directly — resolve() mangles them on Unix. Unix absolute paths are
+      // normalized via resolve(); relative paths resolve against projectPath. resolve()
+      // also normalizes away any '..' segments git emits from a subdirectory.
+      const isWindowsAbsolute = /^[A-Za-z]:[\\/]/.test(mainRepoPath);
+      const isUnixAbsolute = mainRepoPath.startsWith('/');
+      let resolvedPath: string;
+      if (isWindowsAbsolute) {
+        // resolve() can't canonicalize a Windows path on Unix, so guard the raw value:
+        // reject path traversal ('..') and NUL bytes (CodeQL path-injection barrier).
+        if (mainRepoPath.includes('..') || mainRepoPath.includes('\0')) {
+          return projectPath;
+        }
+        resolvedPath = mainRepoPath;
+      } else {
+        resolvedPath = isUnixAbsolute ? resolve(mainRepoPath) : resolve(projectPath, mainRepoPath);
+      }
+      if (!resolvedPath.startsWith('/') && !isWindowsAbsolute) {
         return projectPath;
       }
       return resolvedPath;
