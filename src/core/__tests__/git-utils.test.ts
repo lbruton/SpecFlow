@@ -12,14 +12,6 @@ vi.mock('child_process', () => ({
   execSync: vi.fn(),
 }));
 
-// Mock fs.realpathSync — sanitizeCwd() now calls it for path-injection hardening.
-// Identity passthrough lets the sanitizer resolve the synthetic test paths
-// (which don't exist on disk) without changing any assertion.
-vi.mock('fs', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('fs')>();
-  return { ...actual, realpathSync: vi.fn((p: string) => p) };
-});
-
 const mockedExecSync = vi.mocked(execSync);
 
 describe('resolveGitRoot', () => {
