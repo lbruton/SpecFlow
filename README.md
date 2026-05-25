@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="https://lbruton.github.io/specflow/"><strong>About</strong></a> &bull;
+  <a href="docs/index.html"><strong>About</strong></a> &bull;
   <a href="docs/USER-GUIDE.md">User Guide</a> &bull;
   <a href="docs/WORKFLOW.md">Workflow</a> &bull;
   <a href="CHANGELOG.md">Changelog</a>
@@ -82,7 +82,7 @@ npx @lbruton/specflow@latest --dashboard --port 5051
 
 Every non-trivial feature follows the same path. Approval required at each gate.
 
-```
+```text
 [Discovery]  →  Requirements  →  Design  →  Tasks  →  Implementation
   optional          ↑              ↑          ↑            ↑
                  approval       approval   approval    log artifacts
@@ -138,7 +138,7 @@ These are markdown skill definitions installed by copying from the repo, not MCP
 
 Spec documents, steering docs, and templates are stored as structured markdown in an Obsidian-compatible layout. If you use [Obsidian](https://obsidian.md), you get graph visualization and wikilink navigation for free. If not, it's still just a folder of markdown files.
 
-```
+```text
 your-vault/specflow/
   templates/                  # global spec templates (auto-populated)
   {Project}/
@@ -193,7 +193,7 @@ npm run dev          # Development mode with hot reload
 
 ## Credits
 
-**[Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mcp)** — the foundation. Pimzino designed and built the core: MCP server, sequential spec workflow, real-time dashboard with blocking approval gates, approval storage, markdown parser, implementation logging, template engine, multi-language support, VSCode extension, Docker deployment, and security hardening.
+**[Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mcp)** — the foundation. Pimzino designed and built the core: MCP server, sequential spec workflow, real-time dashboard with blocking approval gates, approval storage, Markdown parser, implementation logging, template engine, multi-language support, VSCode extension, Docker deployment, and security hardening.
 
 **[zilliztech/claude-context](https://github.com/zilliztech/claude-context)** — upstream for the semantic code search fork.
 
