@@ -1110,6 +1110,7 @@ export class MultiProjectDashboardServer {
     // Update task status
     this.app.put(
       '/api/projects/:projectId/specs/:name/tasks/:taskId/status',
+      { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
       async (request, reply) => {
         const { projectId, name, taskId } = request.params as {
           projectId: string;

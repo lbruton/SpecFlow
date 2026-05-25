@@ -8,6 +8,15 @@ const GIT_EXEC_OPTIONS: ExecSyncOptionsWithStringEncoding = {
   timeout: 5000,
 };
 
+function sanitizeCwd(projectPath: string): string {
+  const resolved = resolve(projectPath);
+  const isAbsolute = resolved.startsWith('/') || /^[A-Za-z]:[\\/]/.test(resolved);
+  if (!isAbsolute) {
+    throw new Error('Project path must resolve to an absolute path');
+  }
+  return resolved;
+}
+
 /**
  * Resolves the git workspace root directory.
  * For repositories and worktrees, this returns the top-level checked-out directory.
@@ -17,8 +26,9 @@ const GIT_EXEC_OPTIONS: ExecSyncOptionsWithStringEncoding = {
  */
 export function resolveGitWorkspaceRoot(projectPath: string): string {
   try {
+    const safeCwd = sanitizeCwd(projectPath);
     const rawOutput = execSync('git rev-parse --show-toplevel', {
-      cwd: projectPath,
+      cwd: safeCwd,
       ...GIT_EXEC_OPTIONS,
     }).trim();
 
@@ -49,14 +59,15 @@ export function resolveGitRoot(projectPath: string): string {
 
   try {
     // Get the git common directory (main repo's .git folder)
+    const safeCwd = sanitizeCwd(projectPath);
     const gitCommonDirRaw = execSync('git rev-parse --git-common-dir', {
-      cwd: projectPath,
+      cwd: safeCwd,
       ...GIT_EXEC_OPTIONS,
     }).trim();
 
     // In main repo, returns ".git" - no change needed
     if (gitCommonDirRaw === '.git') {
-      return projectPath;
+      return safeCwd;
     }
 
     // In worktree or subdirectory, returns path like "/main/.git", "/main/.git/worktrees/name",
@@ -98,8 +109,9 @@ export function resolveGitRoot(projectPath: string): string {
  */
 export function isGitWorktree(projectPath: string): boolean {
   try {
+    const safeCwd = sanitizeCwd(projectPath);
     const gitCommonDir = execSync('git rev-parse --git-common-dir', {
-      cwd: projectPath,
+      cwd: safeCwd,
       ...GIT_EXEC_OPTIONS,
     }).trim();
     return gitCommonDir !== '.git';
