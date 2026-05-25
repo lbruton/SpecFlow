@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://img.shields.io/npm/v/@lbruton/specflow"><img src="https://img.shields.io/npm/v/@lbruton/specflow" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@lbruton/specflow"><img src="https://img.shields.io/npm/v/@lbruton/specflow" alt="npm version"></a>
   <a href="https://github.com/lbruton/specflow"><img src="https://img.shields.io/badge/license-GPL--3.0-green" alt="License"></a>
   <img src="https://img.shields.io/badge/MCP_Server-Plugin-6366f1" alt="MCP Server Plugin">
 </p>
