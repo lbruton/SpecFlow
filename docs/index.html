@@ -3,12 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      SpecFlow — Spec-driven development with persistent project memory and code intelligence
-    </title>
+    <title>SpecFlow — Spec-driven development for AI coding agents</title>
     <meta
       name="description"
-      content="A spec-driven development framework with four-layer contextual memory and semantic code intelligence that gives AI agents permanent, cross-project context. Ships as MCP servers with a real-time dashboard."
+      content="An MCP server plugin that gives AI coding agents a structured development lifecycle with approval gates and a real-time dashboard."
     />
     <style>
       :root {
@@ -26,6 +24,7 @@
         --green: #22c55e;
         --green-dim: #22c55e40;
         --amber: #f59e0b;
+        --amber-dim: #f59e0b30;
         --red: #ef4444;
         --purple: #a78bfa;
         --mono:
@@ -51,7 +50,6 @@
         overflow-x: hidden;
       }
 
-      /* ─── Layout ─── */
       .container {
         max-width: 960px;
         margin: 0 auto;
@@ -61,7 +59,6 @@
         padding: 80px 0;
       }
 
-      /* ─── Typography ─── */
       h1,
       h2,
       h3 {
@@ -118,7 +115,6 @@
         position: sticky;
         top: 0;
         z-index: 100;
-        background: var(--bg);
         border-bottom: 1px solid var(--border);
         padding: 12px 0;
         backdrop-filter: blur(12px);
@@ -134,9 +130,6 @@
         font-weight: 700;
         font-size: 1rem;
         color: var(--text-bright);
-      }
-      .nav-brand span {
-        color: var(--accent);
       }
       .nav-links {
         display: flex;
@@ -160,8 +153,8 @@
         display: inline-block;
         font-family: var(--mono);
         font-size: 0.75rem;
-        color: var(--green);
-        border: 1px solid var(--green-dim);
+        color: var(--amber);
+        border: 1px solid var(--amber-dim);
         padding: 4px 12px;
         border-radius: 999px;
         margin-bottom: 24px;
@@ -250,82 +243,6 @@
         margin: 0;
       }
 
-      /* ─── Four Tiers ─── */
-      .tier-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        margin-top: 32px;
-      }
-      .tier {
-        display: flex;
-        align-items: stretch;
-        border: 1px solid var(--border);
-        background: var(--bg-card);
-      }
-      .tier:first-child {
-        border-radius: 12px 12px 0 0;
-      }
-      .tier:last-child {
-        border-radius: 0 0 12px 12px;
-      }
-      .tier + .tier {
-        border-top: none;
-      }
-      .tier-label {
-        writing-mode: vertical-lr;
-        text-orientation: mixed;
-        transform: rotate(180deg);
-        font-family: var(--mono);
-        font-size: 0.7rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        padding: 16px 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 44px;
-        border-right: 1px solid var(--border);
-      }
-      .tier-1 .tier-label {
-        background: #3b82f615;
-        color: var(--accent);
-      }
-      .tier-2 .tier-label {
-        background: #22c55e15;
-        color: var(--green);
-      }
-      .tier-3 .tier-label {
-        background: #a78bfa15;
-        color: var(--purple);
-      }
-      .tier-4 .tier-label {
-        background: #f59e0b15;
-        color: var(--amber);
-      }
-      .tier-content {
-        padding: 20px 24px;
-        flex: 1;
-      }
-      .tier-content h3 {
-        font-size: 1rem;
-      }
-      .tier-content p {
-        font-size: 0.9rem;
-        color: var(--text-dim);
-        margin: 0;
-      }
-      .tier-arrow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 4px 0;
-        color: var(--text-dim);
-        font-family: var(--mono);
-        font-size: 0.75rem;
-      }
-
       /* ─── Lifecycle ─── */
       .lifecycle-flow {
         display: flex;
@@ -339,11 +256,11 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 16px 14px;
+        padding: 16px 20px;
         border-radius: 10px;
         background: var(--bg-card);
         border: 1px solid var(--border);
-        min-width: 100px;
+        min-width: 120px;
         text-align: center;
       }
       .phase-num {
@@ -358,6 +275,11 @@
         font-size: 0.85rem;
         font-weight: 600;
         color: var(--text-bright);
+      }
+      .phase-sub {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        margin-top: 2px;
       }
       .phase-arrow {
         font-family: var(--mono);
@@ -427,35 +349,6 @@
         color: var(--green);
       }
 
-      /* ─── Comparison Table ─── */
-      .compare-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 24px 0;
-        font-size: 0.88rem;
-      }
-      .compare-table th {
-        text-align: left;
-        padding: 10px 16px;
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        color: var(--text-bright);
-        font-weight: 600;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-      .compare-table td {
-        padding: 10px 16px;
-        border: 1px solid var(--border);
-        color: var(--text-dim);
-      }
-      .compare-table td:first-child {
-        color: var(--text);
-        font-weight: 500;
-        white-space: nowrap;
-      }
-
       /* ─── Feature Grid ─── */
       .feature-grid {
         display: grid;
@@ -487,29 +380,6 @@
         color: var(--text-dim);
         font-size: 0.9rem;
         margin: 0;
-      }
-
-      /* ─── Vault Tree ─── */
-      .vault-tree {
-        font-family: var(--mono);
-        font-size: 0.82rem;
-        line-height: 2;
-        padding: 20px;
-        background: var(--bg-code);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        margin: 24px 0;
-        white-space: pre;
-      }
-      .vault-tree .dir {
-        color: var(--accent);
-      }
-      .vault-tree .file {
-        color: var(--text-dim);
-      }
-      .vault-tree .note {
-        color: var(--green);
-        font-style: italic;
       }
 
       /* ─── CTA Section ─── */
@@ -570,13 +440,11 @@
           <span style="color: #cbd5e1">Spec</span><span style="color: #6366f1">Flow</span>
         </div>
         <div class="nav-links">
-          <a href="#how">How it works</a>
-          <a href="#memory">Memory</a>
-          <a href="#intelligence">Code Intel</a>
+          <a href="#what">What it does</a>
           <a href="#lifecycle">Lifecycle</a>
-          <a href="#learning">Learning Loop</a>
-          <a href="#compare">Compare</a>
-          <a href="#roadmap">Roadmap</a>
+          <a href="#tools">Tools</a>
+          <a href="#agents">Multi-agent</a>
+          <a href="#extending">Extending</a>
           <a href="https://github.com/lbruton/specflow">GitHub</a>
         </div>
       </div>
@@ -626,819 +494,145 @@
             </text>
           </svg>
         </div>
-        <div class="hero-badge">MCP Server Plugin &bull; Open Source</div>
+        <div class="hero-badge">Work in Progress &bull; Active Development</div>
         <h1>
-          Spec-driven development framework with<br /><span class="gradient"
-            >persistent project memory</span
-          >
+          <span class="gradient">Spec-driven development</span><br />for AI coding agents
         </h1>
         <p>
-          AI agents lose context between sessions. They forget decisions, repeat mistakes, and drift
-          from reality. SpecFlow gives them a structured lifecycle, persistent memory, and semantic
-          code intelligence &mdash; self-hosted core with optional cloud integrations.
+          An MCP server plugin that gives AI agents a structured development lifecycle.
+          Requirements &rarr; Design &rarr; Tasks &rarr; Implementation, with human approval
+          gates at every transition and a real-time dashboard to manage it all.
         </p>
         <div class="hero-ctas">
           <a href="https://github.com/lbruton/specflow" class="btn btn-primary"> View on GitHub </a>
-          <a href="https://github.com/lbruton/SessionFlow" class="btn btn-secondary">
-            SessionFlow
+          <a href="https://github.com/lbruton/specflow#quick-start" class="btn btn-secondary">
+            Quick Start
           </a>
-          <a href="https://github.com/lbruton/claude-context" class="btn btn-secondary">
-            ContextFlow
-          </a>
-          <button class="btn btn-secondary" disabled style="opacity: 0.4; cursor: default">
-            MemFlow
-          </button>
-        </div>
-        <div style="margin-top: 12px">
-          <a href="#how" class="btn btn-secondary"> See how it works &darr; </a>
         </div>
       </div>
     </section>
 
     <!-- ─── Problem ─── -->
-    <section>
+    <section id="what">
       <div class="container">
-        <h2>The problem with AI-assisted development</h2>
-        <p class="dim">Every session starts from zero. Three failure modes compound over time.</p>
+        <h2>The problem</h2>
+        <p class="dim">AI coding agents are powerful, but they skip the process that makes software reliable.</p>
         <div class="problem-grid">
           <div class="problem-card">
-            <div class="icon">&#x1f9ca;</div>
-            <h3>Cold starts</h3>
+            <div class="icon">&#x1f3c3;</div>
+            <h3>Straight to code</h3>
             <p>
-              The agent has no memory of yesterday. It doesn't know what it built, what broke, or
-              what conventions you agreed on. You re-explain everything, every time.
+              Agents jump to implementation without a requirements phase, design review, or
+              approval step. The result: rework, scope creep, and features that don&rsquo;t
+              match intent.
             </p>
           </div>
           <div class="problem-card">
-            <div class="icon">&#x1f4a5;</div>
-            <h3>Context flooding</h3>
+            <div class="icon">&#x1f6d1;</div>
+            <h3>No approval gates</h3>
             <p>
-              You stuff everything into CLAUDE.md &mdash; architecture, conventions, decisions,
-              infrastructure. The file balloons. Token waste goes up. Attention quality goes down.
+              Without structured checkpoints, there&rsquo;s no place for a human to review
+              direction before code is written. You catch problems in PR review instead of
+              during design.
             </p>
           </div>
           <div class="problem-card">
-            <div class="icon">&#x1f4c9;</div>
-            <h3>No lifecycle</h3>
+            <div class="icon">&#x1f4c4;</div>
+            <h3>Spec drift</h3>
             <p>
-              Agents jump straight to code. No requirements phase. No design review. No approval
-              gates. The result: rework, scope creep, and features that don't match intent.
+              Requirements live in chat messages that scroll away. Design decisions aren&rsquo;t
+              recorded. When the agent loses context mid-session, there&rsquo;s nothing to
+              resume from.
             </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── How It Works ─── -->
-    <section id="how">
-      <div class="container">
-        <h2>The SpecFlow ecosystem</h2>
-        <p class="dim">
-          <strong class="accent">SpecFlow</strong> orchestrates <em>how</em> work gets done. Five
-          companion MCPs give AI agents persistent memory, semantic code understanding, and
-          structured knowledge &mdash; replacing the bloated CLAUDE.md + ad-hoc prompting pattern.
-        </p>
-
-        <div class="feature-grid feature-grid-3">
-          <div class="feature-card">
-            <div class="tag accent">SpecFlow &mdash; Orchestrator</div>
-            <h3>Spec-driven lifecycle</h3>
-            <p>
-              Requirements &rarr; Design &rarr; Tasks &rarr; Implementation with dashboard approvals
-              at every gate. Works with Claude Code, Gemini CLI, and Codex CLI &mdash; any
-              MCP-compatible agent.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag green">SessionFlow &mdash; Session Memory</div>
-            <h3>Full session recall in seconds</h3>
-            <p>
-              Every conversation turn is indexed in real-time into a local vector database. Semantic
-              search across all past sessions with date filtering &mdash; the agent remembers
-              exactly where you left off. Forked from
-              <a
-                href="https://github.com/mwgreen/claude-code-session-rag"
-                target="_blank"
-                rel="noopener"
-                >mwgreen/claude-code-session-rag</a
-              >.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag purple">DocVault &mdash; Knowledge Base</div>
-            <h3>Cross-project ground truth</h3>
-            <p>
-              One Obsidian vault serves 8+ repos. Architecture, infrastructure, decisions, issues
-              &mdash; all in structured markdown with graph visualization and wikilinks. Wins all
-              tie-breaking conflicts.
-            </p>
-          </div>
-        </div>
-        <div class="feature-grid feature-grid-3" style="margin-top: 20px">
-          <div class="feature-card">
-            <div class="tag green">ContextFlow &mdash; Code Intelligence</div>
-            <h3>Semantic + structural code search</h3>
-            <p>
-              Self-hosted Milvus vector database indexes every codebase. Search code by meaning, not
-              just keywords. Planned: merging structural graph analysis (callers, imports, dead
-              code) into one unified MCP server. Forked from
-              <a href="https://github.com/zilliztech/claude-context" target="_blank" rel="noopener"
-                >zilliztech/claude-context</a
-              >.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag purple">MemFlow &mdash; Episodic Memory</div>
-            <h3>Curated cross-session memory</h3>
-            <p>
-              Retro lessons, handoffs, and session summaries stored as semantic embeddings.
-              Currently powered by mem0 cloud API. MemFlow will be a self-hosted fork &mdash; zero
-              cloud dependencies for the full stack.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag amber">Skill System &mdash; 6 shipped skills</div>
-            <h3>Procedural knowledge routing</h3>
-            <p>
-              CLAUDE.md stays tiny &mdash; a routing table to skills. Ships with 6 lifecycle skills
-              and 11 commands. Designed to compose with your own library &mdash; the author runs ~70
-              personal skills on top of these defaults.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── Multi-Agent Support ─── -->
-    <section style="background: #0d1117">
-      <div class="container">
-        <h2>Multi-agent, one workflow</h2>
-        <p class="dim">
-          SpecFlow speaks MCP &mdash; the open protocol for agent-tool communication. Any agent that
-          supports MCP gets the full spec lifecycle, shared knowledge base, and code intelligence.
-        </p>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="tag accent">Claude Code</div>
-            <h3>MCP server + skills plugin</h3>
-            <p>
-              Add as an MCP server with an optional skills plugin. Ships 6 lifecycle skills, 11
-              commands (7 slash + 4 MCP prompt helpers), 5 workflow prompts plus 2 injection
-              prompts, and parallel subagent dispatch.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag green">Gemini CLI</div>
-            <h3>MCP server + slash commands</h3>
-            <p>
-              Add SpecFlow as an MCP server in Gemini&rsquo;s settings. Full access to spec tools,
-              DocVault, and the approval dashboard. Uses GEMINI.md for agent-specific behavior.
-              Tested end-to-end; formal onboarding prompts in progress.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag amber">Codex CLI</div>
-            <h3>MCP server + plugin reuse</h3>
-            <p>
-              Configure in Codex&rsquo;s TOML config. Same MCP tools, same workflow, same dashboard.
-              Codex reuses the same skill/plugin structure as Claude Code. Uses CODEX.md for
-              agent-specific behavior.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag" style="color: var(--text-dim)">OpenCode + More</div>
-            <h3>Any MCP-compatible agent</h3>
-            <p>
-              Verified with OpenCode and models including Kimi 2.6b, GLM 5.1, and Codex. Any agent
-              that speaks MCP gets the full spec lifecycle, shared knowledge, and dashboard &mdash;
-              no vendor lock-in.
-            </p>
-          </div>
-        </div>
-        <p class="dim" style="margin-top: 1.5rem; text-align: center">
-          All agents share the same DocVault knowledge base, spec workflow state, and dashboard
-          &mdash; work started in one agent can be continued in another. Verified end-to-end on
-          Claude Code, Gemini CLI, Codex CLI, and OpenCode.
-        </p>
-
-        <div class="code-block" style="margin-top: 2rem">
-          <div class="code-header">
-            <div class="code-dots"><span></span><span></span><span></span></div>
-            Cross-Agent Spec Handoff
-          </div>
-          <div class="code-body">
-            <span class="highlight">Claude Code</span>
-            <span class="dim">Discovery &amp; Design</span> <span class="cmd">/issue create</span>
-            <span class="output">&rarr; SWF-65 created in DocVault</span>
-            <span class="cmd">/discover SWF-65</span>
-            <span class="output">&rarr; Discovery brief with research</span>
-            <span class="cmd">/spec SWF-65</span>
-            <span class="output">&rarr; Requirements &rarr; Design &rarr; awaiting approval</span>
-
-            <span class="highlight">Codex CLI</span> <span class="dim">Task Generation</span>
-            <span class="cmd">@spec resume</span>
-            <span class="output">&rarr; Reads spec from disk, picks up at Phase 4</span>
-            <span class="output"> &rarr; Generates tasks.md &rarr; awaiting approval</span>
-
-            <span class="highlight">Gemini CLI</span> <span class="dim">Implementation</span>
-            <span class="cmd">@spec resume</span>
-            <span class="output">&rarr; Reads spec from disk, picks up at Phase 5</span>
-            <span class="output">
-              &rarr; Implements tasks &rarr; commits &rarr; logs artifacts</span
-            >
-
-            <span class="dim"
-              >Spec state lives on disk in .specflow/specs/ &mdash; not in any agent's memory. The
-              dashboard tracks progress regardless of which agent is driving.</span
-            >
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── Four-Layer Memory ─── -->
-    <section id="memory" style="background: #0d1117">
-      <div class="container">
-        <h2>Four-layer contextual memory</h2>
-        <p class="dim">
-          Not a hierarchy &mdash; four parallel systems, each authoritative in its own domain. Which
-          layer holds the truth depends on what you&rsquo;re asking.
-        </p>
-
-        <div class="tier-stack">
-          <div class="tier tier-1">
-            <div class="tier-label">MemFlow</div>
-            <div class="tier-content">
-              <h3>MemFlow <span class="dim">&mdash; Curated episodic memory</span></h3>
-              <p>
-                Retro lessons, cross-session decisions, handoffs, and session summaries stored as
-                semantic embeddings. Currently powered by mem0 cloud API; self-hosted fork planned.
-              </p>
-              <p style="margin-top: 8px; font-size: 0.8rem; color: var(--accent)">
-                &#x25B8; Best for: past decisions, recurring patterns, &ldquo;what did we agree
-                on?&rdquo;
-              </p>
-            </div>
-          </div>
-          <div class="tier tier-2">
-            <div class="tier-label">SessionFlow</div>
-            <div class="tier-content">
-              <h3>SessionFlow <span class="dim">&mdash; Verbatim session history</span></h3>
-              <p>
-                Every conversation turn indexed in real-time into Milvus Lite. Semantic search with
-                date filtering across all past sessions. Primary context source for
-                <code>/start</code> and <code>/prime</code>.
-              </p>
-              <p style="margin-top: 8px; font-size: 0.8rem; color: var(--green)">
-                &#x25B8; Best for: debugging history, &ldquo;how did we fix that bug last
-                month?&rdquo;
-              </p>
-            </div>
-          </div>
-          <div class="tier tier-3">
-            <div class="tier-label">DocVault</div>
-            <div class="tier-content">
-              <h3>DocVault <span class="dim">&mdash; Living documentation</span></h3>
-              <p>
-                Human-curated Obsidian vault. Architecture, infrastructure topology, data models,
-                coding standards, deployment procedures. Version-controlled with graph visualization
-                and wikilinks. Authoritative for anything documented &mdash; but subject to drift.
-              </p>
-              <p style="margin-top: 8px; font-size: 0.8rem; color: var(--purple)">
-                &#x25B8; Best for: code standards, architecture, infrastructure, &ldquo;how should
-                this work?&rdquo;
-              </p>
-            </div>
-          </div>
-          <div class="tier tier-4">
-            <div class="tier-label">Files</div>
-            <div class="tier-content">
-              <h3>File Memory <span class="dim">&mdash; Project context</span></h3>
-              <p>
-                CLAUDE.md, MEMORY.md, and project-scoped markdown at
-                <code>~/.claude/projects/*/memory/</code>. Agent-curated, human-reviewable. Loaded
-                at session start. Stores user preferences, feedback, and external references.
-              </p>
-              <p style="margin-top: 8px; font-size: 0.8rem; color: var(--amber)">
-                &#x25B8; Best for: user preferences, project config, &ldquo;how does this user like
-                to work?&rdquo;
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="tier-arrow">
-          &#9660; no fixed hierarchy &mdash; context determines which layer is authoritative
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── Code Intelligence ─── -->
-    <section id="intelligence">
-      <div class="container">
-        <h2>ContextFlow &mdash; code intelligence, self-hosted</h2>
-        <p class="dim">
-          Agents shouldn&rsquo;t grep blindly through your codebase. ContextFlow combines semantic
-          search (meaning-based) and structural analysis (callers, imports, dead code) into one
-          self-hosted code intelligence layer. Both backends run on your infrastructure &mdash; no
-          cloud dependencies.
-        </p>
-
-        <div class="feature-grid feature-grid-3">
-          <div class="feature-card">
-            <div class="tag green">Semantic Search &mdash; Milvus</div>
-            <h3>Search by meaning</h3>
-            <p>
-              Ask &ldquo;find the authentication middleware&rdquo; and get results even if the code
-              never uses the word &ldquo;auth.&rdquo; Vector embeddings capture semantic
-              relationships across your entire codebase.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag accent">Persistent Indices</div>
-            <h3>Index once, search forever</h3>
-            <p>
-              Code indices persist across sessions in Milvus. No re-indexing on every cold start.
-              Incremental updates catch only what changed since the last index run. Unlimited
-              project indices with full data sovereignty.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag purple">Hardened Fork</div>
-            <h3>Production-stable</h3>
-            <p>
-              Forked from
-              <a href="https://github.com/zilliztech/claude-context" target="_blank" rel="noopener"
-                >Zilliz&rsquo;s MCP server</a
-              >
-              with critical fixes: 30s fetch timeouts, gRPC connection guards, and pinned npm
-              versions. No silent upstream breakage.
-            </p>
-          </div>
-        </div>
-        <div class="feature-grid feature-grid-3" style="margin-top: 20px">
-          <div class="feature-card">
-            <div class="tag amber">Structural Graph &mdash; Neo4j</div>
-            <h3>Callers, imports, dead code</h3>
-            <p>
-              &ldquo;What calls this function?&rdquo; &ldquo;Show me everything that imports this
-              module.&rdquo; &ldquo;Find unused exports.&rdquo; Structural queries that semantic
-              search can&rsquo;t answer. Cross-language support.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag amber">Complexity Analysis</div>
-            <h3>Find hotspots before they burn</h3>
-            <p>
-              Cyclomatic complexity scoring, most-complex-function ranking, and call chain tracing.
-              Identify the code that&rsquo;s hardest to maintain before it becomes a problem.
-            </p>
-          </div>
-          <div class="feature-card" style="border-color: var(--accent); border-style: dashed">
-            <div class="tag accent">Roadmap &mdash; Unified MCP</div>
-            <h3>One server, both engines</h3>
-            <p>
-              Structural graph analysis is currently provided by
-              <a
-                href="https://github.com/nicholasgriffintn/code-graph-context"
-                target="_blank"
-                rel="noopener"
-                >Code Graph Context</a
-              >
-              (separate MCP server). Planned: merge into ContextFlow &mdash; one MCP, one install,
-              semantic + structural in a single query.
-            </p>
-          </div>
-        </div>
-
-        <div class="code-block">
-          <div class="code-header">
-            <div class="code-dots"><span></span><span></span><span></span></div>
-            Code search tiers &mdash; cheapest first
-          </div>
-          <div class="code-body">
-            <span class="comment"># Tier 1: Structural graph (callers, imports, dead code)</span>
-            <span class="cmd">contextflow / code-graph-context</span>
-            <span class="output">&rarr; Neo4j &mdash; &ldquo;what calls this function?&rdquo;</span>
-
-            <span class="comment"># Tier 2: Semantic search (meaning-based)</span>
-            <span class="cmd">contextflow / claude-context</span>
-            <span class="output"
-              >&rarr; Milvus &mdash; &ldquo;find code related to payment processing&rdquo;</span
-            >
-
-            <span class="comment"># Tier 3: Literal search (exact strings)</span>
-            <span class="cmd">grep / glob</span>
-            <span class="output"
-              >&rarr; Filesystem &mdash; &ldquo;find all files matching *.test.ts&rdquo;</span
-            >
-
-            <span class="comment"># Tier 4: Deep analysis (only when tiers 1-3 leave gaps)</span>
-            <span class="cmd">code-oracle agent</span>
-            <span class="output">&rarr; Subagent &mdash; combines all sources + AI reasoning</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ─── Lifecycle ─── -->
-    <section id="lifecycle">
+    <section id="lifecycle" style="background: #0d1117">
       <div class="container">
-        <h2>Spec workflow lifecycle</h2>
+        <h2>A structured lifecycle</h2>
         <p class="dim">
-          Every session follows this path. Approvals required at each gate. No phase-skipping.
+          Every non-trivial feature follows the same path. Each transition requires explicit
+          human approval through the dashboard. No phase-skipping.
         </p>
 
         <div class="lifecycle-flow">
           <div class="phase">
-            <div class="phase-num dim">Phase 0</div>
-            <div class="phase-name">/start</div>
-            <div class="dim" style="font-size: 0.7rem; margin-top: 2px">/prime</div>
-          </div>
-          <div class="phase-arrow">&rarr;</div>
-          <div class="phase">
             <div class="phase-num accent">Phase 1</div>
-            <div class="phase-name">/chat</div>
-            <div class="dim" style="font-size: 0.7rem; margin-top: 2px">/discover</div>
+            <div class="phase-name">Requirements</div>
+            <div class="phase-sub">what to build</div>
           </div>
           <div class="phase-arrow">&rarr;</div>
           <div class="phase">
             <div class="phase-num green">Phase 2</div>
-            <div class="phase-name">/spec</div>
+            <div class="phase-name">Design</div>
+            <div class="phase-sub">how to build it</div>
           </div>
           <div class="phase-arrow">&rarr;</div>
           <div class="phase">
             <div class="phase-num amber">Phase 3</div>
-            <div class="phase-name">Design</div>
+            <div class="phase-name">Tasks</div>
+            <div class="phase-sub">break it down</div>
           </div>
           <div class="phase-arrow">&rarr;</div>
           <div class="phase">
             <div class="phase-num" style="color: var(--red)">Phase 4</div>
             <div class="phase-name">Implement</div>
-          </div>
-          <div class="phase-arrow">&rarr;</div>
-          <div class="phase">
-            <div class="phase-num purple">Phase 5</div>
-            <div class="phase-name">/retro</div>
-          </div>
-          <div class="phase-arrow">&rarr;</div>
-          <div class="phase">
-            <div class="phase-num dim">Phase 6</div>
-            <div class="phase-name">/wrap</div>
+            <div class="phase-sub">write the code</div>
           </div>
         </div>
+
         <p class="dim" style="text-align: center; margin-top: 1rem; font-size: 0.85rem">
-          <code>/start</code> or <code>/prime</code> boots the session with full context.
-          <code>/chat</code> and <code>/discover</code> explore and research before committing to a
-          spec. <code>/spec</code> drives the full spec workflow (Requirements &rarr; Design &rarr;
-          Tasks &rarr; Implementation). <code>/retro</code> extracts lessons.
-          <code>/wrap</code> closes the session and saves everything to MemFlow.
+          Specs are structured markdown files that live on disk &mdash; not in any agent&rsquo;s memory.
+          They survive context loss, session boundaries, and agent switches.
         </p>
-
-        <div class="code-block">
-          <div class="code-header">
-            <div class="code-dots"><span></span><span></span><span></span></div>
-            Full session lifecycle
-          </div>
-          <div class="code-body">
-            <span class="comment"># Boot the session with context from SessionFlow + MemFlow</span>
-            <span class="cmd">/start</span>
-            <span class="output"> SessionFlow: 12 relevant turns from yesterday</span>
-            <span class="output"> MemFlow: 3 retro lessons, 2 pending decisions</span>
-            <span class="output"> Git: 1 open PR, 5 recent issues</span>
-
-            <span class="comment"># Explore an idea without committing to code</span>
-            <span class="cmd">/chat</span>
-            <span class="output">&ldquo;what if we added real-time price alerts?&rdquo;</span>
-
-            <span class="comment"># Structured brainstorm with research agents</span>
-            <span class="cmd">/discover</span> <span class="highlight">STAK-42</span>
-            <span class="output"> Dispatching research agents...</span>
-            <span class="output"> Discovery Brief generated with all open questions resolved</span>
-
-            <span class="comment"># Create spec: Requirements &rarr; Design &rarr; Tasks</span>
-            <span class="cmd">/spec</span> <span class="highlight">STAK-42</span>
-            <!-- prettier-ignore -->
-            <span class="output"> Requirements approved &#x2713; Design approved &#x2713; Tasks generated &#x2713;</span>
-
-            <span class="comment"># Implementation with parallel subagents</span>
-            <!-- prettier-ignore -->
-            <span class="output"> Task 1/4: WebSocket server </span
-            ><span class="success"
-              >&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;
-              done</span
-            >
-            <!-- prettier-ignore -->
-            <span class="output"> Task 2/4: Alert rules engine </span
-            ><span class="success"
-              >&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;
-              done</span
-            >
-            <!-- prettier-ignore -->
-            <span class="output"> Task 3/4: Push notification API </span
-            ><span class="success"
-              >&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;
-              done</span
-            >
-            <!-- prettier-ignore -->
-            <span class="output"> Task 4/4: Frontend alert panel </span
-            ><span class="success"
-              >&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;
-              done</span
-            >
-
-            <span class="comment"># Extract lessons, save to MemFlow</span>
-            <span class="cmd">/retro</span>
-            <span class="output"> 3 prescriptive lessons saved</span>
-
-            <span class="comment"># Close session cleanly</span>
-            <span class="cmd">/wrap</span>
-            <span class="output"> Cleanup: 2 stale branches removed</span>
-            <span class="output"> Retro: 3 lessons &rarr; MemFlow</span>
-            <span class="output"> Summary: curated digest &rarr; MemFlow</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── Continuous Learning ─── -->
-    <section id="learning" style="background: #0d1117">
-      <div class="container">
-        <h2>Every session learns from the last</h2>
-        <p class="dim">
-          Most AI tools treat each session as isolated. SpecFlow creates a continuous learning loop:
-          sessions end with knowledge extraction, and new sessions start pre-loaded with everything
-          that matters.
-        </p>
-
-        <div class="code-block">
-          <div class="code-header">
-            <div class="code-dots"><span></span><span></span><span></span></div>
-            The continuous context lifecycle
-          </div>
-          <div class="code-body">
-            <span class="comment"
-              >&#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;</span
-            >
-            <span class="comment">&#x2502; THE CONTINUOUS LEARNING LOOP &#x2502;</span>
-            <span class="comment"
-              >&#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;</span
-            >
-
-            <span class="highlight">Quick resume &mdash; /start (same-day, short breaks)</span>
-            <span class="output"> Queries SessionFlow for recent conversation turns</span>
-            <span class="output"> Pulls curated memories from MemFlow</span>
-            <span class="output"> Checks git state + 5 most recent open issues</span>
-            <span class="output"> Under 15 seconds, no indexing</span>
-
-            <span class="highlight">Full boot &mdash; /prime (after days away, new projects)</span>
-            <span class="output"> Queries SessionFlow + MemFlow for full context</span>
-            <span class="output"> Indexes codebase via ContextFlow</span>
-            <span class="output"> Checks open issues + git status + code health</span>
-            <span class="output">
-              Presents: &ldquo;Here&rsquo;s where you left off, here&rsquo;s what&rsquo;s
-              next&rdquo;</span
-            >
-
-            <span class="highlight">During the day &mdash; sessions compound</span>
-            <span class="output"> SessionFlow indexes every turn in real-time</span>
-            <span class="output"> Work produces commits, specs, implementation logs</span>
-            <span class="output"> /handoff relays state between terminal sessions</span>
-
-            <span class="highlight">End of session &mdash; /wrap (retro folded in)</span>
-            <span class="cmd">/wrap</span>
-            <span class="output"> Step 1: Cleanup (stale branches, uncommitted work)</span>
-            <span class="output"> Step 2: Retro &mdash; extracts prescriptive lessons</span>
-            <span class="output"> Saves to MemFlow as structured retro-learning memories</span>
-            <span class="output"> Step 3: Curated session summary &rarr; MemFlow</span>
-            <span class="output"> SessionFlow has the verbatim turns; MemFlow gets the digest</span>
-
-            <span class="highlight">On-demand &mdash; /audit checks project health</span>
-            <span class="cmd">/audit</span>
-            <span class="output"> Code quality + security scan</span>
-            <span class="output"> Documentation drift detection</span>
-            <span class="output"> Issue staleness check</span>
-            <span class="output"> Actionable remediation report</span>
-
-            <span class="comment"
-              >&#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;</span
-            >
-            <span class="comment"
-              >&#x2502; /start &#x2500;&#x2500;&rarr; work &#x2500;&#x2500;&rarr; /audit
-              &#x2500;&#x2500;&rarr; /wrap &#x2500;&#x2500;&rarr; /start &#x2500;&#x2500;&rarr; ..
-              &#x2502;</span
-            >
-            <span class="comment"
-              >&#x2502; SessionFlow + MemFlow carry context across every session &#x2502;</span
-            >
-            <span class="comment"
-              >&#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;</span
-            >
-          </div>
-        </div>
 
         <div class="feature-grid">
           <div class="feature-card">
-            <div class="tag green">/start</div>
-            <h3>Quick resume</h3>
+            <div class="tag accent">Dashboard approvals</div>
+            <h3>Human in the loop</h3>
             <p>
-              Queries SessionFlow + MemFlow for recent context, checks git state and open issues.
-              Under 15 seconds, no indexing. Use for same-day work or short breaks.
+              A real-time web UI where you review specs, approve phase transitions, request
+              changes, or reject proposals. The agent blocks until you decide.
             </p>
           </div>
           <div class="feature-card">
-            <div class="tag green">/prime</div>
-            <h3>Full session boot</h3>
+            <div class="tag green">Implementation logging</div>
+            <h3>Artifact tracking</h3>
             <p>
-              Queries SessionFlow + MemFlow, indexes codebase via ContextFlow, checks code health,
-              gathers project status. Use after days away or on new projects.
+              Every implementation step records what was built: functions, endpoints, tests,
+              components. The dashboard shows a complete audit trail of what shipped.
             </p>
           </div>
           <div class="feature-card">
-            <div class="tag accent">/wrap</div>
-            <h3>End-of-session orchestrator</h3>
+            <div class="tag amber">Parallel execution</div>
+            <h3>Subagent dispatch</h3>
             <p>
-              One command to close a session cleanly: cleanup stale branches, run retrospective
-              inline, save lessons + curated summary to MemFlow. SessionFlow indexes turns
-              automatically &mdash; /wrap captures the curated layer.
+              Tasks with no file overlap can execute concurrently via isolated subagents.
+              Each task goes through implementation, compliance review, and quality review.
             </p>
           </div>
           <div class="feature-card">
-            <div class="tag purple">/audit</div>
-            <h3>On-demand project health check</h3>
+            <div class="tag purple">Steering documents</div>
+            <h3>Project context</h3>
             <p>
-              Scans code quality, security posture, documentation drift, and issue staleness.
-              Produces an actionable remediation report. Run anytime &mdash; before a release, after
-              a sprint, or when things feel off.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="tag amber">/retro</div>
-            <h3>Prescriptive lesson extraction</h3>
-            <p>
-              Not &ldquo;what did we do&rdquo; but &ldquo;what should we do differently.&rdquo;
-              Extracts actionable rules from the conversation and saves them as structured memories.
-              Future sessions apply these lessons automatically.
+              Product vision, technical constraints, and codebase structure captured in
+              steering docs. Agents reference these instead of relying on chat history.
             </p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ─── Vault Structure ─── -->
-    <section>
-      <div class="container">
-        <h2>One vault, all projects</h2>
-        <p class="dim">
-          DocVault is a single Obsidian vault that serves every project. No per-repo scaffolding. No
-          duplicate context files. Infrastructure docs sit alongside application architecture.
-        </p>
-
-        <div class="vault-tree">
-          <span class="dir">DocVault/</span> &#x251C;&#x2500;&#x2500;
-          <span class="dir">Projects/</span> &#x2502; &#x251C;&#x2500;&#x2500;
-          <span class="dir">StakTrakr/</span> &#x2502; &#x2502; &#x2514;&#x2500;&#x2500;
-          <span class="file">Overview.md, Architecture.md, Data Model.md, API.md&hellip;</span>
-          &#x2502; &#x251C;&#x2500;&#x2500; <span class="dir">HexTrackr/</span> &#x2502; &#x2502;
-          &#x2514;&#x2500;&#x2500;
-          <span class="file">Overview.md, Architecture.md, Database.md, WebSocket.md&hellip;</span>
-          &#x2502; &#x2514;&#x2500;&#x2500; <span class="dir">specflow/</span> &#x2502;
-          &#x2514;&#x2500;&#x2500;
-          <span class="file">Overview.md, Tools &amp; Prompts.md, Dashboard.md&hellip;</span>
-          &#x251C;&#x2500;&#x2500; <span class="dir">Infrastructure/</span> &#x2502;
-          &#x251C;&#x2500;&#x2500; <span class="file">Host Inventory.md</span>
-          <span class="note">&larr; every IP, port, and DNS record</span> &#x2502;
-          &#x251C;&#x2500;&#x2500; <span class="file">Stack Registry.md</span>
-          <span class="note">&larr; 26 Docker stacks</span> &#x2502; &#x2514;&#x2500;&#x2500;
-          <span class="file">Portainer.md, Proxmox.md, Cloudflare.md, NPM.md&hellip;</span>
-          &#x251C;&#x2500;&#x2500; <span class="dir">Architecture/</span> &#x2502;
-          &#x2514;&#x2500;&#x2500;
-          <span class="file">Methodology.md, Memory Pipeline.md, Skill Matrix.md&hellip;</span>
-          &#x251C;&#x2500;&#x2500; <span class="dir">Issues/</span> &#x2502;
-          &#x251C;&#x2500;&#x2500; <span class="file">SWF-86.md, STAK-42.md&hellip;</span>
-          <span class="note">&larr; vault-based issue tracking</span> &#x2502;
-          &#x2514;&#x2500;&#x2500; <span class="file">Issues.base</span>
-          <span class="note">&larr; Obsidian Bases database view</span> &#x2514;&#x2500;&#x2500;
-          <span class="dir">Templates/</span> &#x2514;&#x2500;&#x2500;
-          <span class="file">requirements.md, design.md, tasks.md, steering.md&hellip;</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── Comparison ─── -->
-    <section id="compare">
-      <div class="container">
-        <h2>How it compares</h2>
-        <p class="dim">
-          Different approaches to the same problem: giving AI agents persistent project context.
-        </p>
-
-        <table class="compare-table">
-          <thead>
-            <tr>
-              <th>Dimension</th>
-              <th>SpecKit</th>
-              <th>BMAD</th>
-              <th>GSD</th>
-              <th>mex</th>
-              <th>SpecFlow</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Approval gates</td>
-              <td>None</td>
-              <td>Advisory</td>
-              <td>UAT phase</td>
-              <td>None</td>
-              <td class="accent">Dashboard + skill enforcement</td>
-            </tr>
-            <tr>
-              <td>Memory</td>
-              <td>constitution.md</td>
-              <td>Git docs</td>
-              <td>STATE.md</td>
-              <td>Scaffold files</td>
-              <td class="accent">4-layer: DocVault + SessionFlow + MemFlow + files</td>
-            </tr>
-            <tr>
-              <td>Session learning</td>
-              <td>None</td>
-              <td>None</td>
-              <td>None</td>
-              <td>GROW loop</td>
-              <td class="accent">/start &rarr; /audit &rarr; /wrap</td>
-            </tr>
-            <tr>
-              <td>Code search</td>
-              <td>None</td>
-              <td>None</td>
-              <td>None</td>
-              <td>None</td>
-              <td class="accent">ContextFlow: semantic + structural</td>
-            </tr>
-            <tr>
-              <td>Multi-project</td>
-              <td>Per-repo</td>
-              <td>Per-repo</td>
-              <td>Per-repo</td>
-              <td>Per-repo</td>
-              <td class="accent">One vault, all repos</td>
-            </tr>
-            <tr>
-              <td>Infrastructure</td>
-              <td>Code only</td>
-              <td>Code only</td>
-              <td>Code only</td>
-              <td>Code only</td>
-              <td class="accent">Docker, DNS, VMs, proxies</td>
-            </tr>
-            <tr>
-              <td>Drift detection</td>
-              <td>None</td>
-              <td>None</td>
-              <td>None</td>
-              <td class="green">8 checkers</td>
-              <td class="accent">/vault-update + /audit</td>
-            </tr>
-            <tr>
-              <td>Multi-agent</td>
-              <td class="green">Any AI tool</td>
-              <td>Any AI tool</td>
-              <td>Claude focused</td>
-              <td class="green">4 tools</td>
-              <td class="accent">Claude + Gemini + Codex + OpenCode</td>
-            </tr>
-            <tr>
-              <td>Self-hosted</td>
-              <td>Files only</td>
-              <td>Files only</td>
-              <td>Files only</td>
-              <td>Files only</td>
-              <td class="accent">Milvus, Neo4j, Ollama</td>
-            </tr>
-            <tr>
-              <td>Best for</td>
-              <td class="dim">Quick adoption</td>
-              <td class="dim">Enterprise teams</td>
-              <td class="dim">Solo context eng.</td>
-              <td class="dim">Per-repo memory</td>
-              <td class="accent">Multi-project, high-governance</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ─── Architecture ─── -->
-    <section>
+    <!-- ─── Tools & Skills ─── -->
+    <section id="tools">
       <div class="container">
         <h2>What ships in the box</h2>
         <p class="dim">
-          SpecFlow is an MCP server that works with any MCP-compatible agent &mdash; Claude Code,
-          Gemini CLI, Codex CLI, and OpenCode verified. Together with SessionFlow, ContextFlow,
-          DocVault, and MemFlow, it replaces the bloated instruction file + ad-hoc prompting
-          pattern.
+          The npm package provides MCP tools and the dashboard. The GitHub repo additionally
+          ships lifecycle skills and slash commands as plain markdown.
         </p>
 
         <div class="code-block">
@@ -1446,305 +640,190 @@
             <div class="code-dots"><span></span><span></span><span></span></div>
             MCP Tools &amp; Prompts
           </div>
-          <div class="code-body">
-            <span class="highlight">Tools (6)</span> <span class="cmd">spec-workflow-guide</span>
-            <span class="output">Lifecycle orchestration instructions</span>
-            <span class="cmd">steering-guide</span>
-            <span class="output">Steering document creation guidance</span>
-            <span class="cmd">spec-status</span>
-            <span class="output">Phase, completion, implementation audit</span>
-            <span class="cmd">approvals</span>
-            <span class="output">Dashboard approve/reject/request changes</span>
-            <span class="cmd">log-implementation</span>
-            <span class="output">Record artifacts (functions, endpoints, tests)</span>
-            <span class="cmd">spec-list</span>
-            <span class="output">List all specs with status</span>
+          <div class="code-body"><span class="highlight">Tools (6)</span>
+<span class="cmd">spec-workflow-guide</span>  <span class="output">Lifecycle orchestration instructions</span>
+<span class="cmd">steering-guide</span>       <span class="output">Steering document creation guidance</span>
+<span class="cmd">spec-status</span>          <span class="output">Phase, completion, implementation audit</span>
+<span class="cmd">approvals</span>            <span class="output">Dashboard approve / reject / request changes</span>
+<span class="cmd">log-implementation</span>   <span class="output">Record artifacts (functions, endpoints, tests)</span>
+<span class="cmd">spec-list</span>            <span class="output">List all specs with status</span>
 
-            <span class="highlight">MCP Prompts (5 workflow + 2 injection)</span>
-            <span class="cmd">create-spec</span>
-            <span class="output">Create requirements, design, or tasks doc</span>
-            <span class="cmd">create-steering-doc</span>
-            <span class="output">Create product/tech/structure steering</span>
-            <span class="cmd">implement-task</span>
-            <span class="output">Dispatch implementation to subagents</span>
-            <span class="cmd">refresh-tasks</span>
-            <span class="output">Re-sync task state from spec files</span>
-            <span class="cmd">spec-status</span>
-            <span class="output">Phase and completion summary</span>
-            <span class="cmd">inject-spec-workflow-guide</span>
-            <span class="output">Inject the spec workflow guide into the session</span>
-            <span class="cmd">inject-steering-guide</span>
-            <span class="output">Inject the steering doc guide into the session</span>
-
-            <span class="highlight"
-              >Commands &amp; Skills (11 commands / 7 skills &mdash; /spec is command-only; the
-              others map 1:1)</span
-            >
-            <span class="cmd">/spec</span>
-            <span class="output"
-              >Phase 1-5 orchestrator (Requirements → Discovery → Design → Tasks → Implement)</span
-            >
-            <span class="cmd">/start</span>
-            <span class="output">Quick resume (SessionFlow + MemFlow + git + issues, ~15s)</span>
-            <span class="cmd">/prime</span>
-            <span class="output">Full session boot (SessionFlow + MemFlow + indexes + health)</span>
-            <span class="cmd">/wrap</span>
-            <span class="output"
-              >End-of-session orchestrator (retro + MemFlow summary, cleanup)</span
-            >
-            <span class="cmd">/audit</span>
-            <span class="output">On-demand project health check</span>
-            <span class="cmd">/retro</span>
-            <span class="output">Prescriptive lesson extraction to MemFlow</span>
-            <span class="cmd">/publish-templates</span>
-            <span class="output">Promote a battle-tested template into the plugin</span>
-            <span class="cmd">/migrate-skill</span>
-            <span class="output">Port a user-level skill into the plugin</span>
-            <span class="cmd">+ 4 utility commands</span>
-            <span class="output"
-              >create-spec, create-steering-doc, implement-task, refresh-tasks</span
-            >
-          </div>
+<span class="highlight">Prompts (7)</span>
+<span class="cmd">create-spec</span>          <span class="output">Create requirements, design, or tasks doc</span>
+<span class="cmd">create-steering-doc</span>  <span class="output">Create product / tech / structure steering</span>
+<span class="cmd">implement-task</span>       <span class="output">Dispatch implementation to subagents</span>
+<span class="cmd">refresh-tasks</span>        <span class="output">Re-sync task state from spec files</span>
+<span class="cmd">spec-status</span>          <span class="output">Phase and completion summary</span>
+<span class="cmd">inject-spec-workflow-guide</span>  <span class="output">Inject workflow guide into session</span>
+<span class="cmd">inject-steering-guide</span>      <span class="output">Inject steering doc guide into session</span></div>
         </div>
 
         <div class="code-block">
           <div class="code-header">
             <div class="code-dots"><span></span><span></span><span></span></div>
-            Dashboard &mdash; localhost:5051
+            Shipped Skills (installed by copying from the repo)
           </div>
-          <div class="code-body">
-            <span class="output">Real-time web UI for spec management</span>
+          <div class="code-body"><span class="cmd">/spec</span>     <span class="output">Full spec lifecycle orchestrator (Requirements &rarr; Implement)</span>
+<span class="cmd">/start</span>    <span class="output">Quick session resume with context (~15 seconds)</span>
+<span class="cmd">/prime</span>    <span class="output">Full session boot with health checks</span>
+<span class="cmd">/wrap</span>     <span class="output">End-of-session cleanup and summary</span>
+<span class="cmd">/retro</span>    <span class="output">Extract prescriptive lessons from the session</span>
+<span class="cmd">/audit</span>    <span class="output">On-demand project health check</span></div>
+        </div>
+      </div>
+    </section>
 
-            <span class="success">&#x2713;</span>
-            <span class="output">View all specs across projects with phase indicators</span>
-            <span class="success">&#x2713;</span>
-            <span class="output">Approve, reject, or request changes at each gate</span>
-            <span class="success">&#x2713;</span>
-            <span class="output">Track implementation progress per task</span>
-            <span class="success">&#x2713;</span>
-            <span class="output">Implementation log audit trail</span>
-            <span class="success">&#x2713;</span>
-            <span class="output">Auto-starts with MCP server initialization</span>
+    <!-- ─── Multi-Agent ─── -->
+    <section id="agents" style="background: #0d1117">
+      <div class="container">
+        <h2>Works with any MCP agent</h2>
+        <p class="dim">
+          SpecFlow is an MCP server &mdash; any agent that speaks the protocol gets the
+          full spec lifecycle and dashboard. Spec state lives on disk, so you can start
+          in one agent and continue in another.
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="tag accent">Claude Code</div>
+            <h3>Full support</h3>
+            <p>
+              MCP server via npm + optional skills plugin. Full lifecycle skills, slash
+              commands, and subagent dispatch.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="tag green">Gemini CLI</div>
+            <h3>MCP tools</h3>
+            <p>
+              Add as an MCP server in Gemini&rsquo;s config. Full access to spec tools
+              and the approval dashboard. Uses GEMINI.md for agent-specific behavior.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="tag amber">Codex CLI</div>
+            <h3>MCP tools</h3>
+            <p>
+              Configure in Codex&rsquo;s TOML config. Same MCP tools, same workflow,
+              same dashboard. Uses CODEX.md for agent-specific behavior.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="tag" style="color: var(--text-dim)">Any MCP agent</div>
+            <h3>Protocol-level</h3>
+            <p>
+              Also verified with OpenCode. Any agent that implements MCP gets the full
+              spec lifecycle &mdash; no vendor lock-in.
+            </p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ─── Parallel Execution ─── -->
-    <section style="background: #0d1117">
+    <!-- ─── Knowledge Structure ─── -->
+    <section>
       <div class="container">
-        <h2>Parallel subagent dispatch</h2>
+        <h2>Obsidian-compatible knowledge structure</h2>
         <p class="dim">
-          The biggest architectural difference from other spec workflows: tasks don't execute
-          sequentially in one session. Each task runs through an isolated three-stage pipeline, and
-          tasks with zero file overlap execute concurrently.
+          Spec documents, steering docs, and templates are stored as structured markdown.
+          If you use <a href="https://obsidian.md">Obsidian</a>, you get graph visualization
+          and wikilinks for free. If not, it&rsquo;s just a folder of markdown files.
         </p>
 
         <div class="code-block">
           <div class="code-header">
             <div class="code-dots"><span></span><span></span><span></span></div>
-            Subagent pipeline &mdash; per task
+            Vault layout
           </div>
-          <div class="code-body">
-            <span class="comment"># Each task runs through 3 isolated stages</span>
-
-            <span class="cmd">Orchestrator</span> <span class="output">reads task from spec</span>
-            <span class="output">&rarr;</span> <span class="highlight">Implementer Agent</span>
-            <span class="output">fresh context, writes code, tests, commits</span>
-            <span class="output">&rarr;</span> <span class="highlight">Compliance Reviewer</span>
-            <span class="output">reads actual code vs requirements</span>
-            <span class="output">&rarr;</span> <span class="highlight">Quality Reviewer</span>
-            <span class="output">architecture, error handling, production readiness</span>
-            <span class="output">&rarr;</span> <span class="cmd">log-implementation</span>
-            <span class="output">record artifacts</span> <span class="output">&rarr;</span>
-            <span class="success">mark complete</span>
-
-            <span class="comment"># File Touch Map identifies zero-overlap tasks</span>
-            <span class="comment"># Those tasks dispatch simultaneously in batches</span>
-
-            <span class="output">Batch 1: Task 1 + Task 3 + Task 5 </span
-            ><span class="success">parallel</span>
-            <span class="output">Batch 2: Task 2 + Task 4 </span
-            ><span class="success">parallel</span>
-            <span class="output">Batch 3: Task 6 (depends on Task 2) </span
-            ><span class="output">sequential</span>
-          </div>
+          <div class="code-body"><span class="highlight">your-vault/specflow/</span>
+  <span class="cmd">templates/</span>              <span class="comment"># global spec templates (auto-populated on first run)</span>
+  <span class="cmd">{Project}/</span>
+    <span class="cmd">steering/</span>             <span class="comment"># product.md, tech.md, structure.md</span>
+    <span class="cmd">specs/</span>                <span class="comment"># requirements, design, tasks, implementation logs</span>
+    <span class="cmd">approvals/</span>            <span class="comment"># approval records</span></div>
         </div>
 
-        <div class="feature-card" style="margin-top: 24px; text-align: center">
-          <div class="tag green">Case Study</div>
-          <h3>Forge: Empty repo to deployed production app in 3 hours</h3>
-          <p>
-            23 tasks, 30 parallel subagent dispatches, 8 dashboard approval gates, zero file
-            conflicts. What would take a full day sequentially completed in one afternoon.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── Stack Composition ─── -->
-    <section id="stack">
-      <div class="container">
-        <h2>The stack &mdash; required, recommended, compatible</h2>
-        <p class="dim">
-          SpecFlow is the orchestrator, not the whole system. These components work together &mdash;
-          remove a required one and the learning loop breaks.
-        </p>
-
-        <div class="code-block">
-          <div class="code-header">
-            <div class="code-dots"><span></span><span></span><span></span></div>
-            Stack composition
-          </div>
-          <div class="code-body">
-            <span class="highlight"
-              >Required &mdash; the framework does not work without these</span
-            >
-            <span class="cmd">SpecFlow</span>
-            <span class="output">Spec workflow orchestrator, dashboard, MCP tools</span>
-            <span class="cmd">SessionFlow</span>
-            <span class="output"
-              >Session memory &mdash; real-time turn indexing, semantic recall</span
-            >
-            <span class="cmd">ContextFlow</span>
-            <span class="output"
-              >Code intelligence &mdash; semantic search (Milvus) + structural graph (Neo4j)</span
-            >
-            <span class="cmd">DocVault</span>
-            <span class="output"
-              >Obsidian vault &mdash; shared knowledge base across all projects</span
-            >
-            <span class="cmd">MemFlow (mem0)</span>
-            <span class="output">Episodic memory &mdash; retro learnings, decisions, handoffs</span>
-
-            <span class="highlight">Recommended &mdash; used on every spec run, major UX wins</span>
-            <span class="cmd">context7</span>
-            <span class="output">Up-to-date library documentation lookup</span>
-            <span class="cmd">codex plugin</span>
-            <span class="output">Peer reviews, second-opinion code review</span>
-            <span class="cmd">obsidian-mcp + CLI</span>
-            <span class="output">Vault operations: create, query, wikilink</span>
-
-            <span class="highlight"
-              >Compatible &mdash; optional integrations that extend the stack</span
-            >
-            <span class="cmd">Codacy</span>
-            <span class="output">Code quality + security gate (used by /audit)</span>
-            <span class="cmd">Infisical</span>
-            <span class="output">Self-hosted secrets manager for API keys</span>
-            <span class="cmd">firecrawl</span>
-            <span class="output">Self-hosted web scraping for research workflows</span>
-            <span class="cmd">playground</span>
-            <span class="output">Interactive HTML prototyping for UI mockups</span>
-          </div>
-        </div>
-
-        <p class="dim" style="text-align: center; margin-top: 1rem; font-size: 0.9rem">
-          All required components are open source and self-hostable. MemFlow currently uses the mem0
-          cloud API &mdash; self-hosted fork planned.
+        <p class="dim" style="text-align: center; font-size: 0.85rem">
+          Each project needs a thin config file (<code>.specflow/config.json</code>) pointing
+          to your vault location. Multi-project setups share one vault.
         </p>
       </div>
     </section>
 
-    <section id="roadmap" style="background: #0d1117">
+    <!-- ─── Extending ─── -->
+    <section id="extending" style="background: #0d1117">
       <div class="container">
-        <h2>Where this is going</h2>
+        <h2>Extending the stack</h2>
         <p class="dim">
-          SpecFlow 1.x is stable and in daily use across 8+ projects. The 2.0 vision is
-          consolidation: manifest-driven orchestration, unified MCP servers, and zero cloud
-          dependencies.
+          SpecFlow handles the spec lifecycle &mdash; it doesn&rsquo;t try to be a memory system,
+          code search engine, or knowledge base. Those are separate concerns. The author&rsquo;s
+          workflow pairs SpecFlow with these companion tools, but none are required.
+        </p>
+
+        <div class="feature-grid feature-grid-3">
+          <div class="feature-card" style="border-style: dashed">
+            <div class="tag green">Session memory</div>
+            <h3><a href="https://github.com/lbruton/SessionFlow">SessionFlow</a></h3>
+            <p>
+              Indexes conversation turns into a local vector database for semantic recall
+              across past sessions.
+            </p>
+          </div>
+          <div class="feature-card" style="border-style: dashed">
+            <div class="tag accent">Code search</div>
+            <h3><a href="https://github.com/lbruton/claude-context">claude-context</a></h3>
+            <p>
+              Semantic code search via self-hosted Milvus. Hardened fork of
+              zilliztech/claude-context.
+            </p>
+          </div>
+          <div class="feature-card" style="border-style: dashed">
+            <div class="tag purple">Episodic memory</div>
+            <h3><a href="https://mem0.ai">mem0</a></h3>
+            <p>
+              Cross-session memory for retro lessons, decisions, and handoffs. Cloud API
+              (self-hosted fork planned).
+            </p>
+          </div>
+        </div>
+
+        <p class="dim" style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem">
+          These integrations are part of the author&rsquo;s workflow &mdash; not SpecFlow requirements.
+          The MCP server and dashboard work standalone with just Node.js.
+        </p>
+      </div>
+    </section>
+
+    <!-- ─── Install ─── -->
+    <section>
+      <div class="container">
+        <h2>Get started</h2>
+        <p class="dim">
+          One line to install the MCP server. Copy skills from the repo for the full workflow.
         </p>
 
         <div class="code-block">
           <div class="code-header">
             <div class="code-dots"><span></span><span></span><span></span></div>
-            Shipped
+            Install
           </div>
-          <div class="code-body">
-            <span class="success">&#x2713;</span>
-            <span class="output">SpecFlow MCP server &mdash; spec lifecycle + dashboard</span>
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output"
-              >SessionFlow MCP server &mdash; real-time session indexing + recall</span
-            >
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output"
-              >ContextFlow (claude-context fork) &mdash; semantic search via Milvus</span
-            >
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output">DocVault &mdash; cross-project knowledge vault</span>
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output">MemFlow via mem0 &mdash; episodic memory, retro learnings</span>
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output">7 lifecycle skills + 11 slash commands</span>
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output"
-              >Multi-agent verified &mdash; Claude Code, Gemini CLI, Codex CLI, OpenCode</span
-            >
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output"
-              >Readiness-report gate &mdash; hard phase gate before implementation</span
-            >
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output"
-              >DocVault consolidation &mdash; single vault, not nested .specflow</span
-            >
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output">TDD template rewrite + mandatory quality gates</span>
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output">/publish-templates + /migrate-skill plugin skills</span>
-            <span class="success">shipped</span> <span class="success">&#x2713;</span>
-            <span class="output">Multi-repo filter via SPEC_WORKFLOW_PROJECT_ROOT</span>
-            <span class="success">shipped</span>
-          </div>
+          <div class="code-body"><span class="comment"># Add to your MCP config (Claude Code example)</span>
+<span class="cmd">"specflow"</span>: {
+  <span class="highlight">"command"</span>: <span class="output">"npx"</span>,
+  <span class="highlight">"args"</span>: [<span class="output">"-y"</span>, <span class="output">"@lbruton/specflow@latest"</span>, <span class="output">"."</span>]
+}
+
+<span class="comment"># Optional: install lifecycle skills</span>
+<span class="cmd">git clone</span> https://github.com/lbruton/specflow.git ~/specflow-source
+<span class="cmd">cp -r</span> ~/specflow-source/skills/* ~/.claude/skills/
+<span class="cmd">cp -r</span> ~/specflow-source/commands/* ~/.claude/commands/
+
+<span class="comment"># Launch the dashboard</span>
+<span class="cmd">npx</span> @lbruton/specflow@latest --dashboard --port 5051</div>
         </div>
 
-        <div class="code-block" style="margin-top: 20px">
-          <div class="code-header">
-            <div class="code-dots"><span></span><span></span><span></span></div>
-            SpecFlow 2.0 &mdash; in progress
-          </div>
-          <div class="code-body">
-            <span class="highlight">&#x25cb;</span>
-            <span class="output"
-              >Component rebranding &mdash; SessionFlow, ContextFlow, MemFlow naming</span
-            >
-            <span class="highlight">in progress</span> <span class="highlight">&#x25cb;</span>
-            <span class="output"
-              >Merge CGC into ContextFlow &mdash; one MCP for semantic + structural search</span
-            >
-            <span class="highlight">planned</span> <span class="highlight">&#x25cb;</span>
-            <span class="output"
-              >MemFlow &mdash; self-hosted fork replacing mem0 cloud dependency</span
-            >
-            <span class="highlight">planned</span> <span class="highlight">&#x25cb;</span>
-            <span class="output"
-              >Manifest-driven orchestration &mdash; workspace-level manifest.json for path
-              resolution</span
-            >
-            <span class="highlight">planned</span> <span class="highlight">&#x25cb;</span>
-            <span class="output"
-              >Skill migration &mdash; promoting battle-tested user skills into the plugin</span
-            >
-            <span class="highlight">in progress</span> <span class="highlight">&#x25cb;</span>
-            <span class="output"
-              >Structured project pages &mdash; replacing steering docs with 5-page standard
-              set</span
-            >
-            <span class="highlight">planned</span> <span class="highlight">&#x25cb;</span>
-            <span class="output"
-              >Unified install &mdash; one command to bootstrap the full stack for any project</span
-            >
-            <span class="highlight">future</span>
-          </div>
-        </div>
-
-        <p style="text-align: center; margin-top: 24px">
-          <span class="dim"
-            >The end state: a single installable system that gives any AI agent persistent memory,
-            semantic code search, structural code intelligence, and spec-driven workflow &mdash;
-            fully self-hosted, zero cloud dependencies.</span
-          >
+        <p class="dim" style="text-align: center; font-size: 0.85rem">
+          Requires Node.js 18+. Works with any MCP-compatible agent.
         </p>
       </div>
     </section>
@@ -1752,20 +831,16 @@
     <!-- ─── CTA ─── -->
     <section class="cta-section">
       <div class="container">
-        <h2>Stop re-explaining your project every session</h2>
+        <h2>Give your AI agent a development process</h2>
         <p>
-          SpecFlow is open source and runs on your own infrastructure. SessionFlow, ContextFlow,
-          DocVault, and MemFlow are <strong>required components</strong> &mdash; session recall,
-          code intelligence, knowledge base, and episodic memory all work together to give agents
-          persistent, cross-session context.
+          SpecFlow is open source, in active development, and used daily by the author
+          across multiple projects. It&rsquo;s a work in progress &mdash; contributions,
+          issues, and feedback are welcome.
         </p>
         <div class="hero-ctas">
-          <a href="https://github.com/lbruton/specflow" class="btn btn-primary"> Star on GitHub </a>
-          <a href="https://github.com/lbruton/SessionFlow" class="btn btn-secondary">
-            SessionFlow
-          </a>
-          <a href="https://github.com/lbruton/claude-context" class="btn btn-secondary">
-            ContextFlow
+          <a href="https://github.com/lbruton/specflow" class="btn btn-primary"> View on GitHub </a>
+          <a href="https://github.com/lbruton/specflow#quick-start" class="btn btn-secondary">
+            Quick Start
           </a>
         </div>
       </div>
@@ -1776,12 +851,8 @@
       <div class="container">
         <p>
           SpecFlow &mdash; built by <a href="https://github.com/lbruton">lbruton</a> &bull;
-          <a href="https://github.com/lbruton/specflow/blob/main/LICENSE">GPL-3.0</a> &bull; Forked
-          from <a href="https://github.com/Pimzino/spec-workflow-mcp">Pimzino/spec-workflow-mcp</a>,
-          <a href="https://github.com/zilliztech/claude-context">zilliztech/claude-context</a>, and
-          <a href="https://github.com/mwgreen/claude-code-session-rag"
-            >mwgreen/claude-code-session-rag</a
-          >
+          <a href="https://github.com/lbruton/specflow/blob/main/LICENSE">GPL-3.0</a> &bull; Built on
+          <a href="https://github.com/Pimzino/spec-workflow-mcp">Pimzino/spec-workflow-mcp</a>
         </p>
       </div>
     </footer>
