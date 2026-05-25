@@ -1,5 +1,5 @@
 import { execSync, ExecSyncOptionsWithStringEncoding } from 'child_process';
-import { resolve } from 'path';
+import { isAbsolute, normalize, resolve, sep } from 'path';
 
 export const SPEC_WORKFLOW_SHARED_ROOT_ENV = 'SPEC_WORKFLOW_SHARED_ROOT';
 const GIT_EXEC_OPTIONS: ExecSyncOptionsWithStringEncoding = {
@@ -10,11 +10,14 @@ const GIT_EXEC_OPTIONS: ExecSyncOptionsWithStringEncoding = {
 
 function sanitizeCwd(projectPath: string): string {
   const resolved = resolve(projectPath);
-  const isAbsolute = resolved.startsWith('/') || /^[A-Za-z]:[\\/]/.test(resolved);
-  if (!isAbsolute) {
+  if (!isAbsolute(resolved)) {
     throw new Error('Project path must resolve to an absolute path');
   }
-  return resolved;
+  const normalized = normalize(resolved);
+  if (normalized.split(sep).includes('..')) {
+    throw new Error('Project path contains invalid traversal sequences');
+  }
+  return normalized;
 }
 
 /**
@@ -34,7 +37,7 @@ export function resolveGitWorkspaceRoot(projectPath: string): string {
 
     // Resolve to canonical absolute path and verify it's a real directory prefix
     const workspaceRoot = resolve(rawOutput);
-    if (!workspaceRoot.startsWith('/')) {
+    if (!isAbsolute(workspaceRoot)) {
       return projectPath;
     }
     return workspaceRoot;
@@ -77,18 +80,11 @@ export function resolveGitRoot(projectPath: string): string {
     if (gitIndex > 0) {
       const mainRepoPath = gitCommonDirRaw.substring(0, gitIndex - 1);
       // Resolve to canonical absolute path — breaks taint chain from execSync
-      const isWindowsAbsolute = /^[A-Za-z]:[\\/]/.test(mainRepoPath);
-      const isUnixAbsolute = mainRepoPath.startsWith('/');
-      // Windows absolute paths: return directly (resolve() mangles them on Unix)
-      // Unix absolute paths: normalize via resolve()
-      // Relative paths: resolve against projectPath
-      let resolvedPath: string;
-      if (isWindowsAbsolute) {
-        resolvedPath = mainRepoPath;
-      } else {
-        resolvedPath = isUnixAbsolute ? resolve(mainRepoPath) : resolve(projectPath, mainRepoPath);
-      }
-      if (!resolvedPath.startsWith('/') && !isWindowsAbsolute) {
+      // Use path.isAbsolute() for cross-platform reliability (handles UNC paths on Windows)
+      const resolvedPath = isAbsolute(mainRepoPath)
+        ? resolve(mainRepoPath)
+        : resolve(projectPath, mainRepoPath);
+      if (!isAbsolute(resolvedPath)) {
         return projectPath;
       }
       return resolvedPath;
