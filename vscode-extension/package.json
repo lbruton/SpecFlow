@@ -268,5 +268,11 @@
     "react-i18next": "^15.7.3",
     "tailwind-merge": "^2.6.0",
     "vscode-nls": "^5.2.0"
+  },
+  "overrides": {
+    "ajv": "6.15.0",
+    "mocha": {
+      "serialize-javascript": "7.0.5"
+    }
   }
 }
