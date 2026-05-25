@@ -42,6 +42,13 @@ function ensureWithinBase(base: string, userSegment: string): string {
   return full;
 }
 
+/**
+ * Escape regular-expression metacharacters in a user-provided string so it can
+ * be safely interpolated into a `new RegExp(...)` pattern (prevents regex injection).
+ */
+function escapeRegExp(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 interface WebSocketClient {
   socket: WebSocket;
@@ -1110,6 +1117,7 @@ export class MultiProjectDashboardServer {
     // Update task status
     this.app.put(
       '/api/projects/:projectId/specs/:name/tasks/:taskId/status',
+      { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
       async (request, reply) => {
         const { projectId, name, taskId } = request.params as {
           projectId: string;
@@ -1295,7 +1303,7 @@ export class MultiProjectDashboardServer {
         const content = await readFile(changelogPath, 'utf-8');
 
         // Extract the section for the requested version
-        const versionRegex = new RegExp(`## \\[${version}\\][^]*?(?=## \\[|$)`, 'i');
+        const versionRegex = new RegExp(`## \\[${escapeRegExp(version)}\\][^]*?(?=## \\[|$)`, 'i');
         const match = content.match(versionRegex);
 
         if (!match) {
@@ -1320,7 +1328,7 @@ export class MultiProjectDashboardServer {
         const content = await readFile(changelogPath, 'utf-8');
 
         // Extract the section for the requested version
-        const versionRegex = new RegExp(`## \\[${version}\\][^]*?(?=## \\[|$)`, 'i');
+        const versionRegex = new RegExp(`## \\[${escapeRegExp(version)}\\][^]*?(?=## \\[|$)`, 'i');
         const match = content.match(versionRegex);
 
         if (!match) {
