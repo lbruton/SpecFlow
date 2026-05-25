@@ -31,15 +31,15 @@ Built on [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mc
 
 **The npm package** (`@lbruton/specflow`) ships:
 
-- 6 MCP tools and 7 MCP prompts for spec lifecycle management
+- 7 MCP tools and 7 MCP prompts for spec lifecycle management
 - A real-time web dashboard for approvals and progress tracking
-- 9 spec templates (requirements, design, tasks, steering docs, review prompts)
+- 11 spec templates (requirements, discovery, design, tasks, readiness report, steering docs, review prompts)
 - Multi-project support via project config files
 
 **The GitHub repo** additionally ships:
 
-- Lifecycle skills (`/spec`, `/start`, `/prime`, `/wrap`, `/retro`, `/audit`)
-- Slash commands and background subagent definitions
+- 13 lifecycle skills (`/spec`, `/start`, `/prime`, `/wrap`, `/retro`, `/audit`, `/discover`, `/chat`, `/issue`, `/pr-cleanup`, `/codacy-resolve`, `/publish-templates`, `/migrate-skill`)
+- 11 slash commands and background subagent definitions
 - Agent-specific instruction files (CLAUDE.md, GEMINI.md, CODEX.md)
 
 These are plain markdown files, installed by copying — not bundled in npm.
@@ -83,12 +83,12 @@ npx @lbruton/specflow@latest --dashboard --port 5051
 Every non-trivial feature follows the same path. Approval required at each gate.
 
 ```
-Requirements  →  Design  →  Tasks  →  Implementation
-     ↑              ↑          ↑            ↑
-  approval       approval   approval    log artifacts
+[Discovery]  →  Requirements  →  Design  →  Tasks  →  Implementation
+  optional          ↑              ↑          ↑            ↑
+                 approval       approval   approval    log artifacts
 ```
 
-Specs live on disk as structured markdown — not in any agent's memory. This means you can start a spec in one agent and continue in another. The dashboard tracks progress regardless of which agent is driving.
+An optional Discovery phase (`/discover`) supports structured research before committing to a spec. Specs live on disk as structured markdown — not in any agent's memory. This means you can start a spec in one agent and continue in another. The dashboard tracks progress regardless of which agent is driving.
 
 ## MCP Tools
 
@@ -98,6 +98,7 @@ Specs live on disk as structured markdown — not in any agent's memory. This me
 | `spec-list`           | List all specs across projects    |
 | `approvals`           | Manage phase approval workflow    |
 | `log-implementation`  | Record implementation artifacts   |
+| `write-spec-doc`      | Create or update spec documents   |
 | `spec-workflow-guide` | Get workflow guidance             |
 | `steering-guide`      | Access project steering documents |
 
@@ -120,11 +121,16 @@ These are markdown skill definitions installed by copying from the repo, not MCP
 | Skill                  | Purpose                                           |
 | ---------------------- | ------------------------------------------------- |
 | `/spec`                | Full spec lifecycle orchestrator                  |
+| `/discover`            | Structured research before committing to a spec   |
+| `/chat`                | Exploratory conversation with context             |
 | `/start`               | Quick session resume (~15s)                       |
 | `/prime`               | Full session boot with health checks              |
 | `/wrap`                | End-of-session cleanup and summary                |
 | `/retro`               | Extract prescriptive lessons from the session     |
 | `/audit`               | On-demand project health check                    |
+| `/issue`               | Create and manage project issues                  |
+| `/pr-cleanup`          | Post-merge branch and worktree cleanup            |
+| `/codacy-resolve`      | Triage and resolve Codacy dashboard findings      |
 | `/publish-templates`   | Promote a template into the plugin                |
 | `/migrate-skill`       | Port a user-level skill into the plugin           |
 

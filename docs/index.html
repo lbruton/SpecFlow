@@ -559,6 +559,12 @@
         </p>
 
         <div class="lifecycle-flow">
+          <div class="phase" style="border-style: dashed; opacity: 0.7">
+            <div class="phase-num dim">Optional</div>
+            <div class="phase-name">Discovery</div>
+            <div class="phase-sub">research first</div>
+          </div>
+          <div class="phase-arrow">&rarr;</div>
           <div class="phase">
             <div class="phase-num accent">Phase 1</div>
             <div class="phase-name">Requirements</div>
@@ -640,12 +646,13 @@
             <div class="code-dots"><span></span><span></span><span></span></div>
             MCP Tools &amp; Prompts
           </div>
-          <div class="code-body"><span class="highlight">Tools (6)</span>
+          <div class="code-body"><span class="highlight">Tools (7)</span>
 <span class="cmd">spec-workflow-guide</span>  <span class="output">Lifecycle orchestration instructions</span>
 <span class="cmd">steering-guide</span>       <span class="output">Steering document creation guidance</span>
 <span class="cmd">spec-status</span>          <span class="output">Phase, completion, implementation audit</span>
 <span class="cmd">approvals</span>            <span class="output">Dashboard approve / reject / request changes</span>
 <span class="cmd">log-implementation</span>   <span class="output">Record artifacts (functions, endpoints, tests)</span>
+<span class="cmd">write-spec-doc</span>       <span class="output">Create or update spec documents</span>
 <span class="cmd">spec-list</span>            <span class="output">List all specs with status</span>
 
 <span class="highlight">Prompts (7)</span>
@@ -663,12 +670,20 @@
             <div class="code-dots"><span></span><span></span><span></span></div>
             Shipped Skills (installed by copying from the repo)
           </div>
-          <div class="code-body"><span class="cmd">/spec</span>     <span class="output">Full spec lifecycle orchestrator (Requirements &rarr; Implement)</span>
-<span class="cmd">/start</span>    <span class="output">Quick session resume with context (~15 seconds)</span>
-<span class="cmd">/prime</span>    <span class="output">Full session boot with health checks</span>
-<span class="cmd">/wrap</span>     <span class="output">End-of-session cleanup and summary</span>
-<span class="cmd">/retro</span>    <span class="output">Extract prescriptive lessons from the session</span>
-<span class="cmd">/audit</span>    <span class="output">On-demand project health check</span></div>
+          <div class="code-body"><span class="highlight">Core lifecycle (13 skills shipped)</span>
+<span class="cmd">/spec</span>           <span class="output">Full spec lifecycle orchestrator (Requirements &rarr; Implement)</span>
+<span class="cmd">/discover</span>       <span class="output">Structured research before committing to a spec</span>
+<span class="cmd">/chat</span>           <span class="output">Exploratory conversation with context</span>
+<span class="cmd">/start</span>          <span class="output">Quick session resume with context (~15 seconds)</span>
+<span class="cmd">/prime</span>          <span class="output">Full session boot with health checks</span>
+<span class="cmd">/wrap</span>           <span class="output">End-of-session cleanup and summary</span>
+<span class="cmd">/retro</span>          <span class="output">Extract prescriptive lessons from the session</span>
+<span class="cmd">/audit</span>          <span class="output">On-demand project health check</span>
+<span class="cmd">/issue</span>          <span class="output">Create and manage project issues</span>
+<span class="cmd">/pr-cleanup</span>     <span class="output">Post-merge branch and worktree cleanup</span>
+<span class="cmd">/codacy-resolve</span> <span class="output">Triage and resolve Codacy dashboard findings</span>
+<span class="cmd">/publish-templates</span> <span class="output">Promote a template into the plugin</span>
+<span class="cmd">/migrate-skill</span>  <span class="output">Port a user-level skill into the plugin</span></div>
         </div>
       </div>
     </section>
