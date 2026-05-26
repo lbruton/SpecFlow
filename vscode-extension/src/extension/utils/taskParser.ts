@@ -36,6 +36,58 @@ export interface TaskParserResult {
   };
 }
 
+function parseTaskIdAndDescription(taskText: string): { id: string; description: string } | null {
+  let index = 0;
+
+  const isWhitespaceCode = (code: number) => code === 32 || (code >= 9 && code <= 13);
+
+  const consumeDigits = () => {
+    const start = index;
+    while (
+      index < taskText.length &&
+      taskText.charCodeAt(index) >= 48 &&
+      taskText.charCodeAt(index) <= 57
+    ) {
+      index++;
+    }
+    return index > start;
+  };
+
+  if (!consumeDigits()) {
+    return null;
+  }
+
+  while (
+    taskText[index] === '.' &&
+    taskText.charCodeAt(index + 1) >= 48 &&
+    taskText.charCodeAt(index + 1) <= 57
+  ) {
+    index++;
+    consumeDigits();
+  }
+
+  const id = taskText.slice(0, index);
+  let separator = taskText.slice(index);
+
+  if (separator.startsWith('\\.')) {
+    separator = separator.slice(2);
+  } else if (separator.startsWith('.')) {
+    separator = separator.slice(1);
+  }
+
+  if (!isWhitespaceCode(separator.charCodeAt(0))) {
+    return null;
+  }
+
+  const description = separator.trimStart();
+
+  if (!description) {
+    return null;
+  }
+
+  return { id, description };
+}
+
 /**
  * Parse tasks from markdown content
  * Handles any checkbox format at any indentation level
@@ -83,14 +135,14 @@ export function parseTasksFromMarkdown(content: string): TaskParserResult {
     // Extract task ID and description
     // Match patterns like "1. Description", "1.1 Description", "2.1. Description" etc
     // Also handles escaped periods from MDXEditor: "1\. Description"
-    const taskMatch = taskText.match(/^(\d+(?:\.\d+)*)\s*\\?\.?\s+(.+)/);
+    const taskMatch = parseTaskIdAndDescription(taskText);
 
     let taskId: string;
     let description: string;
 
     if (taskMatch) {
-      taskId = taskMatch[1];
-      description = taskMatch[2];
+      taskId = taskMatch.id;
+      description = taskMatch.description;
     } else {
       // No task number found, skip this task
       continue;
@@ -279,9 +331,9 @@ export function updateTaskStatus(
       // Check if this line contains our target task ID
       // Match patterns like "1. Description", "1.1 Description", "2.1. Description" etc
       // Also handles escaped periods from MDXEditor: "1\. Description"
-      const taskMatch = taskText.match(/^(\d+(?:\.\d+)*)\s*\\?\.?\s+(.+)/);
+      const taskMatch = parseTaskIdAndDescription(taskText);
 
-      if (taskMatch && taskMatch[1] === taskId) {
+      if (taskMatch && taskMatch.id === taskId) {
         // Reconstruct the line with new status, preserving the original list marker
         const statusPart = `${listMarker} [${statusMarker}] `;
         lines[i] = prefix + statusPart + taskText;

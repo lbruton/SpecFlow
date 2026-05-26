@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { HighlightColor, ApprovalComment } from '../types';
 import { hexToColorObject } from '../utils/colorUtils';
+import { serializeWebviewState } from '../utils/webviewState';
 
 export interface CommentModalOptions {
   selectedText: string;
@@ -9,6 +10,16 @@ export interface CommentModalOptions {
   selection: vscode.Selection;
   existingComment?: ApprovalComment;
   onSave: (comment: string, color: HighlightColor) => Promise<void>;
+}
+
+function serializeCommentModalState(
+  selectedText: string,
+  existingComment?: ApprovalComment,
+): string {
+  return serializeWebviewState({
+    selectedText,
+    existingComment: existingComment ?? null,
+  });
 }
 
 export class CommentModalService {
@@ -111,10 +122,7 @@ export class CommentModalService {
     // Inject initial state
     const stateScript = `
       <script>
-        window.initialState = {
-          selectedText: ${JSON.stringify(selectedText)},
-          existingComment: ${existingComment ? JSON.stringify(existingComment) : 'null'}
-        };
+        window.initialState = ${serializeCommentModalState(selectedText, existingComment)};
       </script>`;
 
     htmlContent = htmlContent.replace('</head>', `${stateScript}</head>`);
@@ -153,10 +161,7 @@ export class CommentModalService {
       <body>
         <div id="root"></div>
         <script>
-          window.initialState = {
-            selectedText: ${JSON.stringify(selectedText)},
-            existingComment: ${existingComment ? JSON.stringify(existingComment) : 'null'}
-          };
+          window.initialState = ${serializeCommentModalState(selectedText, existingComment)};
         </script>
         <script type="module" src="${webviewDistUri}/comment-modal.js"></script>
       </body>
