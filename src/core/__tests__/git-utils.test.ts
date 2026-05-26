@@ -219,6 +219,14 @@ describe('resolveGitWorkspaceRoot', () => {
     );
   });
 
+  it('should return Windows-style workspace root from git when available', () => {
+    mockedExecFileSync.mockReturnValue('C:/Users/dev/repo\n');
+
+    const result = resolveGitWorkspaceRoot('C:/Users/dev/repo/src/components');
+
+    expect(result).toBe('C:/Users/dev/repo');
+  });
+
   it('should return original path when git fails', () => {
     mockedExecFileSync.mockImplementation(() => {
       throw new Error('not a git repository');
