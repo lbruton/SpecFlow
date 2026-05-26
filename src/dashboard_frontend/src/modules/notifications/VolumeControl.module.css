@@ -1,7 +1,6 @@
 /* Slider styles for VolumeControl component */
 .slider {
   appearance: none;
-  appearance: none;
   width: 80px;
   height: 4px;
   border-radius: 2px;
@@ -17,7 +16,6 @@
 
 /* Webkit browsers (Chrome, Safari, Edge) */
 .slider::-webkit-slider-thumb {
-  appearance: none;
   appearance: none;
   height: 16px;
   width: 16px;
