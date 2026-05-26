@@ -1,5 +1,4 @@
 import { execFileSync, ExecFileSyncOptionsWithStringEncoding } from 'child_process';
-import { realpathSync, statSync } from 'fs';
 import { resolve } from 'path';
 
 export const SPEC_WORKFLOW_SHARED_ROOT_ENV = 'SPEC_WORKFLOW_SHARED_ROOT';
@@ -9,33 +8,21 @@ const GIT_EXEC_OPTIONS: ExecFileSyncOptionsWithStringEncoding = {
   timeout: 5000,
 };
 
-function resolveGitCommandCwd(projectPath: string): string | null {
+function resolveGitCommandPath(projectPath: string): string | null {
   if (!projectPath || typeof projectPath !== 'string' || projectPath.includes('\0')) {
     return null;
   }
 
-  try {
-    const absolutePath = resolve(projectPath);
-    const realPath = realpathSync(absolutePath);
-    if (!statSync(realPath).isDirectory()) {
-      return null;
-    }
-    return realPath;
-  } catch {
-    return null;
-  }
+  return resolve(projectPath);
 }
 
 function gitRevParse(projectPath: string, args: string[]): string | null {
-  const cwd = resolveGitCommandCwd(projectPath);
-  if (!cwd) {
+  const gitPath = resolveGitCommandPath(projectPath);
+  if (!gitPath) {
     return null;
   }
 
-  return execFileSync('git', ['rev-parse', ...args], {
-    cwd,
-    ...GIT_EXEC_OPTIONS,
-  }).trim();
+  return execFileSync('git', ['-C', gitPath, 'rev-parse', ...args], GIT_EXEC_OPTIONS).trim();
 }
 
 /**

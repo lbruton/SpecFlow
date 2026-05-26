@@ -43,15 +43,15 @@ export function MermaidRenderer({ code }: MermaidRendererProps) {
   useEffect(() => {
     if (!containerRef.current || !svg) return;
 
-    const document = new DOMParser().parseFromString(svg, 'image/svg+xml');
-    const svgElement = document.documentElement;
+    const parsedDoc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+    const svgElement = parsedDoc.documentElement;
 
     if (svgElement.nodeName.toLowerCase() === 'parsererror') {
       setError('Failed to parse rendered Mermaid diagram');
       return;
     }
 
-    containerRef.current.replaceChildren(window.document.importNode(svgElement, true));
+    containerRef.current.replaceChildren(document.importNode(svgElement, true));
 
     return () => {
       containerRef.current?.replaceChildren();
