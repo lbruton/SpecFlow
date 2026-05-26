@@ -107,7 +107,7 @@ export async function specListHandler(args: any, context: ToolContext): Promise<
           name: spec.name,
           currentPhase,
           overallStatus,
-          taskProgress: spec.taskProgress || { total: 0, completed: 0, pending: 0 },
+          taskProgress: spec.taskProgress ?? { total: 0, completed: 0, pending: 0 },
           createdAt: spec.createdAt,
           lastModified: spec.lastModified,
           archived: false,

@@ -19,10 +19,10 @@ Call this tool FIRST when users request spec creation, feature development, or m
   },
 };
 
-export async function specWorkflowGuideHandler(
+export function specWorkflowGuideHandler(
   args: any,
   context: ToolContext,
-): Promise<ToolResponse> {
+): ToolResponse {
   // Dashboard URL is populated from registry in server.ts
   const dashboardMessage = context.dashboardUrl
     ? `Monitor progress on dashboard: ${context.dashboardUrl}`
