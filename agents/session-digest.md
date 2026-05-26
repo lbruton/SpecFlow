@@ -163,34 +163,32 @@ After writing the daily digest file, update the folder's `_Index.md` to include 
 
 **Path:** `../DocVault/Daily Digests/<ProjectFolder>/_Index.md`
 
-<!-- markdownlint-disable MD029 -->
 1. **If `_Index.md` doesn't exist** — create it:
 
-```markdown
----
-tags: [index]
-updated: YYYY-MM-DD
----
+   ```markdown
+   ---
+   tags: [index]
+   updated: YYYY-MM-DD
+   ---
 
-# Daily Digests — <ProjectFolder>
+   # Daily Digests — <ProjectFolder>
 
-Session digests for **<ProjectFolder>**.
+   Session digests for **<ProjectFolder>**.
 
-## Daily
+   ## Daily
 
-| Date           | Summary      |
-| -------------- | ------------ |
-| [[YYYY-MM-DD]] | Daily digest |
-```
+   | Date           | Summary      |
+   | -------------- | ------------ |
+   | [[YYYY-MM-DD]] | Daily digest |
+   ```
 
 2. **If `_Index.md` exists** — check if the date is already listed. If not, add a row to the Daily table:
 
-```markdown
-| [[YYYY-MM-DD]] | Daily digest |
-```
+   ```markdown
+   | [[YYYY-MM-DD]] | Daily digest |
+   ```
 
 3. **Update the `updated` date** in the frontmatter to today's date.
-<!-- markdownlint-enable MD029 -->
 
 **Do NOT skip this step.** An unindexed digest is invisible to agents navigating via the index tree.
 

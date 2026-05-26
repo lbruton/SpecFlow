@@ -36,8 +36,8 @@
     "format:check": "prettier --check .",
     "prepublishOnly": "npm run build",
     "validate:mdx": "tsx scripts/validate-mdx.ts",
-    "lint:md": "markdownlint-cli2 '**/*.md' '!node_modules/**' '!.git/**' '!.claude/**' '!dist/**' '!vscode-extension/webview-dist/**'",
-    "lint:css": "stylelint 'src/**/*.css' 'vscode-extension/src/**/*.css'"
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"!node_modules/**\" \"!.git/**\" \"!.claude/**\" \"!dist/**\" \"!vscode-extension/webview-dist/**\"",
+    "lint:css": "stylelint \"src/**/*.css\" \"vscode-extension/src/**/*.css\""
   },
   "keywords": [
     "mcp",

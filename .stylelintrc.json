@@ -1,4 +1,5 @@
 {
+  "extends": ["stylelint-config-standard"],
   "ignoreFiles": ["**/dist/**", "**/node_modules/**", "**/webview-dist/**"],
   "rules": {
     "alpha-value-notation": "percentage",
@@ -16,6 +17,11 @@
         "ignore": ["after-comment"]
       }
     ],
-    "value-keyword-case": null
+    "value-keyword-case": [
+      "lower",
+      {
+        "ignoreProperties": ["/font/", "/^--font-/"]
+      }
+    ]
   }
 }
