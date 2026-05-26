@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useApi } from '../api/api';
 import { useSearchParams } from 'react-router-dom';
 import { MDXEditorWrapper } from '../mdx-editor';
-import hljs from 'highlight.js/lib/common';
 import { useTranslation } from 'react-i18next';
 
 type ViewMode = 'rendered' | 'source';
@@ -47,14 +46,10 @@ function Content() {
   const current = documents?.[activeDoc];
 
   const renderSourceView = (content: string) => {
-    const highlighted = hljs.highlight(content, { language: 'markdown' }).value;
     return (
       <div className="bg-[var(--surface-sunken)] rounded-lg border border-[var(--border-default)] p-4 max-h-[80vh] overflow-auto">
         <pre className="text-sm leading-relaxed whitespace-pre-wrap break-words font-mono">
-          <code
-            className="language-markdown hljs"
-            dangerouslySetInnerHTML={{ __html: highlighted }}
-          />
+          <code className="language-markdown">{content}</code>
         </pre>
       </div>
     );

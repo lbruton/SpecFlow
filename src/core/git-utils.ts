@@ -1,12 +1,42 @@
-import { execSync, ExecSyncOptionsWithStringEncoding } from 'child_process';
+import { execFileSync, ExecFileSyncOptionsWithStringEncoding } from 'child_process';
+import { realpathSync, statSync } from 'fs';
 import { resolve } from 'path';
 
 export const SPEC_WORKFLOW_SHARED_ROOT_ENV = 'SPEC_WORKFLOW_SHARED_ROOT';
-const GIT_EXEC_OPTIONS: ExecSyncOptionsWithStringEncoding = {
+const GIT_EXEC_OPTIONS: ExecFileSyncOptionsWithStringEncoding = {
   encoding: 'utf-8',
   stdio: ['pipe', 'pipe', 'pipe'],
   timeout: 5000,
 };
+
+function resolveGitCommandCwd(projectPath: string): string | null {
+  if (!projectPath || typeof projectPath !== 'string' || projectPath.includes('\0')) {
+    return null;
+  }
+
+  try {
+    const absolutePath = resolve(projectPath);
+    const realPath = realpathSync(absolutePath);
+    if (!statSync(realPath).isDirectory()) {
+      return null;
+    }
+    return realPath;
+  } catch {
+    return null;
+  }
+}
+
+function gitRevParse(projectPath: string, args: string[]): string | null {
+  const cwd = resolveGitCommandCwd(projectPath);
+  if (!cwd) {
+    return null;
+  }
+
+  return execFileSync('git', ['rev-parse', ...args], {
+    cwd,
+    ...GIT_EXEC_OPTIONS,
+  }).trim();
+}
 
 /**
  * Resolves the git workspace root directory.
@@ -17,10 +47,10 @@ const GIT_EXEC_OPTIONS: ExecSyncOptionsWithStringEncoding = {
  */
 export function resolveGitWorkspaceRoot(projectPath: string): string {
   try {
-    const rawOutput = execSync('git rev-parse --show-toplevel', {
-      cwd: projectPath,
-      ...GIT_EXEC_OPTIONS,
-    }).trim();
+    const rawOutput = gitRevParse(projectPath, ['--show-toplevel']);
+    if (!rawOutput) {
+      return projectPath;
+    }
 
     // Resolve to canonical absolute path and verify it's a real directory prefix
     const workspaceRoot = resolve(rawOutput);
@@ -49,10 +79,10 @@ export function resolveGitRoot(projectPath: string): string {
 
   try {
     // Get the git common directory (main repo's .git folder)
-    const gitCommonDirRaw = execSync('git rev-parse --git-common-dir', {
-      cwd: projectPath,
-      ...GIT_EXEC_OPTIONS,
-    }).trim();
+    const gitCommonDirRaw = gitRevParse(projectPath, ['--git-common-dir']);
+    if (!gitCommonDirRaw) {
+      return projectPath;
+    }
 
     // In main repo, returns ".git" - no change needed
     if (gitCommonDirRaw === '.git') {
@@ -65,7 +95,7 @@ export function resolveGitRoot(projectPath: string): string {
     const gitIndex = gitCommonDirRaw.lastIndexOf('.git');
     if (gitIndex > 0) {
       const mainRepoPath = gitCommonDirRaw.substring(0, gitIndex - 1);
-      // Resolve to canonical absolute path — breaks taint chain from execSync
+      // Resolve to canonical absolute path — breaks taint chain from git output
       const isWindowsAbsolute = /^[A-Za-z]:[\\/]/.test(mainRepoPath);
       const isUnixAbsolute = mainRepoPath.startsWith('/');
       // Windows absolute paths: return directly (resolve() mangles them on Unix)
@@ -98,10 +128,10 @@ export function resolveGitRoot(projectPath: string): string {
  */
 export function isGitWorktree(projectPath: string): boolean {
   try {
-    const gitCommonDir = execSync('git rev-parse --git-common-dir', {
-      cwd: projectPath,
-      ...GIT_EXEC_OPTIONS,
-    }).trim();
+    const gitCommonDir = gitRevParse(projectPath, ['--git-common-dir']);
+    if (!gitCommonDir) {
+      return false;
+    }
     return gitCommonDir !== '.git';
   } catch {
     return false;

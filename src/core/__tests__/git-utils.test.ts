@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
+import { realpathSync, statSync } from 'fs';
 import {
   resolveGitRoot,
   resolveGitWorkspaceRoot,
@@ -9,10 +10,17 @@ import {
 
 // Mock child_process
 vi.mock('child_process', () => ({
-  execSync: vi.fn(),
+  execFileSync: vi.fn(),
 }));
 
-const mockedExecSync = vi.mocked(execSync);
+vi.mock('fs', () => ({
+  realpathSync: vi.fn((path: string) => path),
+  statSync: vi.fn(() => ({ isDirectory: () => true })),
+}));
+
+const mockedExecFileSync = vi.mocked(execFileSync);
+const mockedRealpathSync = vi.mocked(realpathSync);
+const mockedStatSync = vi.mocked(statSync);
 
 describe('resolveGitRoot', () => {
   const originalEnv = { ...process.env };
@@ -20,6 +28,8 @@ describe('resolveGitRoot', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     delete process.env[SPEC_WORKFLOW_SHARED_ROOT_ENV];
+    mockedRealpathSync.mockImplementation((path) => path as string);
+    mockedStatSync.mockReturnValue({ isDirectory: () => true } as any);
   });
 
   afterEach(() => {
@@ -33,7 +43,7 @@ describe('resolveGitRoot', () => {
       const result = resolveGitRoot('/some/project');
 
       expect(result).toBe('/custom/root');
-      expect(mockedExecSync).not.toHaveBeenCalled();
+      expect(mockedExecFileSync).not.toHaveBeenCalled();
     });
 
     it('should trim whitespace from env var', () => {
@@ -46,28 +56,28 @@ describe('resolveGitRoot', () => {
 
     it('should ignore empty env var', () => {
       process.env[SPEC_WORKFLOW_SHARED_ROOT_ENV] = '';
-      mockedExecSync.mockReturnValue('.git');
+      mockedExecFileSync.mockReturnValue('.git');
 
       const result = resolveGitRoot('/some/project');
 
       expect(result).toBe('/some/project');
-      expect(mockedExecSync).toHaveBeenCalled();
+      expect(mockedExecFileSync).toHaveBeenCalled();
     });
 
     it('should ignore whitespace-only env var', () => {
       process.env[SPEC_WORKFLOW_SHARED_ROOT_ENV] = '   ';
-      mockedExecSync.mockReturnValue('.git');
+      mockedExecFileSync.mockReturnValue('.git');
 
       const result = resolveGitRoot('/some/project');
 
       expect(result).toBe('/some/project');
-      expect(mockedExecSync).toHaveBeenCalled();
+      expect(mockedExecFileSync).toHaveBeenCalled();
     });
   });
 
   describe('main git repository', () => {
     it('should return original path when in main repo', () => {
-      mockedExecSync.mockReturnValue('.git');
+      mockedExecFileSync.mockReturnValue('.git');
 
       const result = resolveGitRoot('/main/repo');
 
@@ -75,7 +85,7 @@ describe('resolveGitRoot', () => {
     });
 
     it('should return original path when git returns ".git" with newline', () => {
-      mockedExecSync.mockReturnValue('.git\n');
+      mockedExecFileSync.mockReturnValue('.git\n');
 
       const result = resolveGitRoot('/main/repo');
 
@@ -85,7 +95,7 @@ describe('resolveGitRoot', () => {
 
   describe('git worktree', () => {
     it('should return main repo path when in worktree (Unix-style path)', () => {
-      mockedExecSync.mockReturnValue('/home/user/main-repo/.git');
+      mockedExecFileSync.mockReturnValue('/home/user/main-repo/.git');
 
       const result = resolveGitRoot('/home/user/worktree');
 
@@ -93,7 +103,7 @@ describe('resolveGitRoot', () => {
     });
 
     it('should return main repo path when git returns worktree subfolder', () => {
-      mockedExecSync.mockReturnValue('/home/user/main-repo/.git/worktrees/feature-branch');
+      mockedExecFileSync.mockReturnValue('/home/user/main-repo/.git/worktrees/feature-branch');
 
       const result = resolveGitRoot('/home/user/worktree');
 
@@ -101,7 +111,7 @@ describe('resolveGitRoot', () => {
     });
 
     it('should handle Windows-style paths', () => {
-      mockedExecSync.mockReturnValue('C:/Users/dev/main-repo/.git');
+      mockedExecFileSync.mockReturnValue('C:/Users/dev/main-repo/.git');
 
       const result = resolveGitRoot('C:/Users/dev/worktree');
 
@@ -112,7 +122,7 @@ describe('resolveGitRoot', () => {
   describe('subdirectory with relative path', () => {
     it('should resolve relative path when git returns relative .git path', () => {
       // When running from a subdirectory, git returns relative paths like "../../.git"
-      mockedExecSync.mockReturnValue('../../.git');
+      mockedExecFileSync.mockReturnValue('../../.git');
 
       const result = resolveGitRoot('/home/user/repo/src/core');
 
@@ -121,7 +131,7 @@ describe('resolveGitRoot', () => {
     });
 
     it('should resolve deeply nested relative path', () => {
-      mockedExecSync.mockReturnValue('../../../.git');
+      mockedExecFileSync.mockReturnValue('../../../.git');
 
       const result = resolveGitRoot('/home/user/repo/src/lib/utils');
 
@@ -129,7 +139,7 @@ describe('resolveGitRoot', () => {
     });
 
     it('should resolve single level relative path', () => {
-      mockedExecSync.mockReturnValue('../.git');
+      mockedExecFileSync.mockReturnValue('../.git');
 
       const result = resolveGitRoot('/home/user/repo/src');
 
@@ -139,7 +149,7 @@ describe('resolveGitRoot', () => {
 
   describe('error handling', () => {
     it('should return original path when git command fails', () => {
-      mockedExecSync.mockImplementation(() => {
+      mockedExecFileSync.mockImplementation(() => {
         throw new Error('not a git repository');
       });
 
@@ -149,7 +159,7 @@ describe('resolveGitRoot', () => {
     });
 
     it('should return original path when git is not installed', () => {
-      mockedExecSync.mockImplementation(() => {
+      mockedExecFileSync.mockImplementation(() => {
         throw new Error('git: command not found');
       });
 
@@ -159,7 +169,7 @@ describe('resolveGitRoot', () => {
     });
 
     it('should return original path on timeout', () => {
-      mockedExecSync.mockImplementation(() => {
+      mockedExecFileSync.mockImplementation(() => {
         const error = new Error('timeout');
         (error as any).killed = true;
         throw error;
@@ -171,14 +181,15 @@ describe('resolveGitRoot', () => {
     });
   });
 
-  describe('execSync configuration', () => {
+  describe('execFileSync configuration', () => {
     it('should call git with correct options', () => {
-      mockedExecSync.mockReturnValue('.git');
+      mockedExecFileSync.mockReturnValue('.git');
 
       resolveGitRoot('/test/path');
 
-      expect(mockedExecSync).toHaveBeenCalledWith(
-        'git rev-parse --git-common-dir',
+      expect(mockedExecFileSync).toHaveBeenCalledWith(
+        'git',
+        ['rev-parse', '--git-common-dir'],
         expect.objectContaining({
           cwd: '/test/path',
           encoding: 'utf-8',
@@ -187,22 +198,34 @@ describe('resolveGitRoot', () => {
         }),
       );
     });
+
+    it('should return original path without running git when cwd is not a valid directory', () => {
+      mockedStatSync.mockReturnValue({ isDirectory: () => false } as any);
+
+      const result = resolveGitRoot('/tmp/not-a-directory');
+
+      expect(result).toBe('/tmp/not-a-directory');
+      expect(mockedExecFileSync).not.toHaveBeenCalled();
+    });
   });
 });
 
 describe('resolveGitWorkspaceRoot', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedRealpathSync.mockImplementation((path) => path as string);
+    mockedStatSync.mockReturnValue({ isDirectory: () => true } as any);
   });
 
   it('should return workspace root from git when available', () => {
-    mockedExecSync.mockReturnValue('/home/user/repo\n');
+    mockedExecFileSync.mockReturnValue('/home/user/repo\n');
 
     const result = resolveGitWorkspaceRoot('/home/user/repo/src/components');
 
     expect(result).toBe('/home/user/repo');
-    expect(mockedExecSync).toHaveBeenCalledWith(
-      'git rev-parse --show-toplevel',
+    expect(mockedExecFileSync).toHaveBeenCalledWith(
+      'git',
+      ['rev-parse', '--show-toplevel'],
       expect.objectContaining({
         cwd: '/home/user/repo/src/components',
         encoding: 'utf-8',
@@ -213,7 +236,7 @@ describe('resolveGitWorkspaceRoot', () => {
   });
 
   it('should return original path when git fails', () => {
-    mockedExecSync.mockImplementation(() => {
+    mockedExecFileSync.mockImplementation(() => {
       throw new Error('not a git repository');
     });
 
@@ -226,22 +249,24 @@ describe('resolveGitWorkspaceRoot', () => {
 describe('isGitWorktree', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedRealpathSync.mockImplementation((path) => path as string);
+    mockedStatSync.mockReturnValue({ isDirectory: () => true } as any);
   });
 
   it('should return false when in main repo', () => {
-    mockedExecSync.mockReturnValue('.git');
+    mockedExecFileSync.mockReturnValue('.git');
 
     expect(isGitWorktree('/main/repo')).toBe(false);
   });
 
   it('should return true when in worktree', () => {
-    mockedExecSync.mockReturnValue('/home/user/main-repo/.git');
+    mockedExecFileSync.mockReturnValue('/home/user/main-repo/.git');
 
     expect(isGitWorktree('/home/user/worktree')).toBe(true);
   });
 
   it('should return false when not a git repo', () => {
-    mockedExecSync.mockImplementation(() => {
+    mockedExecFileSync.mockImplementation(() => {
       throw new Error('not a git repository');
     });
 
@@ -249,7 +274,7 @@ describe('isGitWorktree', () => {
   });
 
   it('should return false when git is not available', () => {
-    mockedExecSync.mockImplementation(() => {
+    mockedExecFileSync.mockImplementation(() => {
       throw new Error('git: command not found');
     });
 
