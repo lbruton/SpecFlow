@@ -15,6 +15,7 @@ MCP server plugin for spec-driven development with a real-time web dashboard. Lo
 | MCP install (npm) | `npx -y @lbruton/specflow@latest .` in the client MCP config |
 | Dashboard | Singleton Node process, default `:5000` (lbruton uses `:5051`). State: `~/.specflow-mcp/activeSession.json` |
 | Issue prefix | `SFLW` - Plane workspace `https://plane.lbruton.cc/lbruton/projects/72fd0b33-6719-47fa-92a5-97e9ba511f32/` |
+| Epic state | `bbc54749-2ec3-4f52-989e-5fff590b3efd` - use only for parent epic issues; child issues use normal states (Todo -> In Progress -> In Review -> Done) |
 
 ## DocVault
 
