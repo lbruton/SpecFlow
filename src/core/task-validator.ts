@@ -3,6 +3,8 @@
  * Validates tasks.md format compliance before approval
  */
 
+import { parseTaskIdAndDescription } from './task-parser.js';
+
 export interface ValidationError {
   line: number;
   taskId?: string;
@@ -115,7 +117,7 @@ export function validateTasksMarkdown(content: string): ValidationResult {
     const taskText = checkboxMatch[2];
 
     // 2. Validate task ID: must have numeric ID like "1.", "1.1", "2.3"
-    const taskIdMatch = taskText.match(/^(\d+(?:\.\d+)*)\s*\.?\s+(.+)/);
+    const taskIdMatch = parseTaskIdAndDescription(taskText);
 
     if (!taskIdMatch) {
       errors.push({
@@ -127,7 +129,7 @@ export function validateTasksMarkdown(content: string): ValidationResult {
       });
       taskValid = false;
     } else {
-      taskId = taskIdMatch[1];
+      taskId = taskIdMatch.id;
     }
 
     // 3. Validate metadata in following lines

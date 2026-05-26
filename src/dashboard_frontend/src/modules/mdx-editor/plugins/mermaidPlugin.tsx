@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mermaid from 'mermaid';
 import { useMDXEditorTheme } from '../hooks/useMDXEditorTheme';
 import type { CodeBlockEditorDescriptor } from '@mdxeditor/editor';
+import { sanitizeSvg } from '../utils/sanitizeHtml';
 
 interface MermaidRendererProps {
   code: string;
@@ -27,7 +28,7 @@ export function MermaidRenderer({ code }: MermaidRendererProps) {
 
         const uniqueId = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
         const { svg: renderedSvg } = await mermaid.render(uniqueId, code);
-        setSvg(renderedSvg);
+        setSvg(sanitizeSvg(renderedSvg));
         setError('');
       } catch (err) {
         console.debug('Mermaid rendering error:', err);
@@ -38,6 +39,24 @@ export function MermaidRenderer({ code }: MermaidRendererProps) {
 
     renderDiagram();
   }, [code, mermaidTheme, mermaidThemeVariables]);
+
+  useEffect(() => {
+    if (!containerRef.current || !svg) return;
+
+    const parsedDoc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+    const svgElement = parsedDoc.documentElement;
+
+    if (svgElement.nodeName.toLowerCase() === 'parsererror') {
+      setError('Failed to parse rendered Mermaid diagram');
+      return;
+    }
+
+    containerRef.current.replaceChildren(document.importNode(svgElement, true));
+
+    return () => {
+      containerRef.current?.replaceChildren();
+    };
+  }, [svg]);
 
   if (error) {
     return (
@@ -74,7 +93,6 @@ export function MermaidRenderer({ code }: MermaidRendererProps) {
     <div
       ref={containerRef}
       className="mermaid-container my-4 overflow-auto bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
-      dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
 }
