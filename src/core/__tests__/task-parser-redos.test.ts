@@ -31,4 +31,10 @@ describe('task parser ReDoS hardening', () => {
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
+
+  it('rejects task ids without a whitespace separator before the description', () => {
+    const result = parseTasksFromMarkdown('- [ ] 1Task\n- [ ] 1.Description\n');
+
+    expect(result.tasks).toHaveLength(0);
+  });
 });

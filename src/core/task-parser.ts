@@ -155,6 +155,8 @@ export function parseTaskIdAndDescription(
 ): { id: string; description: string } | null {
   let index = 0;
 
+  const isWhitespaceCode = (code: number) => code === 32 || (code >= 9 && code <= 13);
+
   const consumeDigits = () => {
     const start = index;
     while (
@@ -181,13 +183,19 @@ export function parseTaskIdAndDescription(
   }
 
   const id = taskText.slice(0, index);
-  let description = taskText.slice(index).trimStart();
+  let separator = taskText.slice(index);
 
-  if (description.startsWith('\\.')) {
-    description = description.slice(2).trimStart();
-  } else if (description.startsWith('.')) {
-    description = description.slice(1).trimStart();
+  if (separator.startsWith('\\.')) {
+    separator = separator.slice(2);
+  } else if (separator.startsWith('.')) {
+    separator = separator.slice(1);
   }
+
+  if (!isWhitespaceCode(separator.charCodeAt(0))) {
+    return null;
+  }
+
+  const description = separator.trimStart();
 
   if (!description) {
     return null;
