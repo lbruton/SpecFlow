@@ -30,23 +30,23 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 
 1. **ダッシュボードを起動する**（最初に一度だけ実行）：
 
-```bash
-# デフォルトポート5000を使用
-npx -y @pimzino/spec-workflow-mcp@latest --dashboard
-```
+   ```bash
+   # デフォルトポート5000を使用
+   npx -y @pimzino/spec-workflow-mcp@latest --dashboard
+   ```
 
 1. **MCPサーバーを起動する**（プロジェクトごとに1つ、別々のターミナルで）：
 
-```bash
-# プロジェクト1
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
+   ```bash
+   # プロジェクト1
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
 
-# プロジェクト2
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
+   # プロジェクト2
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
 
-# プロジェクト3
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
-```
+   # プロジェクト3
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
+   ```
 
 すべてのプロジェクトが http://localhost:5000 のダッシュボードに表示されます
 

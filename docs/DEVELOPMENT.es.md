@@ -162,86 +162,86 @@ Cadenas de plantilla para:
 
 1. **Crear archivo de herramienta** en `src/tools/`:
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
+   
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: 'Descripción de lo que hace la herramienta',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: 'Descripción del parámetro' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // Implementación de la herramienta
+       const { param1, param2 = 0 } = params;
+   
+       // Lógica de negocio aquí
+   
+       return {
+         success: true,
+         data: 'Respuesta de la herramienta',
+       };
+     },
+   };
+   ```
 
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: 'Descripción de lo que hace la herramienta',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: 'Descripción del parámetro' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // Implementación de la herramienta
-    const { param1, param2 = 0 } = params;
+2. **Registrar en index** (`src/tools/index.ts`):
 
-    // Lógica de negocio aquí
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
-    return {
-      success: true,
-      data: 'Respuesta de la herramienta',
-    };
-  },
-};
-```
+3. **Agregar al servidor** (`src/index.ts`):
 
-1. **Registrar en index** (`src/tools/index.ts`):
-
-```typescript
-export { myNewTool } from './my-new-tool';
-```
-
-1. **Agregar al servidor** (`src/index.ts`):
-
-```typescript
-import { myNewTool } from './tools';
-
-server.registerTool(myNewTool);
-```
+   ```typescript
+   import { myNewTool } from './tools';
+   
+   server.registerTool(myNewTool);
+   ```
 
 ### Agregar Características al Panel
 
 1. **Actualizar HTML** (`dashboard/index.html`):
 
-```html
-<div class="new-feature">
-  <h3>Nueva Característica</h3>
-  <button id="new-action">Acción</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>Nueva Característica</h3>
+     <button id="new-action">Acción</button>
+   </div>
+   ```
 
-1. **Agregar JavaScript** (`dashboard/script.js`):
+2. **Agregar JavaScript** (`dashboard/script.js`):
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // Lógica de la característica
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // Lógica de la característica
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
-1. **Manejar en servidor** (`src/server.ts`):
+3. **Manejar en servidor** (`src/server.ts`):
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // Manejar nueva acción
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // Manejar nueva acción
+     }
+   });
+   ```
 
 ## Pruebas
 
@@ -315,23 +315,23 @@ describe('Flujo de Trabajo Completo', () => {
 
 1. **Agregar salida de depuración**:
 
-```typescript
-console.error('[DEBUG]', 'Herramienta llamada:', toolName, params);
-```
+   ```typescript
+   console.error('[DEBUG]', 'Herramienta llamada:', toolName, params);
+   ```
 
-1. **Usar depurador de VSCode**:
+2. **Usar depurador de VSCode**:
 
-```json
-// .vscode/launch.json
-{
-  "type": "node",
-  "request": "launch",
-  "name": "Depurar Servidor MCP",
-  "program": "${workspaceFolder}/dist/index.js",
-  "args": ["/ruta/a/proyecto/prueba"],
-  "console": "integratedTerminal"
-}
-```
+   ```json
+   // .vscode/launch.json
+   {
+     "type": "node",
+     "request": "launch",
+     "name": "Depurar Servidor MCP",
+     "program": "${workspaceFolder}/dist/index.js",
+     "args": ["/ruta/a/proyecto/prueba"],
+     "console": "integratedTerminal"
+   }
+   ```
 
 ### Depurar Panel
 

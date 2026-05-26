@@ -162,86 +162,86 @@ Chaînes de modèles pour :
 
 1. **Créer le fichier d'outil** dans `src/tools/` :
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
+   
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: "Description de ce que fait l'outil",
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: 'Description du paramètre' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // Implémentation de l'outil
+       const { param1, param2 = 0 } = params;
+   
+       // Logique métier ici
+   
+       return {
+         success: true,
+         data: "Réponse de l'outil",
+       };
+     },
+   };
+   ```
 
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: "Description de ce que fait l'outil",
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: 'Description du paramètre' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // Implémentation de l'outil
-    const { param1, param2 = 0 } = params;
+2. **Enregistrer dans l'index** (`src/tools/index.ts`) :
 
-    // Logique métier ici
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
-    return {
-      success: true,
-      data: "Réponse de l'outil",
-    };
-  },
-};
-```
+3. **Ajouter au serveur** (`src/index.ts`) :
 
-1. **Enregistrer dans l'index** (`src/tools/index.ts`) :
-
-```typescript
-export { myNewTool } from './my-new-tool';
-```
-
-1. **Ajouter au serveur** (`src/index.ts`) :
-
-```typescript
-import { myNewTool } from './tools';
-
-server.registerTool(myNewTool);
-```
+   ```typescript
+   import { myNewTool } from './tools';
+   
+   server.registerTool(myNewTool);
+   ```
 
 ### Ajout de fonctionnalités au tableau de bord
 
 1. **Mettre à jour le HTML** (`dashboard/index.html`) :
 
-```html
-<div class="new-feature">
-  <h3>Nouvelle fonctionnalité</h3>
-  <button id="new-action">Action</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>Nouvelle fonctionnalité</h3>
+     <button id="new-action">Action</button>
+   </div>
+   ```
 
-1. **Ajouter du JavaScript** (`dashboard/script.js`) :
+2. **Ajouter du JavaScript** (`dashboard/script.js`) :
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // Logique de la fonctionnalité
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // Logique de la fonctionnalité
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
-1. **Gérer dans le serveur** (`src/server.ts`) :
+3. **Gérer dans le serveur** (`src/server.ts`) :
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // Gérer la nouvelle action
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // Gérer la nouvelle action
+     }
+   });
+   ```
 
 ## Tests
 
@@ -315,23 +315,23 @@ describe('Flux de travail complet', () => {
 
 1. **Ajouter une sortie de débogage** :
 
-```typescript
-console.error('[DEBUG]', 'Outil appelé :', toolName, params);
-```
+   ```typescript
+   console.error('[DEBUG]', 'Outil appelé :', toolName, params);
+   ```
 
-1. **Utiliser le débogueur VSCode** :
+2. **Utiliser le débogueur VSCode** :
 
-```json
-// .vscode/launch.json
-{
-  "type": "node",
-  "request": "launch",
-  "name": "Debug MCP Server",
-  "program": "${workspaceFolder}/dist/index.js",
-  "args": ["/chemin/vers/projet/test"],
-  "console": "integratedTerminal"
-}
-```
+   ```json
+   // .vscode/launch.json
+   {
+     "type": "node",
+     "request": "launch",
+     "name": "Debug MCP Server",
+     "program": "${workspaceFolder}/dist/index.js",
+     "args": ["/chemin/vers/projet/test"],
+     "console": "integratedTerminal"
+   }
+   ```
 
 ### Déboguer le tableau de bord
 

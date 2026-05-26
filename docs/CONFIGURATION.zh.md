@@ -30,23 +30,23 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 
 1. **启动仪表板**（首先执行此操作，仅一次）：
 
-```bash
-# 使用默认端口 5000
-npx -y @pimzino/spec-workflow-mcp@latest --dashboard
-```
+   ```bash
+   # 使用默认端口 5000
+   npx -y @pimzino/spec-workflow-mcp@latest --dashboard
+   ```
 
 1. **启动 MCP 服务器**（每个项目一个，在单独的终端中）：
 
-```bash
-# 项目 1
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
+   ```bash
+   # 项目 1
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
 
-# 项目 2
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
+   # 项目 2
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
 
-# 项目 3
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
-```
+   # 项目 3
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
+   ```
 
 所有项目将出现在 http://localhost:5000 的仪表板中
 

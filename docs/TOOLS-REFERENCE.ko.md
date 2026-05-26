@@ -208,43 +208,43 @@ Spec Workflow MCP는 구조화된 소프트웨어 개발을 위한 전문 도구
 
 1. **작업 상태 업데이트**:
 
-```typescript
-{
-  specName: "user-auth",
-  action: "update",
-  taskId: "1.2.1",
-  status: "in-progress",
-  notes: "Started implementation"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "update",
+     taskId: "1.2.1",
+     status: "in-progress",
+     notes: "Started implementation"
+   }
+   ```
 
-1. **작업 완료**:
+2. **작업 완료**:
 
-```typescript
-{
-  specName: "user-auth",
-  action: "complete",
-  taskId: "1.2.1"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "complete",
+     taskId: "1.2.1"
+   }
+   ```
 
-1. **작업 목록**:
+3. **작업 목록**:
 
-```typescript
-{
-  specName: "user-auth",
-  action: "list"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "list"
+   }
+   ```
 
-1. **진행 상황 가져오기**:
+4. **진행 상황 가져오기**:
 
-```typescript
-{
-  specName: "user-auth",
-  action: "progress"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "progress"
+   }
+   ```
 
 **반환값**: 작업 정보 또는 업데이트 확인
 

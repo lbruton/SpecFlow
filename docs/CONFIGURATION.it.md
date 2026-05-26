@@ -30,23 +30,23 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [opzioni]
 
 1. **Avvia la Dashboard** (fallo prima, solo una volta):
 
-```bash
-# Usa la porta predefinita 5000
-npx -y @pimzino/spec-workflow-mcp@latest --dashboard
-```
+   ```bash
+   # Usa la porta predefinita 5000
+   npx -y @pimzino/spec-workflow-mcp@latest --dashboard
+   ```
 
 1. **Avvia i Server MCP** (uno per progetto, in terminali separati):
 
-```bash
-# Progetto 1
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
+   ```bash
+   # Progetto 1
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
 
-# Progetto 2
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
+   # Progetto 2
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
 
-# Progetto 3
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
-```
+   # Progetto 3
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
+   ```
 
 Tutti i progetti appariranno nella dashboard a http://localhost:5000
 

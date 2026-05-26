@@ -30,23 +30,23 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 
 1. **Запустите панель управления** (сделайте это первым, только один раз):
 
-```bash
-# Использует порт 5000 по умолчанию
-npx -y @pimzino/spec-workflow-mcp@latest --dashboard
-```
+   ```bash
+   # Использует порт 5000 по умолчанию
+   npx -y @pimzino/spec-workflow-mcp@latest --dashboard
+   ```
 
 1. **Запустите серверы MCP** (по одному на проект, в отдельных терминалах):
 
-```bash
-# Проект 1
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
+   ```bash
+   # Проект 1
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
 
-# Проект 2
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
+   # Проект 2
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
 
-# Проект 3
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
-```
+   # Проект 3
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
+   ```
 
 Все проекты появятся на панели управления по адресу http://localhost:5000
 

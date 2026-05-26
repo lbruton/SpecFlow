@@ -30,23 +30,23 @@ npx -y @pimzino/spec-workflow-mcp@latest [chemin-projet] [options]
 
 1. **Démarrer le tableau de bord** (faites ceci en premier, une seule fois) :
 
-```bash
-# Utilise le port par défaut 5000
-npx -y @pimzino/spec-workflow-mcp@latest --dashboard
-```
+   ```bash
+   # Utilise le port par défaut 5000
+   npx -y @pimzino/spec-workflow-mcp@latest --dashboard
+   ```
 
 1. **Démarrer les serveurs MCP** (un par projet, dans des terminaux séparés) :
 
-```bash
-# Projet 1
-npx -y @pimzino/spec-workflow-mcp@latest ~/projets/app1
+   ```bash
+   # Projet 1
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projets/app1
 
-# Projet 2
-npx -y @pimzino/spec-workflow-mcp@latest ~/projets/app2
+   # Projet 2
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projets/app2
 
-# Projet 3
-npx -y @pimzino/spec-workflow-mcp@latest ~/projets/app3
-```
+   # Projet 3
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projets/app3
+   ```
 
 Tous les projets apparaîtront dans le tableau de bord à http://localhost:5000
 

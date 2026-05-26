@@ -22,7 +22,8 @@ Quick re-orient only:          /start  (no wrap needed)
 ```
 
 `/wrap` handles everything: retro extraction (if `/retro` wasn't already run mid-session)
-and mem0 session summary. `/retro` remains available standalone for mid-session use (after
+and mem0 session summary. `/retro` remains available standalone for mid-session
+use (after
 specs, debugging rabbit holes) but is no longer a required pre-step.
 
 ## Arguments

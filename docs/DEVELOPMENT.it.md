@@ -162,86 +162,86 @@ Stringhe template per:
 
 1. **Crea file strumento** in `src/tools/`:
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
+   
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: 'Descrizione di cosa fa lo strumento',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: 'Descrizione parametro' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // Implementazione strumento
+       const { param1, param2 = 0 } = params;
+   
+       // Logica business qui
+   
+       return {
+         success: true,
+         data: 'Risposta strumento',
+       };
+     },
+   };
+   ```
 
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: 'Descrizione di cosa fa lo strumento',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: 'Descrizione parametro' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // Implementazione strumento
-    const { param1, param2 = 0 } = params;
+2. **Registra in index** (`src/tools/index.ts`):
 
-    // Logica business qui
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
-    return {
-      success: true,
-      data: 'Risposta strumento',
-    };
-  },
-};
-```
+3. **Aggiungi al server** (`src/index.ts`):
 
-1. **Registra in index** (`src/tools/index.ts`):
-
-```typescript
-export { myNewTool } from './my-new-tool';
-```
-
-1. **Aggiungi al server** (`src/index.ts`):
-
-```typescript
-import { myNewTool } from './tools';
-
-server.registerTool(myNewTool);
-```
+   ```typescript
+   import { myNewTool } from './tools';
+   
+   server.registerTool(myNewTool);
+   ```
 
 ### Aggiungere Funzionalità Dashboard
 
 1. **Aggiorna HTML** (`dashboard/index.html`):
 
-```html
-<div class="new-feature">
-  <h3>Nuova Funzionalità</h3>
-  <button id="new-action">Azione</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>Nuova Funzionalità</h3>
+     <button id="new-action">Azione</button>
+   </div>
+   ```
 
-1. **Aggiungi JavaScript** (`dashboard/script.js`):
+2. **Aggiungi JavaScript** (`dashboard/script.js`):
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // Logica funzionalità
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // Logica funzionalità
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
-1. **Gestisci nel server** (`src/server.ts`):
+3. **Gestisci nel server** (`src/server.ts`):
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // Gestisci nuova azione
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // Gestisci nuova azione
+     }
+   });
+   ```
 
 ## Testing
 
@@ -315,23 +315,23 @@ describe('Workflow Completo', () => {
 
 1. **Aggiungi output debug**:
 
-```typescript
-console.error('[DEBUG]', 'Strumento chiamato:', toolName, params);
-```
+   ```typescript
+   console.error('[DEBUG]', 'Strumento chiamato:', toolName, params);
+   ```
 
-1. **Usa debugger VSCode**:
+2. **Usa debugger VSCode**:
 
-```json
-// .vscode/launch.json
-{
-  "type": "node",
-  "request": "launch",
-  "name": "Debug MCP Server",
-  "program": "${workspaceFolder}/dist/index.js",
-  "args": ["/path/to/test/project"],
-  "console": "integratedTerminal"
-}
-```
+   ```json
+   // .vscode/launch.json
+   {
+     "type": "node",
+     "request": "launch",
+     "name": "Debug MCP Server",
+     "program": "${workspaceFolder}/dist/index.js",
+     "args": ["/path/to/test/project"],
+     "console": "integratedTerminal"
+   }
+   ```
 
 ### Debug Dashboard
 

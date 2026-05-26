@@ -162,86 +162,86 @@ Client (AI) ↔ MCP Protocol ↔ Server ↔ File System
 
 1. **Создайте файл инструмента** в `src/tools/`:
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
+   
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: 'Описание того, что делает инструмент',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: 'Описание параметра' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // Реализация инструмента
+       const { param1, param2 = 0 } = params;
+   
+       // Бизнес-логика здесь
+   
+       return {
+         success: true,
+         data: 'Ответ инструмента',
+       };
+     },
+   };
+   ```
 
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: 'Описание того, что делает инструмент',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: 'Описание параметра' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // Реализация инструмента
-    const { param1, param2 = 0 } = params;
+2. **Зарегистрируйте в index** (`src/tools/index.ts`):
 
-    // Бизнес-логика здесь
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
-    return {
-      success: true,
-      data: 'Ответ инструмента',
-    };
-  },
-};
-```
+3. **Добавьте на сервер** (`src/index.ts`):
 
-1. **Зарегистрируйте в index** (`src/tools/index.ts`):
-
-```typescript
-export { myNewTool } from './my-new-tool';
-```
-
-1. **Добавьте на сервер** (`src/index.ts`):
-
-```typescript
-import { myNewTool } from './tools';
-
-server.registerTool(myNewTool);
-```
+   ```typescript
+   import { myNewTool } from './tools';
+   
+   server.registerTool(myNewTool);
+   ```
 
 ### Добавление функций панели управления
 
 1. **Обновите HTML** (`dashboard/index.html`):
 
-```html
-<div class="new-feature">
-  <h3>Новая функция</h3>
-  <button id="new-action">Действие</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>Новая функция</h3>
+     <button id="new-action">Действие</button>
+   </div>
+   ```
 
-1. **Добавьте JavaScript** (`dashboard/script.js`):
+2. **Добавьте JavaScript** (`dashboard/script.js`):
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // Логика функции
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // Логика функции
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
-1. **Обработайте на сервере** (`src/server.ts`):
+3. **Обработайте на сервере** (`src/server.ts`):
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // Обработка нового действия
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // Обработка нового действия
+     }
+   });
+   ```
 
 ## Тестирование
 
@@ -315,23 +315,23 @@ describe('Полный рабочий процесс', () => {
 
 1. **Добавьте вывод отладки**:
 
-```typescript
-console.error('[DEBUG]', 'Вызван инструмент:', toolName, params);
-```
+   ```typescript
+   console.error('[DEBUG]', 'Вызван инструмент:', toolName, params);
+   ```
 
-1. **Используйте отладчик VSCode**:
+2. **Используйте отладчик VSCode**:
 
-```json
-// .vscode/launch.json
-{
-  "type": "node",
-  "request": "launch",
-  "name": "Debug MCP Server",
-  "program": "${workspaceFolder}/dist/index.js",
-  "args": ["/path/to/test/project"],
-  "console": "integratedTerminal"
-}
-```
+   ```json
+   // .vscode/launch.json
+   {
+     "type": "node",
+     "request": "launch",
+     "name": "Debug MCP Server",
+     "program": "${workspaceFolder}/dist/index.js",
+     "args": ["/path/to/test/project"],
+     "console": "integratedTerminal"
+   }
+   ```
 
 ### Отладка панели управления
 

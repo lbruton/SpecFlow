@@ -162,86 +162,86 @@ Template-Strings für:
 
 1. **Tool-Datei erstellen** in `src/tools/`:
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
 
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: 'Beschreibung, was das Tool macht',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: 'Parameterbeschreibung' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // Tool-Implementierung
-    const { param1, param2 = 0 } = params;
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: 'Beschreibung, was das Tool macht',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: 'Parameterbeschreibung' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // Tool-Implementierung
+       const { param1, param2 = 0 } = params;
 
-    // Geschäftslogik hier
+       // Geschäftslogik hier
 
-    return {
-      success: true,
-      data: 'Tool-Antwort',
-    };
-  },
-};
-```
+       return {
+         success: true,
+         data: 'Tool-Antwort',
+       };
+     },
+   };
+   ```
 
-1. **Im Index registrieren** (`src/tools/index.ts`):
+2. **Im Index registrieren** (`src/tools/index.ts`):
 
-```typescript
-export { myNewTool } from './my-new-tool';
-```
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
-1. **Zum Server hinzufügen** (`src/index.ts`):
+3. **Zum Server hinzufügen** (`src/index.ts`):
 
-```typescript
-import { myNewTool } from './tools';
+   ```typescript
+   import { myNewTool } from './tools';
 
-server.registerTool(myNewTool);
-```
+   server.registerTool(myNewTool);
+   ```
 
 ### Dashboard-Funktionen hinzufügen
 
 1. **HTML aktualisieren** (`dashboard/index.html`):
 
-```html
-<div class="new-feature">
-  <h3>Neue Funktion</h3>
-  <button id="new-action">Aktion</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>Neue Funktion</h3>
+     <button id="new-action">Aktion</button>
+   </div>
+   ```
 
-1. **JavaScript hinzufügen** (`dashboard/script.js`):
+2. **JavaScript hinzufügen** (`dashboard/script.js`):
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // Funktionslogik
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // Funktionslogik
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
-1. **Im Server behandeln** (`src/server.ts`):
+3. **Im Server behandeln** (`src/server.ts`):
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // Neue Aktion behandeln
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // Neue Aktion behandeln
+     }
+   });
+   ```
 
 ## Testen
 

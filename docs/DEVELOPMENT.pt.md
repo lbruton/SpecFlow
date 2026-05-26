@@ -162,86 +162,86 @@ Strings de template para:
 
 1. **Criar arquivo de ferramenta** em `src/tools/`:
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
+   
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: 'Descrição do que a ferramenta faz',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: 'Descrição do parâmetro' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // Implementação da ferramenta
+       const { param1, param2 = 0 } = params;
+   
+       // Lógica de negócio aqui
+   
+       return {
+         success: true,
+         data: 'Resposta da ferramenta',
+       };
+     },
+   };
+   ```
 
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: 'Descrição do que a ferramenta faz',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: 'Descrição do parâmetro' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // Implementação da ferramenta
-    const { param1, param2 = 0 } = params;
+2. **Registrar no índice** (`src/tools/index.ts`):
 
-    // Lógica de negócio aqui
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
-    return {
-      success: true,
-      data: 'Resposta da ferramenta',
-    };
-  },
-};
-```
+3. **Adicionar ao servidor** (`src/index.ts`):
 
-1. **Registrar no índice** (`src/tools/index.ts`):
-
-```typescript
-export { myNewTool } from './my-new-tool';
-```
-
-1. **Adicionar ao servidor** (`src/index.ts`):
-
-```typescript
-import { myNewTool } from './tools';
-
-server.registerTool(myNewTool);
-```
+   ```typescript
+   import { myNewTool } from './tools';
+   
+   server.registerTool(myNewTool);
+   ```
 
 ### Adicionando Recursos do Dashboard
 
 1. **Atualizar HTML** (`dashboard/index.html`):
 
-```html
-<div class="new-feature">
-  <h3>Novo Recurso</h3>
-  <button id="new-action">Ação</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>Novo Recurso</h3>
+     <button id="new-action">Ação</button>
+   </div>
+   ```
 
-1. **Adicionar JavaScript** (`dashboard/script.js`):
+2. **Adicionar JavaScript** (`dashboard/script.js`):
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // Lógica do recurso
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // Lógica do recurso
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
-1. **Tratar no servidor** (`src/server.ts`):
+3. **Tratar no servidor** (`src/server.ts`):
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // Tratar nova ação
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // Tratar nova ação
+     }
+   });
+   ```
 
 ## Testes
 
@@ -315,23 +315,23 @@ describe('Fluxo de Trabalho Completo', () => {
 
 1. **Adicionar saída de depuração**:
 
-```typescript
-console.error('[DEBUG]', 'Ferramenta chamada:', toolName, params);
-```
+   ```typescript
+   console.error('[DEBUG]', 'Ferramenta chamada:', toolName, params);
+   ```
 
-1. **Usar depurador do VSCode**:
+2. **Usar depurador do VSCode**:
 
-```json
-// .vscode/launch.json
-{
-  "type": "node",
-  "request": "launch",
-  "name": "Debug MCP Server",
-  "program": "${workspaceFolder}/dist/index.js",
-  "args": ["/path/to/test/project"],
-  "console": "integratedTerminal"
-}
-```
+   ```json
+   // .vscode/launch.json
+   {
+     "type": "node",
+     "request": "launch",
+     "name": "Debug MCP Server",
+     "program": "${workspaceFolder}/dist/index.js",
+     "args": ["/path/to/test/project"],
+     "console": "integratedTerminal"
+   }
+   ```
 
 ### Depurar Dashboard
 

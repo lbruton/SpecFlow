@@ -30,23 +30,23 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 
 1. **ابدأ لوحة التحكم** (قم بذلك أولاً، مرة واحدة فقط):
 
-```bash
-# يستخدم المنفذ الافتراضي 5000
-npx -y @pimzino/spec-workflow-mcp@latest --dashboard
-```
+   ```bash
+   # يستخدم المنفذ الافتراضي 5000
+   npx -y @pimzino/spec-workflow-mcp@latest --dashboard
+   ```
 
 1. **ابدأ خوادم MCP** (واحد لكل مشروع، في نوافذ طرفية منفصلة):
 
-```bash
-# المشروع 1
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
+   ```bash
+   # المشروع 1
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
 
-# المشروع 2
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
+   # المشروع 2
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
 
-# المشروع 3
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
-```
+   # المشروع 3
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
+   ```
 
 ستظهر جميع المشاريع في لوحة التحكم على http://localhost:5000
 

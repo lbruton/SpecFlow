@@ -208,43 +208,43 @@ Spec Workflow MCP fornece ferramentas especializadas para desenvolvimento estrut
 
 1. **Atualizar Status da Tarefa**:
 
-```typescript
-{
-  specName: "user-auth",
-  action: "update",
-  taskId: "1.2.1",
-  status: "in-progress",
-  notes: "Implementação iniciada"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "update",
+     taskId: "1.2.1",
+     status: "in-progress",
+     notes: "Implementação iniciada"
+   }
+   ```
 
-1. **Completar Tarefa**:
+2. **Completar Tarefa**:
 
-```typescript
-{
-  specName: "user-auth",
-  action: "complete",
-  taskId: "1.2.1"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "complete",
+     taskId: "1.2.1"
+   }
+   ```
 
-1. **Listar Tarefas**:
+3. **Listar Tarefas**:
 
-```typescript
-{
-  specName: "user-auth",
-  action: "list"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "list"
+   }
+   ```
 
-1. **Obter Progresso**:
+4. **Obter Progresso**:
 
-```typescript
-{
-  specName: "user-auth",
-  action: "progress"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "progress"
+   }
+   ```
 
 **Retorna**: Informações de tarefa ou confirmação de atualização
 

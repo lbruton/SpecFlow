@@ -157,7 +157,7 @@ Scan the conversation for high-signal lessons (3-8 entries):
 
 Save each to mem0 with:
 
-- `user_id: "lbruton"`, `agent_id: "<project-tag>"`
+- `user_id: "<user-id>"`, `agent_id: "<project-tag>"`
 - `metadata.type: "retro-learning"`, `metadata.category: "<error|pattern|preference|improvement|warning|win>"`
 
 ### 4.2: Session Digest (DocVault)
