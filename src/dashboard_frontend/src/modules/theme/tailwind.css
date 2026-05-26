@@ -295,7 +295,7 @@
 
 .dragging {
   cursor: grabbing;
-  opacity: 85%;
+  opacity: 0.85;
   z-index: 50;
   box-shadow: var(--shadow-lg);
 }
@@ -539,22 +539,22 @@
 
 @keyframes fadeIn {
   from {
-    opacity: 0%;
+    opacity: 0;
   }
 
   to {
-    opacity: 100%;
+    opacity: 1;
   }
 }
 
 @keyframes slideUp {
   from {
-    opacity: 0%;
+    opacity: 0;
     transform: translateY(8px);
   }
 
   to {
-    opacity: 100%;
+    opacity: 1;
     transform: translateY(0);
   }
 }

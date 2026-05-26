@@ -116,7 +116,7 @@
     "vitest": "^4.0.15"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,cjs,mjs,json,css,html}": "prettier --write",
+    "*.{ts,tsx,js,cjs,mjs,json,html}": "prettier --write",
     "*.md": "markdownlint-cli2 --fix",
     "*.css": "stylelint --fix"
   }

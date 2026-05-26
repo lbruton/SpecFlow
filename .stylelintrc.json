@@ -2,7 +2,7 @@
   "extends": ["stylelint-config-standard"],
   "ignoreFiles": ["**/dist/**", "**/node_modules/**", "**/webview-dist/**"],
   "rules": {
-    "alpha-value-notation": "percentage",
+    "alpha-value-notation": ["percentage", { "exceptProperties": ["opacity"] }],
     "color-function-notation": "modern",
     "color-hex-length": "short",
     "custom-property-pattern": null,
