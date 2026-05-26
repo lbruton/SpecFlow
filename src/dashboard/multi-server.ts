@@ -421,6 +421,13 @@ export class MultiProjectDashboardServer {
   }
 
   private registerApiRoutes() {
+    const readRateLimit = this.securityConfig.rateLimitEnabled
+      ? { config: { rateLimit: { max: Math.min(30, this.securityConfig.rateLimitPerMinute), timeWindow: '1 minute' } } }
+      : {};
+    const writeRateLimit = this.securityConfig.rateLimitEnabled
+      ? { config: { rateLimit: { max: Math.min(20, this.securityConfig.rateLimitPerMinute), timeWindow: '1 minute' } } }
+      : {};
+
     // Health check / test endpoint (used by utils.ts to detect running dashboard)
     this.app.get('/api/test', async () => {
       return { message: DASHBOARD_TEST_MESSAGE };
@@ -509,7 +516,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Get all spec documents
-    this.app.get('/api/projects/:projectId/specs/:name/all', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+    this.app.get('/api/projects/:projectId/specs/:name/all', readRateLimit, async (request, reply) => {
       const { projectId, name } = request.params as { projectId: string; name: string };
       const project = this.projectManager.getProject(projectId);
       if (!project) {
@@ -538,7 +545,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Get all archived spec documents
-    this.app.get('/api/projects/:projectId/specs/:name/all/archived', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+    this.app.get('/api/projects/:projectId/specs/:name/all/archived', readRateLimit, async (request, reply) => {
       const { projectId, name } = request.params as { projectId: string; name: string };
       const project = this.projectManager.getProject(projectId);
       if (!project) {
@@ -568,7 +575,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Save spec document
-    this.app.put('/api/projects/:projectId/specs/:name/:document', { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (request, reply) => {
+    this.app.put('/api/projects/:projectId/specs/:name/:document', writeRateLimit, async (request, reply) => {
       const { projectId, name, document } = request.params as {
         projectId: string;
         name: string;
@@ -648,7 +655,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Get approval content
-    this.app.get('/api/projects/:projectId/approvals/:id/content', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+    this.app.get('/api/projects/:projectId/approvals/:id/content', readRateLimit, async (request, reply) => {
       const { projectId, id } = request.params as { projectId: string; id: string };
       const project = this.projectManager.getProject(projectId);
       if (!project) {
@@ -1015,7 +1022,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Get steering document
-    this.app.get('/api/projects/:projectId/steering/:name', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+    this.app.get('/api/projects/:projectId/steering/:name', readRateLimit, async (request, reply) => {
       const { projectId, name } = request.params as { projectId: string; name: string };
       const project = this.projectManager.getProject(projectId);
 
@@ -1046,7 +1053,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Save steering document
-    this.app.put('/api/projects/:projectId/steering/:name', { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (request, reply) => {
+    this.app.put('/api/projects/:projectId/steering/:name', writeRateLimit, async (request, reply) => {
       const { projectId, name } = request.params as { projectId: string; name: string };
       const { content } = request.body as { content: string };
       const project = this.projectManager.getProject(projectId);
@@ -1078,7 +1085,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Get task progress
-    this.app.get('/api/projects/:projectId/specs/:name/tasks/progress', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+    this.app.get('/api/projects/:projectId/specs/:name/tasks/progress', readRateLimit, async (request, reply) => {
       const { projectId, name } = request.params as { projectId: string; name: string };
       const project = this.projectManager.getProject(projectId);
 
@@ -1117,7 +1124,7 @@ export class MultiProjectDashboardServer {
     // Update task status
     this.app.put(
       '/api/projects/:projectId/specs/:name/tasks/:taskId/status',
-      { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
+      writeRateLimit,
       async (request, reply) => {
         const { projectId, name, taskId } = request.params as {
           projectId: string;
@@ -1193,7 +1200,7 @@ export class MultiProjectDashboardServer {
     // Add implementation log entry
     this.app.post(
       '/api/projects/:projectId/specs/:name/implementation-log',
-      { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
+      writeRateLimit,
       async (request, reply) => {
         const { projectId, name } = request.params as { projectId: string; name: string };
         const project = this.projectManager.getProject(projectId);
@@ -1231,7 +1238,7 @@ export class MultiProjectDashboardServer {
     // Get implementation logs
     this.app.get(
       '/api/projects/:projectId/specs/:name/implementation-log',
-      { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
+      readRateLimit,
       async (request, reply) => {
         const { projectId, name } = request.params as { projectId: string; name: string };
         const query = request.query as { taskId?: string; search?: string };
@@ -1270,7 +1277,7 @@ export class MultiProjectDashboardServer {
     // Get implementation log task stats
     this.app.get(
       '/api/projects/:projectId/specs/:name/implementation-log/task/:taskId/stats',
-      { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } },
+      readRateLimit,
       async (request, reply) => {
         const { projectId, name, taskId } = request.params as {
           projectId: string;
@@ -1298,7 +1305,7 @@ export class MultiProjectDashboardServer {
     );
 
     // Project-specific changelog endpoint
-    this.app.get('/api/projects/:projectId/changelog/:version', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+    this.app.get('/api/projects/:projectId/changelog/:version', readRateLimit, async (request, reply) => {
       const { version } = request.params as { version: string };
 
       try {
@@ -1323,7 +1330,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Global changelog endpoint
-    this.app.get('/api/changelog/:version', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+    this.app.get('/api/changelog/:version', readRateLimit, async (request, reply) => {
       const { version } = request.params as { version: string };
 
       try {
