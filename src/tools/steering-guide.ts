@@ -19,7 +19,7 @@ Call ONLY when user explicitly requests steering document creation or asks about
   },
 };
 
-export async function steeringGuideHandler(args: any, context: ToolContext): Promise<ToolResponse> {
+export function steeringGuideHandler(args: any, context: ToolContext): ToolResponse {
   return {
     success: true,
     message: 'Steering workflow guide loaded - follow this workflow exactly to avoid errors',

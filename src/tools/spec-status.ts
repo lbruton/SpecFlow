@@ -205,7 +205,7 @@ export async function specStatusHandler(args: any, context: ToolContext): Promis
 
                 // Conditional changelog
                 if (
-                  conventions?.changelog?.hasChangelog ||
+                  conventions?.changelog?.hasChangelog ??
                   conventions?.changelog?.docvaultFallback
                 ) {
                   items.push('Changelog updated');
@@ -337,7 +337,7 @@ export async function specStatusHandler(args: any, context: ToolContext): Promis
         createdAt: spec.createdAt,
         lastModified: spec.lastModified,
         phases: phaseDetails,
-        taskProgress: spec.taskProgress || {
+        taskProgress: spec.taskProgress ?? {
           total: 0,
           completed: 0,
           pending: 0,

@@ -44,7 +44,7 @@ export async function writeSpecDocHandler(
   context: ToolContext,
 ): Promise<ToolResponse> {
   const { specName, documentType, content } = args;
-  const projectPath = args.projectPath || context.projectPath;
+  const projectPath = args.projectPath ?? context.projectPath;
 
   const validDocTypes = ['requirements', 'discovery', 'design', 'tasks'];
   if (!validDocTypes.includes(documentType)) {
