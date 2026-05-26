@@ -155,6 +155,7 @@ fi
 ```
 
 **If `inWorktree=true`:**
+
 - Set a banner in the report header: `⚠️ Worktree mode — branch: <worktreeBranch>, main: <mainBranch>`
 - Agent D's git history queries MUST also pull main branch history from `$MAIN_CHECKOUT`
   (e.g., `cd $MAIN_CHECKOUT && git log --oneline -15 $MAIN_BRANCH`) so the report shows
@@ -218,6 +219,7 @@ mcp__sessionflow__search_all_sessions(
 ```
 
 Extract from results:
+
 - **Goals and accomplishments** from recent session turns
 - **Decisions made** and their rationale
 - **Next steps** / follow-up items mentioned
@@ -286,6 +288,7 @@ Also track both counts for the report header (SWF-92):
 The header always surfaces these counts so the user has an at-a-glance signal of recall quality.
 
 **If post-filtered results are empty for both queries:**
+
 - Note `mem0_preload_empty=true` in the report
 - This is a RED FLAG — either mem0 is broken, the project tag is wrong/missing from
   `~/.claude/mem0-projects.json`, the casing variants don't cover legacy records, or no
@@ -293,6 +296,7 @@ The header always surfaces these counts so the user has an at-a-glance signal of
   report header so the user knows context is incomplete.
 
 **If mem0 MCP is unavailable:**
+
 - Note `mem0_unavailable=true` in the report header
 - This is a STOP-AND-FIX condition — prime should still complete, but the user must
   be told the report is operating without long-term memory
@@ -397,6 +401,7 @@ supplement sessionflow with retro learnings, workarounds, and cross-session deci
 ### Step 1.5.1: Extract keywords from Agent D results + digest
 
 Parse BOTH the prime-status report AND the sessionflow context (Step 0.4) to extract:
+
 - **Sessionflow keywords**: Goals, decisions, next steps, pain points from sessionflow results
 - **Commit keywords**: Significant nouns and verbs from the last 15 commit messages
   (strip prefixes like "fix:", "feat:", "update:", "add:" — keep the substance)
@@ -804,18 +809,21 @@ Not every project has every capability. Handle missing pieces:
 ## Rules
 
 ### Data Source Priority
+
 - **sessionflow is the PRIMARY "where we left off" source** — project-scoped semantic search over all past turns
 - **mem0 is SUPPLEMENTAL** — retro learnings, workarounds, cross-session decisions, known issues
 - **session-oracle is NOT dispatched by prime** — redundant (it uses sessionflow internally; if sessionflow is down, Step 0.7 mem0 covers it)
 - The correct flow is: GitHub → sessionflow → Issues → Code/Security → Compile Keywords → mem0 → Report
 
 ### Execution
+
 - Phase 2 indexes (CGC, claude-context, Codacy) start FIRST in Phase 1 Step 1.0 — they run in background while data is gathered
 - Phase 1 agents MUST run in background — do not block on them sequentially
 - NEVER run code-oracle or session-oracle in main context — always isolated agents
 - If ALL agents fail, fall back to Phase 0 local context + digest + Phase 2 indexing
 
 ### Output
+
 - **The full Forge-layout report renders in BOTH the terminal AND DocVault** — same content, both places. The user wants the dense dashboard in their terminal, not a stripped summary.
 - The Terminal Summary Template (below) is **DEPRECATED** — kept in this file for reference only. Do NOT use it. Render the Full Report Template in the terminal as-is.
 - Always `mkdir -p` the prime/ subdirectory before writing — it may not exist on first run
@@ -825,6 +833,7 @@ Not every project has every capability. Handle missing pieces:
 - **The report body MUST include the save path**: end every report (full and delta) with a line like `Full report saved to: \`DocVault/Projects/<name>/prime/<filename>.md\`` — this is required for traceability
 
 ### Frontmatter
+
 - Frontmatter is **MANDATORY in every prime report** — full and delta alike. The very first line of the report MUST be `---` (YAML block open), not a heading.
 - If `project.json` is missing, infer the project name from git remote URL, directory name, or context. Never use `<name>` literally — always substitute the real value.
 - **ALWAYS quote the date field** — this is the most common mistake: write `date: "<YYYY-MM-DD>"` NOT `date: <YYYY-MM-DD>`. Unquoted dates are parsed as datetime objects and break Obsidian Bases sorting.
@@ -832,14 +841,18 @@ Not every project has every capability. Handle missing pieces:
 - The `doc_type` field MUST be `"prime-report"` — this is how Obsidian Bases finds all prime reports across projects. Do NOT put `prime-report` in the `tags` array.
 
 ### Session Digest Absence
+
 - When `hasDigest=false` or no digest file is found, the **Where We Left Off** section MUST include the exact phrase "No recent session history" (or "No session digest found" / "No session context found"). Never invent context or silently skip it.
 - When no `project.json` exists and no digest exists, note both explicitly in the report.
 
 ### P1 Issue Surfacing
+
 - Any open issue with `priority: 1` (critical/blocking) MUST appear prominently in `## Project Status` — use a dedicated **🔴 Priority 1 — Blocking** subsection or bold/flag it clearly. Never bury P1 issues in a generic issue list.
 
 ### Required Sections
+
 Both full and delta reports MUST include ALL of these section headers. If data is unavailable, show a one-line placeholder — **never omit the header**:
+
 - `## Recent Activity` — show "No data available." if git history unavailable
 - `## Where We Left Off` — show "No recent session context found." if no digest or mem0
 - `## Index Health` — show "Not applicable." or "Not re-checked in delta." as appropriate
@@ -849,6 +862,7 @@ Both full and delta reports MUST include ALL of these section headers. If data i
 - `## Suggested Session Plan` — MUST have at least one numbered item (`1. ...`). If nothing is in progress, generate a sensible default based on open issues or recent commits.
 
 ### Incremental Mode
+
 - Incremental prime skips ALL background agents (code-oracle, session-digest, prime-status) — main context only
 - Incremental prime STILL reads the session digest — it's fast and critical for context
 - Incremental prime still writes to DocVault with the `prime-delta` tag for traceability

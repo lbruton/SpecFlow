@@ -218,7 +218,7 @@ Spec Workflow MCP bietet spezialisierte Tools für strukturierte Softwareentwick
 }
 ```
 
-2. **Aufgabe abschließen**:
+1. **Aufgabe abschließen**:
 
 ```typescript
 {
@@ -228,7 +228,7 @@ Spec Workflow MCP bietet spezialisierte Tools für strukturierte Softwareentwick
 }
 ```
 
-3. **Aufgaben auflisten**:
+1. **Aufgaben auflisten**:
 
 ```typescript
 {
@@ -237,7 +237,7 @@ Spec Workflow MCP bietet spezialisierte Tools für strukturierte Softwareentwick
 }
 ```
 
-4. **Fortschritt erhalten**:
+1. **Fortschritt erhalten**:
 
 ```typescript
 {

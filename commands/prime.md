@@ -57,6 +57,7 @@ grep -rl "status: backlog\|status: todo\|status: in-progress" ../DocVault/Projec
 For each file found, extract just the title and status from frontmatter (read first 10 lines).
 
 **Active Specs** — if specs exist under the resolved workflow root:
+
 - Use the **spec-list** MCP tool (returns all specs across the resolved workflow root) or **spec-status** for a single spec.
 For each spec, check if tasks.md has any `[-]` (in-progress) or `[ ]` (pending) markers.
 
@@ -72,6 +73,7 @@ If found and from today/yesterday, read it for context on where we left off.
 ## Phase 2: Context (1-2 mem0 searches)
 
 Extract **keywords** from Phase 1 results:
+
 - Significant nouns from commit messages (skip generic: fix, update, add, remove, chore)
 - PR titles
 - Issue titles
@@ -90,6 +92,7 @@ mcp__mem0__search_memories(
 If the project tag yields <2 results, also try without the agent_id filter for cross-project context.
 
 From the results, extract only what adds context BEYOND what git/issues show:
+
 - Verbal decisions and rationale
 - Planned next steps from last session
 - Known blockers or dependencies
@@ -125,12 +128,15 @@ Branch: `<branch>` | Version: `<version>` | Status: <clean/dirty>
 After presenting the quick summary, dispatch these in parallel:
 
 ### 2.1: Code Health (Agent: code-oracle, background)
+
 Dispatch a `code-oracle` agent:
+
 - query: "dead code, complexity hotspots, convention violations"
 - Focus on: dead code (CGC), top 5 complex functions (CGC), convention issues in files changed last 7 days
 - Keep report compact — tables only, max 15 findings
 
 ### 2.2: Security Scan (main context, parallel with 2.1)
+
 Query Codacy for open findings:
 ```
 mcp__codacy__codacy_search_repository_srm_items(
@@ -141,6 +147,7 @@ mcp__codacy__codacy_search_repository_srm_items(
 ```
 
 ### 2.3: Index Health (main context, parallel)
+
 ```
 mcp__claude-context__get_indexing_status(path="<projectPath>")
 ```
@@ -148,6 +155,7 @@ mcp__claude-context__get_indexing_status(path="<projectPath>")
 If stale (>24h), trigger a re-index.
 
 ### Deep Report
+
 When agents return, present extended results and archive to DocVault:
 ```
 ../DocVault/Projects/<name>/prime/<YYYY-MM-DD>-<HHMMSS>.md

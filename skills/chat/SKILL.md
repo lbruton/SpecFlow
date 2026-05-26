@@ -64,20 +64,25 @@ Present any relevant past decisions, discussions, or related work.
 Based on the conversation, dispatch research as appropriate:
 
 ### Codebase exploration (read-only)
+
 - `mcp__claude-context__search_code` — "find code related to X"
 - `mcp__code-graph-context__find_code` — structural search for functions/classes
 - `Grep` / `Glob` — literal matches for identifiers
 
 ### Library/framework research
+
 - `mcp__context7__resolve-library-id` + `mcp__context7__query-docs` — current best practices
 
 ### Web research
+
 - `mcp__brave-search__brave_web_search` — external research, comparisons, prior art
 
 ### DocVault / wiki search
+
 - `mcp__claude-context__search_code` with `path: ${DOCVAULT_PATH}` — search existing documentation
 
 ### Parallel research
+
 Use the Agent tool to dispatch multiple research queries in parallel when they're independent. Keep results concise — present findings, not raw dumps.
 
 ## Step 4: Conversational Loop
@@ -85,6 +90,7 @@ Use the Agent tool to dispatch multiple research queries in parallel when they'r
 Engage in natural conversation. Ask questions, present findings, explore alternatives. The goal is to build enough context that the user can decide whether to proceed.
 
 **Good questions to ask:**
+
 - What problem does this solve for users?
 - What existing functionality does this relate to?
 - How big is this — quick fix, feature, or architecture change?
@@ -95,7 +101,8 @@ Engage in natural conversation. Ask questions, present findings, explore alterna
 
 When enough context has been gathered, suggest the next step:
 
-### If the idea is concrete enough for a spec:
+### If the idea is concrete enough for a spec
+
 ```
 This sounds ready to formalize. Next steps:
 1. Create an issue in DocVault: /issue create
@@ -103,14 +110,16 @@ This sounds ready to formalize. Next steps:
    — or /spec {ISSUE-ID} to go straight to spec creation
 ```
 
-### If the idea needs more structured research:
+### If the idea needs more structured research
+
 ```
 There are still some open questions. I'd suggest:
 1. Create an issue in DocVault to track this
 2. Run /discover {ISSUE-ID} to do a structured brainstorm with a formal brief
 ```
 
-### If the idea isn't worth pursuing:
+### If the idea isn't worth pursuing
+
 ```
 Based on what we've found, this might not be worth the effort because [reasons].
 Want to explore a different angle, or shelve this for now?

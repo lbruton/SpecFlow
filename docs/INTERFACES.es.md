@@ -374,7 +374,7 @@ Configurar en configuración:
 
 ## Elegir la Interfaz Correcta
 
-### Usar Panel de Control Web Cuando:
+### Usar Panel de Control Web Cuando
 
 - Usar herramientas de IA basadas en CLI
 - Trabajar en múltiples IDEs
@@ -382,7 +382,7 @@ Configurar en configuración:
 - Compartir con miembros del equipo
 - Se necesita vista rápida del proyecto
 
-### Usar Extensión VSCode Cuando:
+### Usar Extensión VSCode Cuando
 
 - IDE principal es VSCode
 - Querer experiencia integrada

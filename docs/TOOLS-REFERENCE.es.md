@@ -218,7 +218,7 @@ Spec Workflow MCP proporciona herramientas especializadas para desarrollo de sof
 }
 ```
 
-2. **Completar Tarea**:
+1. **Completar Tarea**:
 
 ```typescript
 {
@@ -228,7 +228,7 @@ Spec Workflow MCP proporciona herramientas especializadas para desarrollo de sof
 }
 ```
 
-3. **Listar Tareas**:
+1. **Listar Tareas**:
 
 ```typescript
 {
@@ -237,7 +237,7 @@ Spec Workflow MCP proporciona herramientas especializadas para desarrollo de sof
 }
 ```
 
-4. **Obtener Progreso**:
+1. **Obtener Progreso**:
 
 ```typescript
 {

@@ -191,13 +191,13 @@ export const myNewTool: Tool = {
 };
 ```
 
-2. **インデックスに登録**（`src/tools/index.ts`）：
+1. **インデックスに登録**（`src/tools/index.ts`）：
 
 ```typescript
 export { myNewTool } from './my-new-tool';
 ```
 
-3. **サーバーに追加**（`src/index.ts`）：
+1. **サーバーに追加**（`src/index.ts`）：
 
 ```typescript
 import { myNewTool } from './tools';
@@ -216,7 +216,7 @@ server.registerTool(myNewTool);
 </div>
 ```
 
-2. **JavaScriptを追加**（`dashboard/script.js`）：
+1. **JavaScriptを追加**（`dashboard/script.js`）：
 
 ```javascript
 document.getElementById('new-action').addEventListener('click', () => {
@@ -232,7 +232,7 @@ document.getElementById('new-action').addEventListener('click', () => {
 });
 ```
 
-3. **サーバーで処理**（`src/server.ts`）：
+1. **サーバーで処理**（`src/server.ts`）：
 
 ```typescript
 ws.on('message', (message) => {
@@ -319,7 +319,7 @@ describe('完全なワークフロー', () => {
 console.error('[DEBUG]', 'ツールが呼び出されました:', toolName, params);
 ```
 
-2. **VSCodeデバッガーを使用**：
+1. **VSCodeデバッガーを使用**：
 
 ```json
 // .vscode/launch.json

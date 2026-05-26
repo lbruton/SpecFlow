@@ -35,7 +35,7 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 npx -y @pimzino/spec-workflow-mcp@latest --dashboard
 ```
 
-2. **ابدأ خوادم MCP** (واحد لكل مشروع، في نوافذ طرفية منفصلة):
+1. **ابدأ خوادم MCP** (واحد لكل مشروع، في نوافذ طرفية منفصلة):
 
 ```bash
 # المشروع 1
@@ -212,7 +212,7 @@ debounceMs = 300
 cp .specflow/config.example.toml .specflow/config.toml
 ```
 
-2. حرر التكوين:
+1. حرر التكوين:
 
 ```toml
 # تكوين مشروعي
@@ -221,7 +221,7 @@ port = 3000
 lang = "en"
 ```
 
-3. استخدم التكوين:
+1. استخدم التكوين:
 
 ```bash
 # يستخدم .specflow/config.toml تلقائيًا

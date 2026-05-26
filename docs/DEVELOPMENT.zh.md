@@ -191,13 +191,13 @@ export const myNewTool: Tool = {
 };
 ```
 
-2. **在索引中注册**（`src/tools/index.ts`）：
+1. **在索引中注册**（`src/tools/index.ts`）：
 
 ```typescript
 export { myNewTool } from './my-new-tool';
 ```
 
-3. **添加到服务器**（`src/index.ts`）：
+1. **添加到服务器**（`src/index.ts`）：
 
 ```typescript
 import { myNewTool } from './tools';
@@ -216,7 +216,7 @@ server.registerTool(myNewTool);
 </div>
 ```
 
-2. **添加 JavaScript**（`dashboard/script.js`）：
+1. **添加 JavaScript**（`dashboard/script.js`）：
 
 ```javascript
 document.getElementById('new-action').addEventListener('click', () => {
@@ -232,7 +232,7 @@ document.getElementById('new-action').addEventListener('click', () => {
 });
 ```
 
-3. **在服务器中处理**（`src/server.ts`）：
+1. **在服务器中处理**（`src/server.ts`）：
 
 ```typescript
 ws.on('message', (message) => {
@@ -319,7 +319,7 @@ describe('完整工作流程', () => {
 console.error('[DEBUG]', '工具被调用:', toolName, params);
 ```
 
-2. **使用 VSCode 调试器**：
+1. **使用 VSCode 调试器**：
 
 ```json
 // .vscode/launch.json

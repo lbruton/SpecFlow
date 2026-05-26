@@ -12,6 +12,7 @@ cd /Volumes/DATA/GitHub/specflow && node scripts/validate-i18n.js
 Report the full output. If clean, confirm "i18n validation passed — all translation keys are consistent."
 
 If there are failures, list them clearly grouped by:
+
 - Missing keys (present in one locale but not another)
 - Extra keys (not used in source)
 - Format mismatches (e.g., interpolation variable differences)

@@ -78,6 +78,7 @@ ${SPECFLOW_REPO}/skills/<name>/SKILL.md
 ```
 
 Requirements for the file:
+
 - YAML frontmatter with `name` and `description` (match the style in `skills/prime/SKILL.md`)
 - `description` must include trigger words for autocomplete matching
 - Self-contained — do NOT reference `specflow:<name>` MCP prompt (it will be removed)

@@ -77,6 +77,7 @@ If a spec already exists for this issue, inform the user and suggest `/spec {ISS
 Run these in parallel:
 
 ### mem0 search
+
 ```
 mcp__mem0__search_memories
   query: "{issue title} {key terms from description}"
@@ -84,6 +85,7 @@ mcp__mem0__search_memories
 ```
 
 ### DocVault search
+
 ```
 mcp__claude-context__search_code
   query: "{topic}"
@@ -99,6 +101,7 @@ Present any relevant past decisions, related work, or prior discussions.
 Run the codebase search tier protocol (minimum tiers 1-2):
 
 ### Tier 1: CGC — Structural
+
 ```
 mcp__code-graph-context__find_code
   query: "{key functions, components, or modules related to this issue}"
@@ -110,17 +113,20 @@ mcp__code-graph-context__analyze_code_relationships
 ```
 
 ### Tier 2: Claude-Context — Semantic
+
 ```
 mcp__claude-context__search_code
   query: "{feature domain}"
 ```
 
 Run 2-3 queries covering:
+
 1. The feature/domain being planned
 2. Existing patterns that should be reused
 3. Integration points and dependencies
 
 ### Tier 3: Grep/Glob — Literal
+
 As needed for specific identifiers, storage keys, constants.
 
 ### Produce Impact Summary
@@ -148,12 +154,14 @@ As needed for specific identifiers, storage keys, constants.
 For features involving libraries, APIs, or platform capabilities:
 
 ### Context7 — Library docs
+
 ```
 mcp__context7__resolve-library-id  topic: "{library name}"
 mcp__context7__query-docs  libraryId: "{id}"  topic: "{specific feature}"
 ```
 
 ### Web search — Prior art
+
 ```
 mcp__brave-search__brave_web_search  query: "{topic} best practices 2025 2026"
 ```
@@ -181,6 +189,7 @@ Compile a list of every unresolved question. Categorize them:
 ### Resolution Loop
 
 For each blocking question:
+
 1. Can we answer it from codebase research? → answer it
 2. Can we answer it from docs/web search? → answer it
 3. Need user input? → ask the user directly
@@ -199,6 +208,7 @@ With context gathered and questions answered, explore approaches:
 ### Present 2-3 approaches
 
 For each approach:
+
 - **Summary**: one-sentence description
 - **Pros**: why this might be best
 - **Cons**: downsides and risks
@@ -208,6 +218,7 @@ For each approach:
 ### Discuss with user
 
 Get the user's reaction. They may:
+
 - Pick an approach → note as the recommended approach
 - Want to explore further → dig deeper on specific aspects
 - Combine approaches → synthesize a hybrid
@@ -281,14 +292,17 @@ recommended approach as the starting point for requirements.
 ## Integration
 
 **Upstream:**
+
 - `/chat` → when exploration identifies a concrete idea → create issue → `/discover`
 - User directly: `/discover PROJ-123`
 
 **Downstream:**
+
 - `/spec {ISSUE-ID}` — formal spec creation using discovery findings
 - The spec skill's Step 2 searches mem0 and will find the discovery brief
 
 **Related:**
+
 - `/chat` (Phase 0 — lighter, no issue)
 - `/spec` (Phase 2+ — formal specification)
 - `codebase-search` (tier protocol used in Step 2)

@@ -218,7 +218,7 @@ Spec Workflow MCP fornece ferramentas especializadas para desenvolvimento estrut
 }
 ```
 
-2. **Completar Tarefa**:
+1. **Completar Tarefa**:
 
 ```typescript
 {
@@ -228,7 +228,7 @@ Spec Workflow MCP fornece ferramentas especializadas para desenvolvimento estrut
 }
 ```
 
-3. **Listar Tarefas**:
+1. **Listar Tarefas**:
 
 ```typescript
 {
@@ -237,7 +237,7 @@ Spec Workflow MCP fornece ferramentas especializadas para desenvolvimento estrut
 }
 ```
 
-4. **Obter Progresso**:
+1. **Obter Progresso**:
 
 ```typescript
 {

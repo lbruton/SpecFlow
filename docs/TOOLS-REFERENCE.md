@@ -218,7 +218,7 @@ Spec Workflow MCP provides specialized tools for structured software development
 }
 ```
 
-2. **Complete Task**:
+1. **Complete Task**:
 
 ```typescript
 {
@@ -228,7 +228,7 @@ Spec Workflow MCP provides specialized tools for structured software development
 }
 ```
 
-3. **List Tasks**:
+1. **List Tasks**:
 
 ```typescript
 {
@@ -237,7 +237,7 @@ Spec Workflow MCP provides specialized tools for structured software development
 }
 ```
 
-4. **Get Progress**:
+1. **Get Progress**:
 
 ```typescript
 {

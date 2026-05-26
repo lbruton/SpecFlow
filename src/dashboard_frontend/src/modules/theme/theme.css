@@ -23,12 +23,11 @@
      TYPOGRAPHY
      ------------------------------------------------------------------------- */
   --font-sans:
-    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans',
-    Helvetica, Arial, sans-serif;
+    'Inter', system-ui, -apple-system, 'Segoe UI', roboto, ubuntu, cantarell, 'Noto Sans',
+    helvetica, arial, sans-serif;
   --font-mono:
-    'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
+    'JetBrains Mono', ui-monospace, sfmono-regular, 'SF Mono', menlo, consolas, 'Liberation Mono',
     monospace;
-
   --text-xs: 11px;
   --text-sm: 12px;
   --text-base: 14px;
@@ -36,11 +35,9 @@
   --text-xl: 18px;
   --text-2xl: 24px;
   --text-3xl: 30px;
-
   --leading-tight: 1.25;
   --leading-normal: 1.5;
   --leading-relaxed: 1.7;
-
   --font-normal: 400;
   --font-medium: 500;
   --font-semibold: 600;
@@ -57,10 +54,10 @@
   /* -------------------------------------------------------------------------
      SHADOWS (Single subtle approach - borders + minimal shadow)
      ------------------------------------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.08);
-  --shadow-overlay: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 4%);
+  --shadow-md: 0 2px 4px rgb(0 0 0 / 6%);
+  --shadow-lg: 0 4px 8px rgb(0 0 0 / 8%);
+  --shadow-overlay: 0 4px 16px rgb(0 0 0 / 12%);
 
   /* -------------------------------------------------------------------------
      TRANSITIONS
@@ -75,8 +72,8 @@
 
   /* Surfaces */
   --surface-base: #f8fafc; /* Page background */
-  --surface-panel: #ffffff; /* Cards, panels */
-  --surface-elevated: #ffffff; /* Modals, dropdowns */
+  --surface-panel: #fff; /* Cards, panels */
+  --surface-elevated: #fff; /* Modals, dropdowns */
   --surface-inset: #f1f5f9; /* Inset areas, icon backgrounds */
   --surface-hover: #e2e8f0; /* Hover states - visible on white */
 
@@ -124,7 +121,7 @@
   /* Surface Aliases (for component compatibility) */
   --surface-secondary: #f1f5f9;
   --surface-sunken: #f1f5f9;
-  --surface-raised: #ffffff;
+  --surface-raised: #fff;
   --surface-page: #f8fafc;
 
   /* Border Aliases */
@@ -174,27 +171,27 @@
 
   /* Status Colors */
   --status-success: #22c55e;
-  --status-success-muted: rgba(34, 197, 94, 0.15);
-  --status-success-bg: rgba(34, 197, 94, 0.15);
+  --status-success-muted: rgb(34 197 94 / 15%);
+  --status-success-bg: rgb(34 197 94 / 15%);
   --status-warning: #eab308;
-  --status-warning-muted: rgba(234, 179, 8, 0.15);
+  --status-warning-muted: rgb(234 179 8 / 15%);
   --status-error: #ef4444;
-  --status-error-muted: rgba(239, 68, 68, 0.15);
-  --status-error-bg: rgba(239, 68, 68, 0.15);
-  --status-error-border: rgba(239, 68, 68, 0.3);
+  --status-error-muted: rgb(239 68 68 / 15%);
+  --status-error-bg: rgb(239 68 68 / 15%);
+  --status-error-border: rgb(239 68 68 / 30%);
   --status-info: #3b82f6;
-  --status-info-muted: rgba(59, 130, 246, 0.15);
+  --status-info-muted: rgb(59 130 246 / 15%);
   --status-pending: #94a3b8;
-  --status-pending-muted: rgba(148, 163, 184, 0.15);
+  --status-pending-muted: rgb(148 163 184 / 15%);
   --status-in-progress: #a78bfa;
-  --status-in-progress-muted: rgba(167, 139, 250, 0.15);
+  --status-in-progress-muted: rgb(167 139 250 / 15%);
 
   /* Accent Colors (for interactive highlights) */
   --accent-primary: #6366f1;
   --accent-primary-hover: #818cf8;
-  --accent-primary-muted: rgba(99, 102, 241, 0.15);
+  --accent-primary-muted: rgb(99 102 241 / 15%);
   --accent-secondary: #a78bfa;
-  --accent-secondary-muted: rgba(167, 139, 250, 0.15);
+  --accent-secondary-muted: rgb(167 139 250 / 15%);
 
   /* Surface Aliases (for component compatibility) */
   --surface-secondary: #1e293b;
@@ -210,10 +207,10 @@
   --text-accent: #818cf8;
 
   /* Shadows (darker in dark mode) */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.4);
-  --shadow-overlay: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 20%);
+  --shadow-md: 0 2px 4px rgb(0 0 0 / 30%);
+  --shadow-lg: 0 4px 8px rgb(0 0 0 / 40%);
+  --shadow-overlay: 0 4px 16px rgb(0 0 0 / 50%);
 
   /* Legacy aliases */
   --bg: var(--surface-base);
@@ -334,12 +331,15 @@ body {
 .status-dot.ok {
   background: var(--status-success);
 }
+
 .status-dot.err {
   background: var(--status-error);
 }
+
 .status-dot.pending {
   background: var(--status-pending);
 }
+
 .status-dot.in-progress {
   background: var(--status-in-progress);
 }

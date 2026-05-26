@@ -29,6 +29,7 @@ StakTrakr → staktrakr, HexTrackr → hextrackr, etc.
 ## Step 2: Reflect on the conversation
 
 Scan the full conversation for:
+
 - Mistakes that cost time or required backtracking
 - Assumptions that turned out to be wrong
 - Approaches that worked particularly well
@@ -132,6 +133,7 @@ Without PR:       /wrap
 ```
 
 **Standalone mid-session use (the primary reason `/retro` still exists):**
+
 - After a spec completes (capture implementation lessons before moving on)
 - After a debugging session that required backtracking
 - Anytime you find yourself thinking "I should remember this for next time"

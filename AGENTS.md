@@ -31,6 +31,7 @@ Two independent channels (full diagram: [[SpecFlow/Architecture]] section Deploy
 Installing one does not install the other. README must say both.
 
 Hard rules:
+
 - Orphan dirs from pre-v3.6.0 (`plugin/`, `.claude-plugin/`, `.Codex-plugin/`, legacy plugin marketplace dirs) - delete on sight, never edit.
 - Shared authored skills live in `.agents/skills/` for project-local copies and `~/.agents/skills/` for user-level copies. Claude/Codex/OpenCode/Gemini-specific folders are runtime install targets, not the shared source of truth.
 - User-level shared skill (`~/.agents/skills/<name>/SKILL.md`) and repo shipped copy (`skills/<name>/SKILL.md`) are intentionally separate files. Promote via `cp`, not symlinks.

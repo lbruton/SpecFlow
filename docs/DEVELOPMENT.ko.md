@@ -191,13 +191,13 @@ export const myNewTool: Tool = {
 };
 ```
 
-2. **인덱스에 등록** (`src/tools/index.ts`):
+1. **인덱스에 등록** (`src/tools/index.ts`):
 
 ```typescript
 export { myNewTool } from './my-new-tool';
 ```
 
-3. **서버에 추가** (`src/index.ts`):
+1. **서버에 추가** (`src/index.ts`):
 
 ```typescript
 import { myNewTool } from './tools';
@@ -216,7 +216,7 @@ server.registerTool(myNewTool);
 </div>
 ```
 
-2. **JavaScript 추가** (`dashboard/script.js`):
+1. **JavaScript 추가** (`dashboard/script.js`):
 
 ```javascript
 document.getElementById('new-action').addEventListener('click', () => {
@@ -232,7 +232,7 @@ document.getElementById('new-action').addEventListener('click', () => {
 });
 ```
 
-3. **서버에서 처리** (`src/server.ts`):
+1. **서버에서 처리** (`src/server.ts`):
 
 ```typescript
 ws.on('message', (message) => {
@@ -319,7 +319,7 @@ describe('Complete Workflow', () => {
 console.error('[DEBUG]', 'Tool called:', toolName, params);
 ```
 
-2. **VSCode 디버거 사용**:
+1. **VSCode 디버거 사용**:
 
 ```json
 // .vscode/launch.json

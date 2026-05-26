@@ -374,7 +374,7 @@ Configure in settings:
 
 ## Choosing the Right Interface
 
-### Use Web Dashboard When:
+### Use Web Dashboard When
 
 - Using CLI-based AI tools
 - Working across multiple IDEs
@@ -382,7 +382,7 @@ Configure in settings:
 - Sharing with team members
 - Quick project overview needed
 
-### Use VSCode Extension When:
+### Use VSCode Extension When
 
 - Primary IDE is VSCode
 - Want integrated experience

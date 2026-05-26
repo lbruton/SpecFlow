@@ -22,7 +22,7 @@ Quick re-orient only:          /start  (no wrap needed)
 ```
 
 `/wrap` handles everything: retro extraction (if `/retro` wasn't already run mid-session)
-+ mem0 session summary. `/retro` remains available standalone for mid-session use (after
+and mem0 session summary. `/retro` remains available standalone for mid-session use (after
 specs, debugging rabbit holes) but is no longer a required pre-step.
 
 ## Arguments
@@ -147,6 +147,7 @@ If no recent retro entries are found, run retro inline now:
 Scan the conversation for high-signal lessons and save them to mem0. Target 3-8 entries.
 
 Look for:
+
 - **Mistakes** that cost time or caused rework
 - **Wrong assumptions** that led you astray
 - **Successful approaches** worth repeating
@@ -176,6 +177,7 @@ parameter is silently dropped. Setting both is fine but `metadata.project` is wh
 the record findable.
 
 **Actor attribution (strict):**
+
 - Things the user did: "user prefers/uses/instructs..."
 - Things Claude did: "Claude should..."
 - Codebase facts: passive voice or component name
@@ -213,6 +215,7 @@ auto-stash, no auto-discard, no `git checkout --`, no worktree deletion. Those b
 warnings, not actions.
 
 Compute the traffic-light color:
+
 - **🟢 Green** — all four checks pass
 - **🟡 Yellow** — one or more soft warnings (uncommitted files, stale worktrees, PR open
   with passing checks, etc.) but nothing broken
@@ -227,6 +230,7 @@ mem0 (Steps 3 + 7) holds the curated session record. Existing files under
 
 **If `--handoff` was passed**, include handoff context in the mem0 session summary (Step 7)
 with these fields embedded in the text:
+
 - Continue issue ID
 - Resume command / first action
 - Immediate next task
@@ -256,6 +260,7 @@ mcp__mem0__add_memory(
 ```
 
 **Quality bar:**
+
 - Would this be useful in 5 search results next session? If not, more specific.
 - Contains at least one concrete anchor (commit, issue ID, version)?
 - Says what CHANGED, not just what was "worked on"?
@@ -316,6 +321,7 @@ session if needed._
 ```
 
 Warning examples:
+
 - `⚠ 2 uncommitted files in src/tools/ (not staged) — review and decide next session`
 - `⚠ Local main is behind origin/main by 3 commits — auto-pull skipped because working tree was dirty`
 - `⚠ PR #47 open with passing checks — not merged this session`
@@ -337,6 +343,7 @@ _Red items need attention before the next session can proceed cleanly._
 ```
 
 Red examples:
+
 - `❌ log-implementation catch-up failed for SWF-92 task 3.1 — manual fix required`
 - `❌ PR #47 has failing checks — investigate before next session`
 - `❌ DocVault push rejected — check credentials`

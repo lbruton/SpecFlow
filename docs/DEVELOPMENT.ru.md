@@ -191,13 +191,13 @@ export const myNewTool: Tool = {
 };
 ```
 
-2. **Зарегистрируйте в index** (`src/tools/index.ts`):
+1. **Зарегистрируйте в index** (`src/tools/index.ts`):
 
 ```typescript
 export { myNewTool } from './my-new-tool';
 ```
 
-3. **Добавьте на сервер** (`src/index.ts`):
+1. **Добавьте на сервер** (`src/index.ts`):
 
 ```typescript
 import { myNewTool } from './tools';
@@ -216,7 +216,7 @@ server.registerTool(myNewTool);
 </div>
 ```
 
-2. **Добавьте JavaScript** (`dashboard/script.js`):
+1. **Добавьте JavaScript** (`dashboard/script.js`):
 
 ```javascript
 document.getElementById('new-action').addEventListener('click', () => {
@@ -232,7 +232,7 @@ document.getElementById('new-action').addEventListener('click', () => {
 });
 ```
 
-3. **Обработайте на сервере** (`src/server.ts`):
+1. **Обработайте на сервере** (`src/server.ts`):
 
 ```typescript
 ws.on('message', (message) => {
@@ -319,7 +319,7 @@ describe('Полный рабочий процесс', () => {
 console.error('[DEBUG]', 'Вызван инструмент:', toolName, params);
 ```
 
-2. **Используйте отладчик VSCode**:
+1. **Используйте отладчик VSCode**:
 
 ```json
 // .vscode/launch.json

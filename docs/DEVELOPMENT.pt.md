@@ -191,13 +191,13 @@ export const myNewTool: Tool = {
 };
 ```
 
-2. **Registrar no índice** (`src/tools/index.ts`):
+1. **Registrar no índice** (`src/tools/index.ts`):
 
 ```typescript
 export { myNewTool } from './my-new-tool';
 ```
 
-3. **Adicionar ao servidor** (`src/index.ts`):
+1. **Adicionar ao servidor** (`src/index.ts`):
 
 ```typescript
 import { myNewTool } from './tools';
@@ -216,7 +216,7 @@ server.registerTool(myNewTool);
 </div>
 ```
 
-2. **Adicionar JavaScript** (`dashboard/script.js`):
+1. **Adicionar JavaScript** (`dashboard/script.js`):
 
 ```javascript
 document.getElementById('new-action').addEventListener('click', () => {
@@ -232,7 +232,7 @@ document.getElementById('new-action').addEventListener('click', () => {
 });
 ```
 
-3. **Tratar no servidor** (`src/server.ts`):
+1. **Tratar no servidor** (`src/server.ts`):
 
 ```typescript
 ws.on('message', (message) => {
@@ -319,7 +319,7 @@ describe('Fluxo de Trabalho Completo', () => {
 console.error('[DEBUG]', 'Ferramenta chamada:', toolName, params);
 ```
 
-2. **Usar depurador do VSCode**:
+1. **Usar depurador do VSCode**:
 
 ```json
 // .vscode/launch.json

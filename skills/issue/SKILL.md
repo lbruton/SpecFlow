@@ -20,6 +20,7 @@ cat .specflow/config.json
 ```
 
 Extract:
+
 - `project` — display name
 - `issue_prefix` — e.g. `SFLW`, `HOME`, `DEVS`
 - `issue_backend` — `"plane"` or `"docvault"` (default if absent: `"docvault"`)
@@ -156,6 +157,7 @@ For projects with `issue_backend: "docvault"` or no `issue_backend` field. **Thi
 4. Update `_Index.md` atomically (per CLAUDE.md §11 rule).
 
 Critical frontmatter rules (most-broken):
+
 - `id`, `title`, `created`, `updated` MUST be quoted strings.
 - `doc_type: issue` (required for Bases visibility — never put `issue` in tags).
 - `priority`: numeric `1`–`4`.

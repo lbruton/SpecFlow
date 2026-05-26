@@ -191,13 +191,13 @@ export const myNewTool: Tool = {
 };
 ```
 
-2. **Register in index** (`src/tools/index.ts`):
+1. **Register in index** (`src/tools/index.ts`):
 
 ```typescript
 export { myNewTool } from './my-new-tool';
 ```
 
-3. **Add to server** (`src/index.ts`):
+1. **Add to server** (`src/index.ts`):
 
 ```typescript
 import { myNewTool } from './tools';
@@ -216,7 +216,7 @@ server.registerTool(myNewTool);
 </div>
 ```
 
-2. **Add JavaScript** (`dashboard/script.js`):
+1. **Add JavaScript** (`dashboard/script.js`):
 
 ```javascript
 document.getElementById('new-action').addEventListener('click', () => {
@@ -232,7 +232,7 @@ document.getElementById('new-action').addEventListener('click', () => {
 });
 ```
 
-3. **Handle in server** (`src/server.ts`):
+1. **Handle in server** (`src/server.ts`):
 
 ```typescript
 ws.on('message', (message) => {
@@ -319,7 +319,7 @@ describe('Complete Workflow', () => {
 console.error('[DEBUG]', 'Tool called:', toolName, params);
 ```
 
-2. **Use VSCode debugger**:
+1. **Use VSCode debugger**:
 
 ```json
 // .vscode/launch.json

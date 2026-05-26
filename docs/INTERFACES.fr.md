@@ -374,7 +374,7 @@ Configurer dans les paramètres :
 
 ## Choisir la bonne interface
 
-### Utiliser le tableau de bord web quand :
+### Utiliser le tableau de bord web quand
 
 - Utilisation d'outils IA en ligne de commande
 - Travail sur plusieurs IDE
@@ -382,7 +382,7 @@ Configurer dans les paramètres :
 - Partage avec des membres de l'équipe
 - Aperçu rapide du projet nécessaire
 
-### Utiliser l'extension VSCode quand :
+### Utiliser l'extension VSCode quand
 
 - L'IDE principal est VSCode
 - Besoin d'expérience intégrée

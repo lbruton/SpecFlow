@@ -35,7 +35,7 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 npx -y @pimzino/spec-workflow-mcp@latest --dashboard
 ```
 
-2. **MCP 서버 시작** (프로젝트당 하나, 별도 터미널에서):
+1. **MCP 서버 시작** (프로젝트당 하나, 별도 터미널에서):
 
 ```bash
 # 프로젝트 1
@@ -212,7 +212,7 @@ debounceMs = 300
 cp .specflow/config.example.toml .specflow/config.toml
 ```
 
-2. 구성 편집:
+1. 구성 편집:
 
 ```toml
 # 내 프로젝트 구성
@@ -221,7 +221,7 @@ port = 3000
 lang = "en"
 ```
 
-3. 구성 사용:
+1. 구성 사용:
 
 ```bash
 # .specflow/config.toml 자동 사용

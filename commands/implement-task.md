@@ -14,56 +14,67 @@ Parse arguments: first argument is specName, optional second is taskId. If no ta
 ## Implementation Workflow
 
 ### 1. Check Current Status
+
 - Use the **spec-status** MCP tool with the specName to see overall progress
 - Read `specs/<specName>/tasks.md` under the resolved workflow root to see all tasks
 - Do not proceed unless `readiness-report.md` exists and is approved
 - Identify the target task (specific taskId or next pending `[ ]`)
 
 ### 2. Start the Task
+
 - Edit tasks.md: change `[ ]` to `[-]` for the task you're starting
 - Only one task should be in-progress at a time
 
 ### 3. Read Task Guidance
+
 - Look for the `_Prompt` field — it contains Role, Task, Restrictions, Success criteria
 - Note `_Leverage` fields for files/utilities to use
 - Check `_Requirements` fields for which requirements this implements
 
 ### 4. Discover Existing Implementations (CRITICAL)
+
 Before writing any code, search implementation logs:
 ```bash
 grep -r "GET\|POST\|PUT\|DELETE" "<workflowRoot>/specs/<specName>/Implementation Logs/"
 grep -r "ComponentName" "<workflowRoot>/specs/<specName>/Implementation Logs/"
 ```
+
 - Don't create duplicate API endpoints
 - Don't reimplement existing components/functions
 - Follow established patterns
 
 ### 5. Implement the Task (dispatch subagent)
+
 - Dispatch a fresh subagent (Agent tool) with the full task text, _Prompt guidance, and _Leverage file paths
 - Template: `<workflowRoot>/templates/implementer-prompt-template.md`
 - The subagent implements, tests, commits, and self-reviews
 - Main context stays clean for orchestration
 
 ### 5.5. Spec Compliance Review (dispatch reviewer subagent)
+
 - Reviewer reads actual code and compares to task requirements line by line
 - Template: `<workflowRoot>/templates/spec-reviewer-template.md`
 - If issues found: implementer fixes, then re-review
 - Do NOT proceed until spec review passes
 
 ### 5.6. Code Quality Review (dispatch reviewer subagent)
+
 - Only after spec compliance passes
 - Template: `<workflowRoot>/templates/code-quality-reviewer-template.md`
 - Fix Critical and Important issues, re-review until approved
 
 ### 6. Log Implementation (MANDATORY — before marking task done)
+
 **STOP: Do NOT mark the task [x] until this step succeeds.**
 
 Call the **log-implementation** MCP tool with ALL of:
+
 - `specName`, `taskId`, `summary`, `filesModified`, `filesCreated`
 - `statistics: {linesAdded, linesRemoved}`
 - `artifacts: {apiEndpoints, components, functions, classes, integrations}`
 
 ### 7. Complete the Task (only after step 6 succeeds)
+
 - Confirm log-implementation returned success
 - Verify all success criteria from _Prompt are met
 - Run relevant tests

@@ -32,6 +32,7 @@ updated: {{YYYY-MM-DD}}
 > **MANDATORY — The spec author MUST fill this in.** The Phase 4 orchestrator uses this plan to dispatch tasks. Tasks listed in the same batch MUST be sent as parallel Agent tool calls in a SINGLE message. Batches run sequentially (batch 2 waits for all of batch 1 to finish).
 
 **Rules for grouping:**
+
 1. Two tasks are **independent** if they share NO files in the File Touch Map (no overlapping CREATE/MODIFY/TEST paths).
 2. Independent tasks go in the **same batch** — they MUST run in parallel via simultaneous Agent tool calls in one message.
 3. Tasks that share ANY file MUST be in **different batches** (sequential).
@@ -62,6 +63,7 @@ After completing: call mcp__specflow__log-implementation with full artifacts (fu
 ### Pre-Flight Tool Check (once per session, before first task)
 
 Verify all MCP tools are available before executing ANY task:
+
 1. Call `mcp__specflow__spec-workflow-guide` — if this fails, specflow MCP is not connected. STOP.
 2. Call `mcp__specflow__spec-status` with the spec name — if this fails, the spec doesn't exist yet. STOP.
 3. Verify `mcp__specflow__log-implementation` is callable.
@@ -204,6 +206,7 @@ If ANY tool is missing, report the missing tools to the user and STOP.
 > NOT here. They run BEFORE implementation. Do NOT move them back into closing.
 >
 > **DO NOT:**
+>
 > - Rewrite these tasks from scratch
 > - Simplify or consolidate them
 > - Skip any task in this block

@@ -35,7 +35,7 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 npx -y @pimzino/spec-workflow-mcp@latest --dashboard
 ```
 
-2. **启动 MCP 服务器**（每个项目一个，在单独的终端中）：
+1. **启动 MCP 服务器**（每个项目一个，在单独的终端中）：
 
 ```bash
 # 项目 1
@@ -212,7 +212,7 @@ debounceMs = 300
 cp .specflow/config.example.toml .specflow/config.toml
 ```
 
-2. 编辑配置：
+1. 编辑配置：
 
 ```toml
 # 我的项目配置
@@ -221,7 +221,7 @@ port = 3000
 lang = "en"
 ```
 
-3. 使用配置：
+1. 使用配置：
 
 ```bash
 # 自动使用 .specflow/config.toml

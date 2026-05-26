@@ -182,13 +182,13 @@ Session digests for **<ProjectFolder>**.
 | [[YYYY-MM-DD]] | Daily digest |
 ```
 
-2. **If `_Index.md` exists** — check if the date is already listed. If not, add a row to the Daily table:
+1. **If `_Index.md` exists** — check if the date is already listed. If not, add a row to the Daily table:
 
 ```markdown
 | [[YYYY-MM-DD]] | Daily digest |
 ```
 
-3. **Update the `updated` date** in the frontmatter to today's date.
+1. **Update the `updated` date** in the frontmatter to today's date.
 
 **Do NOT skip this step.** An unindexed digest is invisible to agents navigating via the index tree.
 

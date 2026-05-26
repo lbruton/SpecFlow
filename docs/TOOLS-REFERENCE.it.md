@@ -218,7 +218,7 @@ Spec Workflow MCP fornisce strumenti specializzati per lo sviluppo software stru
 }
 ```
 
-2. **Completa Task**:
+1. **Completa Task**:
 
 ```typescript
 {
@@ -228,7 +228,7 @@ Spec Workflow MCP fornisce strumenti specializzati per lo sviluppo software stru
 }
 ```
 
-3. **Elenca Task**:
+1. **Elenca Task**:
 
 ```typescript
 {
@@ -237,7 +237,7 @@ Spec Workflow MCP fornisce strumenti specializzati per lo sviluppo software stru
 }
 ```
 
-4. **Ottieni Progressi**:
+1. **Ottieni Progressi**:
 
 ```typescript
 {

@@ -1,0 +1,20 @@
+{
+  "rules": {
+    "alpha-value-notation": "percentage",
+    "color-function-notation": "modern",
+    "color-hex-length": "short",
+    "custom-property-pattern": null,
+    "custom-property-empty-line-before": null,
+    "font-family-name-quotes": "always-where-required",
+    "import-notation": "string",
+    "keyframes-name-pattern": null,
+    "rule-empty-line-before": [
+      "always",
+      {
+        "except": ["first-nested"],
+        "ignore": ["after-comment"]
+      }
+    ],
+    "value-keyword-case": "lower"
+  }
+}

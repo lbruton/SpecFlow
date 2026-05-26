@@ -374,7 +374,7 @@ In Einstellungen konfigurieren:
 
 ## Die richtige Oberfläche wählen
 
-### Web-Dashboard verwenden, wenn:
+### Web-Dashboard verwenden, wenn
 
 - CLI-basierte AI-Tools verwendet werden
 - Über mehrere IDEs gearbeitet wird
@@ -382,7 +382,7 @@ In Einstellungen konfigurieren:
 - Mit Teammitgliedern geteilt wird
 - Schnelle Projektübersicht benötigt wird
 
-### VSCode Extension verwenden, wenn:
+### VSCode Extension verwenden, wenn
 
 - Primäre IDE VSCode ist
 - Integrierte Erfahrung gewünscht wird

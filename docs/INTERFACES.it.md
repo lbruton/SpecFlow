@@ -374,7 +374,7 @@ Configura nelle impostazioni:
 
 ## Scegliere l'Interfaccia Giusta
 
-### Usa Dashboard Web Quando:
+### Usa Dashboard Web Quando
 
 - Usi strumenti AI basati su CLI
 - Lavori su più IDE
@@ -382,7 +382,7 @@ Configura nelle impostazioni:
 - Condividi con membri team
 - Serve panoramica rapida progetto
 
-### Usa Estensione VSCode Quando:
+### Usa Estensione VSCode Quando
 
 - IDE primario è VSCode
 - Vuoi esperienza integrata

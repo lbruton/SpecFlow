@@ -30,6 +30,7 @@ Two independent channels (full diagram: [[SpecFlow/Architecture]] § Deployment 
 Installing one does NOT install the other. README must say both.
 
 Hard rules:
+
 - Orphan dirs from pre-v3.6.0 (`plugin/`, `.claude-plugin/`, `~/.claude/plugins/marketplaces/`) — delete on sight, never edit.
 - User-level (`~/.claude/skills/<n>/SKILL.md`) and repo copy (`skills/<n>/SKILL.md`) are intentionally separate files. Promote via `cp`, not symlinks.
 

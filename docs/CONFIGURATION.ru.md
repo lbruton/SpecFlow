@@ -35,7 +35,7 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 npx -y @pimzino/spec-workflow-mcp@latest --dashboard
 ```
 
-2. **Запустите серверы MCP** (по одному на проект, в отдельных терминалах):
+1. **Запустите серверы MCP** (по одному на проект, в отдельных терминалах):
 
 ```bash
 # Проект 1
@@ -212,7 +212,7 @@ debounceMs = 300
 cp .specflow/config.example.toml .specflow/config.toml
 ```
 
-2. Отредактируйте конфигурацию:
+1. Отредактируйте конфигурацию:
 
 ```toml
 # Конфигурация моего проекта
@@ -221,7 +221,7 @@ port = 3000
 lang = "en"
 ```
 
-3. Используйте конфигурацию:
+1. Используйте конфигурацию:
 
 ```bash
 # Использует .specflow/config.toml автоматически

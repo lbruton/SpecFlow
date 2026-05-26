@@ -218,7 +218,7 @@ Spec Workflow MCP fournit des outils spécialisés pour le développement logici
 }
 ```
 
-2. **Compléter une Tâche** :
+1. **Compléter une Tâche** :
 
 ```typescript
 {
@@ -228,7 +228,7 @@ Spec Workflow MCP fournit des outils spécialisés pour le développement logici
 }
 ```
 
-3. **Lister les Tâches** :
+1. **Lister les Tâches** :
 
 ```typescript
 {
@@ -237,7 +237,7 @@ Spec Workflow MCP fournit des outils spécialisés pour le développement logici
 }
 ```
 
-4. **Obtenir la Progression** :
+1. **Obtenir la Progression** :
 
 ```typescript
 {
