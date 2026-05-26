@@ -162,86 +162,86 @@ Client (AI) ↔ MCP Protocol ↔ Server ↔ File System
 
 1. **أنشئ ملف الأداة** في `src/tools/`:
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
-
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: 'وصف ما تفعله الأداة',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: 'وصف المعامل' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // تطبيق الأداة
-    const { param1, param2 = 0 } = params;
-
-    // منطق الأعمال هنا
-
-    return {
-      success: true,
-      data: 'استجابة الأداة',
-    };
-  },
-};
-```
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
+   
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: 'وصف ما تفعله الأداة',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: 'وصف المعامل' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // تطبيق الأداة
+       const { param1, param2 = 0 } = params;
+   
+       // منطق الأعمال هنا
+   
+       return {
+         success: true,
+         data: 'استجابة الأداة',
+       };
+     },
+   };
+   ```
 
 2. **سجل في الفهرس** (`src/tools/index.ts`):
 
-```typescript
-export { myNewTool } from './my-new-tool';
-```
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
 3. **أضف إلى الخادم** (`src/index.ts`):
 
-```typescript
-import { myNewTool } from './tools';
-
-server.registerTool(myNewTool);
-```
+   ```typescript
+   import { myNewTool } from './tools';
+   
+   server.registerTool(myNewTool);
+   ```
 
 ### إضافة ميزات لوحة التحكم
 
 1. **تحديث HTML** (`dashboard/index.html`):
 
-```html
-<div class="new-feature">
-  <h3>ميزة جديدة</h3>
-  <button id="new-action">إجراء</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>ميزة جديدة</h3>
+     <button id="new-action">إجراء</button>
+   </div>
+   ```
 
 2. **أضف JavaScript** (`dashboard/script.js`):
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // منطق الميزة
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // منطق الميزة
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
 3. **التعامل في الخادم** (`src/server.ts`):
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // معالجة الإجراء الجديد
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // معالجة الإجراء الجديد
+     }
+   });
+   ```
 
 ## الاختبار
 
@@ -315,23 +315,23 @@ describe('سير العمل الكامل', () => {
 
 1. **أضف مخرجات التصحيح**:
 
-```typescript
-console.error('[DEBUG]', 'تم استدعاء الأداة:', toolName, params);
-```
+   ```typescript
+   console.error('[DEBUG]', 'تم استدعاء الأداة:', toolName, params);
+   ```
 
 2. **استخدم مصحح VSCode**:
 
-```json
-// .vscode/launch.json
-{
-  "type": "node",
-  "request": "launch",
-  "name": "Debug MCP Server",
-  "program": "${workspaceFolder}/dist/index.js",
-  "args": ["/path/to/test/project"],
-  "console": "integratedTerminal"
-}
-```
+   ```json
+   // .vscode/launch.json
+   {
+     "type": "node",
+     "request": "launch",
+     "name": "Debug MCP Server",
+     "program": "${workspaceFolder}/dist/index.js",
+     "args": ["/path/to/test/project"],
+     "console": "integratedTerminal"
+   }
+   ```
 
 ### تصحيح لوحة التحكم
 

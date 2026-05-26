@@ -208,43 +208,43 @@ Spec Workflow MCP fournit des outils spécialisés pour le développement logici
 
 1. **Mettre à Jour le Statut de Tâche** :
 
-```typescript
-{
-  specName: "user-auth",
-  action: "update",
-  taskId: "1.2.1",
-  status: "in-progress",
-  notes: "Implémentation démarrée"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "update",
+     taskId: "1.2.1",
+     status: "in-progress",
+     notes: "Implémentation démarrée"
+   }
+   ```
 
 2. **Compléter une Tâche** :
 
-```typescript
-{
-  specName: "user-auth",
-  action: "complete",
-  taskId: "1.2.1"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "complete",
+     taskId: "1.2.1"
+   }
+   ```
 
 3. **Lister les Tâches** :
 
-```typescript
-{
-  specName: "user-auth",
-  action: "list"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "list"
+   }
+   ```
 
 4. **Obtenir la Progression** :
 
-```typescript
-{
-  specName: "user-auth",
-  action: "progress"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "progress"
+   }
+   ```
 
 **Retourne** : Informations de tâche ou confirmation de mise à jour
 

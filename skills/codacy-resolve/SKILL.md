@@ -148,6 +148,7 @@ engines:
 
 **Pattern-level ignore** (surgical — disables a specific rule):
 Check if the tool supports inline suppression comments:
+
 - ESLint: `// eslint-disable-next-line rule-name`
 - Opengrep/Semgrep: `// nosemgrep: rule-id`
 - Bandit: `# nosec`
@@ -267,6 +268,7 @@ Next steps:
 ### SRM vs Quality Issues
 
 **SRM (Security and Risk Management)** findings come from security-focused scanners:
+
 - **SAST** — Static Application Security Testing (code-level vulnerabilities)
 - **SCA** — Software Composition Analysis (dependency vulnerabilities)
 - **Secrets** — Hardcoded credentials/API keys
@@ -275,6 +277,7 @@ Next steps:
 SRM items have `priority` (Critical/High/Medium/Low) and `status` (OnTrack/DueSoon/Overdue).
 
 **Quality issues** come from linters and code analysis tools:
+
 - Categories: security, errorprone, performance, complexity, unusedcode, codestyle, etc.
 - Levels: Error (critical), Warning (medium), Info (minor)
 

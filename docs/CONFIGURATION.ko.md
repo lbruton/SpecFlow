@@ -30,23 +30,23 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 
 1. **대시보드 시작** (먼저 한 번만 수행):
 
-```bash
-# 기본 포트 5000 사용
-npx -y @pimzino/spec-workflow-mcp@latest --dashboard
-```
+   ```bash
+   # 기본 포트 5000 사용
+   npx -y @pimzino/spec-workflow-mcp@latest --dashboard
+   ```
 
-2. **MCP 서버 시작** (프로젝트당 하나, 별도 터미널에서):
+1. **MCP 서버 시작** (프로젝트당 하나, 별도 터미널에서):
 
-```bash
-# 프로젝트 1
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
+   ```bash
+   # 프로젝트 1
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
 
-# 프로젝트 2
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
+   # 프로젝트 2
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
 
-# 프로젝트 3
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
-```
+   # 프로젝트 3
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
+   ```
 
 모든 프로젝트가 http://localhost:5000 의 대시보드에 표시됩니다.
 
@@ -212,7 +212,7 @@ debounceMs = 300
 cp .specflow/config.example.toml .specflow/config.toml
 ```
 
-2. 구성 편집:
+1. 구성 편집:
 
 ```toml
 # 내 프로젝트 구성
@@ -221,7 +221,7 @@ port = 3000
 lang = "en"
 ```
 
-3. 구성 사용:
+1. 구성 사용:
 
 ```bash
 # .specflow/config.toml 자동 사용

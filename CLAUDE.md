@@ -30,6 +30,7 @@ Two independent channels (full diagram: [[SpecFlow/Architecture]] § Deployment 
 Installing one does NOT install the other. README must say both.
 
 Hard rules:
+
 - Orphan dirs from pre-v3.6.0 (`plugin/`, `.claude-plugin/`, `~/.claude/plugins/marketplaces/`) — delete on sight, never edit.
 - User-level (`~/.claude/skills/<n>/SKILL.md`) and repo copy (`skills/<n>/SKILL.md`) are intentionally separate files. Promote via `cp`, not symlinks.
 
@@ -155,7 +156,7 @@ Every DocVault folder needs `_Index.md`. Creating/deleting/moving files: update 
 
 Automatic on Edit/Write/commit:
 
-- **prettier + lint-staged + husky** — staged `.{ts,tsx,js,cjs,mjs,json,css,html}` auto-formatted via `prettier --write`. Expect formatting changes on top of edits. Config: `.prettierrc.json`, `.prettierignore`.
+- **prettier + lint-staged + husky** — staged `.{ts,tsx,js,cjs,mjs,json,html}` auto-formatted via `prettier --write`; staged `*.css` files linted and formatted by stylelint. Expect formatting changes on top of edits. Config: `.prettierrc.json`, `.prettierignore`, `.stylelintrc.json`.
 - **i18n validation** — `npm run validate:i18n` is step 1 of every build. Fails on missing/extra/misformatted keys. Script: `scripts/validate-i18n.js`.
 - **MDX validation** — `npm run validate:mdx` (`scripts/validate-mdx.ts` → `src/core/mdx-validator.ts`). Use `PathUtils.getWorkflowRoot()` everywhere; hardcoded `.specflow/` breaks the validator.
 - **`Protect Main` ruleset gates merges** — requires `Codacy Static Code Analysis` + `CodeRabbit` status checks, CodeQL `code_scanning` (errors/critical), `copilot_code_review`, signed commits, linear history, and review-thread resolution. Verify via `gh api repos/lbruton/SpecFlow/rulesets`. Merge with **squash or rebase** (not a merge commit — linear history is required). `copilot_code_review` has `review_on_push:false`, so **re-request Copilot review after every push** (`gh api -X POST repos/lbruton/SpecFlow/pulls/{n}/requested_reviewers`, reviewer `copilot-pull-request-reviewer[bot]`) or the PR stays `BLOCKED`. Pre-existing CodeQL alerts on unchanged lines are pre-existing — they can be mis-flagged "new in PR" when your diff shifts their line numbers.

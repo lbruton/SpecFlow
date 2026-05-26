@@ -35,7 +35,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepublishOnly": "npm run build",
-    "validate:mdx": "tsx scripts/validate-mdx.ts"
+    "validate:mdx": "tsx scripts/validate-mdx.ts",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"!node_modules/**\" \"!.git/**\" \"!.claude/**\" \"!dist/**\" \"!vscode-extension/webview-dist/**\"",
+    "lint:css": "stylelint \"src/**/*.css\" \"vscode-extension/src/**/*.css\""
   },
   "keywords": [
     "mcp",
@@ -102,8 +104,11 @@
     "@vitest/coverage-v8": "^4.0.15",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "markdownlint-cli2": "^0.22.1",
     "prettier": "^3.8.3",
     "rimraf": "^6.0.1",
+    "stylelint": "^17.12.0",
+    "stylelint-config-standard": "^40.0.0",
     "tailwindcss": "^4.1.13",
     "tsx": "^4.7.0",
     "typescript": "^5.7.2",
@@ -111,6 +116,8 @@
     "vitest": "^4.0.15"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,cjs,mjs,json,css,html}": "prettier --write"
+    "*.{ts,tsx,js,cjs,mjs,json,html}": "prettier --write",
+    "*.md": "markdownlint-cli2 --fix",
+    "*.css": "stylelint --fix"
   }
 }

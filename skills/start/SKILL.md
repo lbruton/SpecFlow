@@ -105,6 +105,7 @@ git worktree list
 ```
 
 Surface:
+
 - Current branch
 - Last 10 commits (quick orientation on recent work)
 - Uncommitted changes (if any)

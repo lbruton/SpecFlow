@@ -208,43 +208,43 @@ Spec Workflow MCP 为结构化软件开发提供专门的工具。这些工具�
 
 1. **更新任务状态**：
 
-```typescript
-{
-  specName: "user-auth",
-  action: "update",
-  taskId: "1.2.1",
-  status: "in-progress",
-  notes: "开始实现"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "update",
+     taskId: "1.2.1",
+     status: "in-progress",
+     notes: "开始实现"
+   }
+   ```
 
 2. **完成任务**：
 
-```typescript
-{
-  specName: "user-auth",
-  action: "complete",
-  taskId: "1.2.1"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "complete",
+     taskId: "1.2.1"
+   }
+   ```
 
 3. **列出任务**：
 
-```typescript
-{
-  specName: "user-auth",
-  action: "list"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "list"
+   }
+   ```
 
 4. **获取进度**：
 
-```typescript
-{
-  specName: "user-auth",
-  action: "progress"
-}
-```
+   ```typescript
+   {
+     specName: "user-auth",
+     action: "progress"
+   }
+   ```
 
 **返回**：任务信息或更新确认
 

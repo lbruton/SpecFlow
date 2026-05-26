@@ -162,86 +162,86 @@ spec-workflow-mcp/
 
 1. **在 `src/tools/` 中创建工具文件**：
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
-
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: '工具功能描述',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: '参数描述' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // 工具实现
-    const { param1, param2 = 0 } = params;
-
-    // 业务逻辑在这里
-
-    return {
-      success: true,
-      data: '工具响应',
-    };
-  },
-};
-```
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
+   
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: '工具功能描述',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: '参数描述' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // 工具实现
+       const { param1, param2 = 0 } = params;
+   
+       // 业务逻辑在这里
+   
+       return {
+         success: true,
+         data: '工具响应',
+       };
+     },
+   };
+   ```
 
 2. **在索引中注册**（`src/tools/index.ts`）：
 
-```typescript
-export { myNewTool } from './my-new-tool';
-```
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
 3. **添加到服务器**（`src/index.ts`）：
 
-```typescript
-import { myNewTool } from './tools';
-
-server.registerTool(myNewTool);
-```
+   ```typescript
+   import { myNewTool } from './tools';
+   
+   server.registerTool(myNewTool);
+   ```
 
 ### 添加仪表板功能
 
 1. **更新 HTML**（`dashboard/index.html`）：
 
-```html
-<div class="new-feature">
-  <h3>新功能</h3>
-  <button id="new-action">操作</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>新功能</h3>
+     <button id="new-action">操作</button>
+   </div>
+   ```
 
 2. **添加 JavaScript**（`dashboard/script.js`）：
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // 功能逻辑
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // 功能逻辑
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
 3. **在服务器中处理**（`src/server.ts`）：
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // 处理新操作
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // 处理新操作
+     }
+   });
+   ```
 
 ## 测试
 
@@ -315,23 +315,23 @@ describe('完整工作流程', () => {
 
 1. **添加调试输出**：
 
-```typescript
-console.error('[DEBUG]', '工具被调用:', toolName, params);
-```
+   ```typescript
+   console.error('[DEBUG]', '工具被调用:', toolName, params);
+   ```
 
 2. **使用 VSCode 调试器**：
 
-```json
-// .vscode/launch.json
-{
-  "type": "node",
-  "request": "launch",
-  "name": "调试 MCP 服务器",
-  "program": "${workspaceFolder}/dist/index.js",
-  "args": ["/path/to/test/project"],
-  "console": "integratedTerminal"
-}
-```
+   ```json
+   // .vscode/launch.json
+   {
+     "type": "node",
+     "request": "launch",
+     "name": "调试 MCP 服务器",
+     "program": "${workspaceFolder}/dist/index.js",
+     "args": ["/path/to/test/project"],
+     "console": "integratedTerminal"
+   }
+   ```
 
 ### 调试仪表板
 

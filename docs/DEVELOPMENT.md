@@ -162,86 +162,86 @@ Template strings for:
 
 1. **Create tool file** in `src/tools/`:
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
 
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: 'Description of what the tool does',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: 'Parameter description' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // Tool implementation
-    const { param1, param2 = 0 } = params;
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: 'Description of what the tool does',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: 'Parameter description' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // Tool implementation
+       const { param1, param2 = 0 } = params;
 
-    // Business logic here
+       // Business logic here
 
-    return {
-      success: true,
-      data: 'Tool response',
-    };
-  },
-};
-```
+       return {
+         success: true,
+         data: 'Tool response',
+       };
+     },
+   };
+   ```
 
 2. **Register in index** (`src/tools/index.ts`):
 
-```typescript
-export { myNewTool } from './my-new-tool';
-```
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
 3. **Add to server** (`src/index.ts`):
 
-```typescript
-import { myNewTool } from './tools';
+   ```typescript
+   import { myNewTool } from './tools';
 
-server.registerTool(myNewTool);
-```
+   server.registerTool(myNewTool);
+   ```
 
 ### Adding Dashboard Features
 
 1. **Update HTML** (`dashboard/index.html`):
 
-```html
-<div class="new-feature">
-  <h3>New Feature</h3>
-  <button id="new-action">Action</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>New Feature</h3>
+     <button id="new-action">Action</button>
+   </div>
+   ```
 
 2. **Add JavaScript** (`dashboard/script.js`):
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // Feature logic
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // Feature logic
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
 3. **Handle in server** (`src/server.ts`):
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // Handle new action
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // Handle new action
+     }
+   });
+   ```
 
 ## Testing
 
@@ -319,7 +319,7 @@ describe('Complete Workflow', () => {
 console.error('[DEBUG]', 'Tool called:', toolName, params);
 ```
 
-2. **Use VSCode debugger**:
+1. **Use VSCode debugger**:
 
 ```json
 // .vscode/launch.json

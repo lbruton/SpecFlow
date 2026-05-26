@@ -30,23 +30,23 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 
 1. **Iniciar o Dashboard** (faça isso primeiro, apenas uma vez):
 
-```bash
-# Usa a porta padrão 5000
-npx -y @pimzino/spec-workflow-mcp@latest --dashboard
-```
+   ```bash
+   # Usa a porta padrão 5000
+   npx -y @pimzino/spec-workflow-mcp@latest --dashboard
+   ```
 
-2. **Iniciar Servidores MCP** (um por projeto, em terminais separados):
+1. **Iniciar Servidores MCP** (um por projeto, em terminais separados):
 
-```bash
-# Projeto 1
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
+   ```bash
+   # Projeto 1
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
 
-# Projeto 2
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
+   # Projeto 2
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
 
-# Projeto 3
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
-```
+   # Projeto 3
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
+   ```
 
 Todos os projetos aparecerão no dashboard em http://localhost:5000
 
@@ -212,7 +212,7 @@ debounceMs = 300
 cp .specflow/config.example.toml .specflow/config.toml
 ```
 
-2. Edite a configuração:
+1. Edite a configuração:
 
 ```toml
 # Configuração do meu projeto
@@ -221,7 +221,7 @@ port = 3000
 lang = "pt"
 ```
 
-3. Use a configuração:
+1. Use a configuração:
 
 ```bash
 # Usa .specflow/config.toml automaticamente

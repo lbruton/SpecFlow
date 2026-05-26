@@ -32,23 +32,23 @@ npx -y @pimzino/spec-workflow-mcp@latest [project-path] [options]
 
 1. **Start the Dashboard** (do this first, only once):
 
-```bash
-# Uses default port 5000
-npx -y @pimzino/spec-workflow-mcp@latest --dashboard
-```
+   ```bash
+   # Uses default port 5000
+   npx -y @pimzino/spec-workflow-mcp@latest --dashboard
+   ```
 
-2. **Start MCP Servers** (one per project, in separate terminals):
+1. **Start MCP Servers** (one per project, in separate terminals):
 
-```bash
-# Project 1
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
+   ```bash
+   # Project 1
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app1
 
-# Project 2
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
+   # Project 2
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app2
 
-# Project 3
-npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
-```
+   # Project 3
+   npx -y @pimzino/spec-workflow-mcp@latest ~/projects/app3
+   ```
 
 All projects will appear in the dashboard at http://localhost:5000
 
@@ -300,28 +300,28 @@ debounceMs = 300
 
 1. Copy the example configuration:
 
-```bash
-cp .specflow/config.example.toml .specflow/config.toml
-```
+   ```bash
+   cp .specflow/config.example.toml .specflow/config.toml
+   ```
 
-2. Edit the configuration:
+1. Edit the configuration:
 
-```toml
-# My project configuration
-projectDir = "/Users/myname/projects/myapp"
-port = 3000
-lang = "en"
-```
+   ```toml
+   # My project configuration
+   projectDir = "/Users/myname/projects/myapp"
+   port = 3000
+   lang = "en"
+   ```
 
-3. Use the configuration:
+1. Use the configuration:
 
-```bash
-# Uses .specflow/config.toml automatically
-npx -y @pimzino/spec-workflow-mcp@latest
+   ```bash
+   # Uses .specflow/config.toml automatically
+   npx -y @pimzino/spec-workflow-mcp@latest
 
-# Or specify explicitly
-npx -y @pimzino/spec-workflow-mcp@latest --config .specflow/config.toml
-```
+   # Or specify explicitly
+   npx -y @pimzino/spec-workflow-mcp@latest --config .specflow/config.toml
+   ```
 
 ## Configuration Precedence
 

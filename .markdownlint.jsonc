@@ -1,0 +1,26 @@
+{
+  // Markdownlint configuration — matches Codacy's enforced rule set.
+  // Only the 7 rules Codacy checks are enabled; all others are off.
+  "default": false,
+
+  // MD004: Unordered list marker style — use dashes consistently
+  "MD004": { "style": "dash" },
+
+  // MD007: Unordered list indentation — 2 spaces per level
+  "MD007": { "indent": 2 },
+
+  // MD022: Headings must be surrounded by blank lines
+  "MD022": true,
+
+  // MD023: Headings must start at the beginning of the line
+  "MD023": true,
+
+  // MD026: No trailing punctuation in headings
+  "MD026": { "punctuation": ".,;:!" },
+
+  // MD029: Ordered list item prefixes must be consistent (allow "1. 2. 3." or all "1.")
+  "MD029": { "style": "one_or_ordered" },
+
+  // MD032: Lists must be surrounded by blank lines
+  "MD032": true
+}

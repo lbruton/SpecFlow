@@ -162,86 +162,86 @@ Client (AI) ↔ MCP Protocol ↔ Server ↔ File System
 
 1. **`src/tools/`에 도구 파일 생성**:
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
-
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: '도구가 수행하는 작업 설명',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: '매개변수 설명' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // 도구 구현
-    const { param1, param2 = 0 } = params;
-
-    // 여기에 비즈니스 로직
-
-    return {
-      success: true,
-      data: '도구 응답',
-    };
-  },
-};
-```
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
+   
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: '도구가 수행하는 작업 설명',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: '매개변수 설명' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // 도구 구현
+       const { param1, param2 = 0 } = params;
+   
+       // 여기에 비즈니스 로직
+   
+       return {
+         success: true,
+         data: '도구 응답',
+       };
+     },
+   };
+   ```
 
 2. **인덱스에 등록** (`src/tools/index.ts`):
 
-```typescript
-export { myNewTool } from './my-new-tool';
-```
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
 3. **서버에 추가** (`src/index.ts`):
 
-```typescript
-import { myNewTool } from './tools';
-
-server.registerTool(myNewTool);
-```
+   ```typescript
+   import { myNewTool } from './tools';
+   
+   server.registerTool(myNewTool);
+   ```
 
 ### 대시보드 기능 추가
 
 1. **HTML 업데이트** (`dashboard/index.html`):
 
-```html
-<div class="new-feature">
-  <h3>새 기능</h3>
-  <button id="new-action">작업</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>새 기능</h3>
+     <button id="new-action">작업</button>
+   </div>
+   ```
 
 2. **JavaScript 추가** (`dashboard/script.js`):
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // 기능 로직
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // 기능 로직
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
 3. **서버에서 처리** (`src/server.ts`):
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // 새 작업 처리
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // 새 작업 처리
+     }
+   });
+   ```
 
 ## 테스팅
 
@@ -315,23 +315,23 @@ describe('Complete Workflow', () => {
 
 1. **디버그 출력 추가**:
 
-```typescript
-console.error('[DEBUG]', 'Tool called:', toolName, params);
-```
+   ```typescript
+   console.error('[DEBUG]', 'Tool called:', toolName, params);
+   ```
 
 2. **VSCode 디버거 사용**:
 
-```json
-// .vscode/launch.json
-{
-  "type": "node",
-  "request": "launch",
-  "name": "Debug MCP Server",
-  "program": "${workspaceFolder}/dist/index.js",
-  "args": ["/path/to/test/project"],
-  "console": "integratedTerminal"
-}
-```
+   ```json
+   // .vscode/launch.json
+   {
+     "type": "node",
+     "request": "launch",
+     "name": "Debug MCP Server",
+     "program": "${workspaceFolder}/dist/index.js",
+     "args": ["/path/to/test/project"],
+     "console": "integratedTerminal"
+   }
+   ```
 
 ### 대시보드 디버그
 

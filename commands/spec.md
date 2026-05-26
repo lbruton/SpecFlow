@@ -28,6 +28,7 @@ Resuming a spec does NOT mean "wing it." It means:
 6. **Use `spec-list`** — find the existing spec by issue ID before assuming a spec name or directory structure.
 
 **Common violations this rule prevents:**
+
 - Writing a `requirements.md` from scratch without reading the template → produces documents missing required sections (References, User Stories, Acceptance Criteria, Non-Functional Requirements)
 - Writing `tasks.md` without reading the resolved workflow template → produces tasks missing `_Prompt`, `_Leverage`, `_Requirements` fields, VERSION CHECKOUT GATE, and Standard Closing Tasks
 - Skipping `approvals` and asking the user "does this look good?" → verbal approval is never valid
@@ -35,6 +36,7 @@ Resuming a spec does NOT mean "wing it." It means:
 - Editing spec files directly without knowing the current approval state → overwrites pending approvals
 
 **Self-check before writing ANY spec document:**
+
 - [ ] Did I call `spec-workflow-guide`?
 - [ ] Did I call `spec-status` (if resuming)?
 - [ ] Did I read the template for this phase?
@@ -61,12 +63,14 @@ cat .specflow/config.json
 ```
 
 From `.claude/project.json` extract (if the file exists):
+
 - `issuePrefix` → used for issue file lookups
 - `name` → display label
 
 If `.claude/project.json` is absent, read `issue_prefix` from `.specflow/config.json` and use it as `issuePrefix`.
 
 From `.specflow/config.json` extract:
+
 - `project` → project name for specflow paths
 - `docvault` → relative path to DocVault (e.g. `../DocVault`)
 - `issue_backend` → `"plane"` or `"docvault"` (default if absent: `"docvault"`)
@@ -102,6 +106,7 @@ mcp__plane__get_issue_using_readable_identifier
 For example, if `$ARGUMENTS` is `SFLW-3`, pass `project_identifier: "SFLW"` and `issue_identifier: "3"`.
 
 Extract from the response:
+
 - `name` → title
 - `description_html` → description
 - `priority` → priority
@@ -167,6 +172,7 @@ spec-list query: "{ISSUE-ID}"
 ### Decision
 
 **If a matching spec is found (any method):**
+
 - Call `spec-status` with the matched `specName` to see phase progress
 - Display current state (phase, task completion counts, pending approvals)
 - **MANDATORY before resuming any phase:** Call `spec-workflow-guide` to reload the full workflow procedure. Do NOT rely on memory of how the workflow works.
@@ -176,6 +182,7 @@ spec-list query: "{ISSUE-ID}"
 - If Phase 5 in progress, jump to Step 5 (Implementation)
 
 **If no spec exists:**
+
 - Inform: "No existing spec found. Starting Phase 1 — Requirements."
 - Proceed to Step 2
 
@@ -305,20 +312,20 @@ Skipping any of these calls is a workflow violation.
 
 3. **Reference requirements.md and Impact Report** from Step 2.
 
-3. **Propose 2-3 approaches**, each referencing existing codebase patterns found in the Impact Report.
+4. **Propose 2-3 approaches**, each referencing existing codebase patterns found in the Impact Report.
 
-4. **Present design in sections**, get user feedback after each section.
+5. **Present design in sections**, get user feedback after each section.
 
-5. **Write design.md:**
+6. **Write design.md:**
    Call `mcp__specflow__write-spec-doc` with:
    - `specName`: the derived spec name
    - `documentType`: `"design"`
    - `content`: the drafted design document
    If the tool returns a gate error, surface the error and stop.
 
-6. **Request dashboard approval** (same pattern as Step 2 — request → poll → delete on approval).
+7. **Request dashboard approval** (same pattern as Step 2 — request → poll → delete on approval).
 
-7. On approved → proceed to Step 4.
+8. On approved → proceed to Step 4.
 
 ---
 
@@ -338,29 +345,30 @@ Skipping any of these calls is a workflow violation.
 
 3. **Reference requirements.md + design.md.**
 
-3. **Create tasks** with the following fields for each:
+4. **Create tasks** with the following fields for each:
    - `_Prompt` — Role, Task, Restrictions, Success criteria
    - `_Leverage` — files and utilities to use
    - `_Requirements` — which requirements this task implements
    - **Recommended Agent** — Claude / Codex / Gemini / Human
    - **File Touch Map** — CREATE / MODIFY / TEST with file paths
 
-4. **Write tasks.md:**
+5. **Write tasks.md:**
    Call `mcp__specflow__write-spec-doc` with:
    - `specName`: the derived spec name
    - `documentType`: `"tasks"`
    - `content`: the drafted tasks document
    If the tool returns a gate error, surface the error and stop.
 
-5. **Request dashboard approval** (same pattern as Steps 2–3).
+6. **Request dashboard approval** (same pattern as Steps 2–3).
 
-6. On approved → proceed to Step 5.
+7. On approved → proceed to Step 5.
 
 ---
 
 ## Step 5: Phase 5 — Implementation
 
 > **SESSION BOUNDARY RULE:** If you are entering this phase from a handoff or new session, you MUST:
+>
 > 1. Call `spec-workflow-guide`
 > 2. Call `spec-status` to see task progress
 > 3. Read the full `tasks.md`
@@ -408,38 +416,47 @@ Skipping any of these calls is a workflow violation.
 
 For each pending task (or parallel batch of independent tasks):
 
-   #### a) Mark in-progress
+#### a) Mark in-progress
+
    Edit `tasks.md`: change `[ ]` → `[-]` for the current task.
 
-   #### b) Check prior implementation logs
+#### b) Check prior implementation logs
+
    ```bash
    ls "<workflowRoot>/specs/{specName}/Implementation Logs/" 2>/dev/null
    ```
 
-   #### c) Dispatch implementer subagent
-   Use the Agent tool with:
-   - The full `_Prompt` text from the task
-   - All `_Leverage` file paths
-   - Reference: `<workflowRoot>/templates/implementer-prompt-template.md` (if exists)
-   - **Inject specialized role context** based on the task's File Touch Map (see Specialized Agent Roles below)
-   - Subagent implements, tests, commits, and self-reviews
-   - **Main context does NOT write implementation code**
+#### c) Dispatch implementer subagent
 
-   #### d) Dispatch spec compliance reviewer
    Use the Agent tool with:
-   - Reference: `<workflowRoot>/templates/spec-reviewer-template.md` (if exists)
-   - Reads actual code changes vs task requirements
-   - If fail → dispatch implementer again to fix → re-review
-   - Must pass before proceeding
 
-   #### e) Dispatch code quality reviewer
+- The full `_Prompt` text from the task
+- All `_Leverage` file paths
+- Reference: `<workflowRoot>/templates/implementer-prompt-template.md` (if exists)
+- **Inject specialized role context** based on the task's File Touch Map (see Specialized Agent Roles below)
+- Subagent implements, tests, commits, and self-reviews
+- **Main context does NOT write implementation code**
+
+#### d) Dispatch spec compliance reviewer
+
    Use the Agent tool with:
-   - Reference: `<workflowRoot>/templates/code-quality-reviewer-template.md` (if exists)
-   - Checks architecture, error handling, testing, production readiness
-   - If Critical or Important issues found → fix → re-review
-   - Must pass before proceeding
 
-   #### f) Log implementation (MANDATORY)
+- Reference: `<workflowRoot>/templates/spec-reviewer-template.md` (if exists)
+- Reads actual code changes vs task requirements
+- If fail → dispatch implementer again to fix → re-review
+- Must pass before proceeding
+
+#### e) Dispatch code quality reviewer
+
+   Use the Agent tool with:
+
+- Reference: `<workflowRoot>/templates/code-quality-reviewer-template.md` (if exists)
+- Checks architecture, error handling, testing, production readiness
+- If Critical or Important issues found → fix → re-review
+- Must pass before proceeding
+
+#### f) Log implementation (MANDATORY)
+
    ```
    log-implementation
      specName: "{specName}"
@@ -462,10 +479,12 @@ For each pending task (or parallel batch of independent tasks):
    Log EACH task individually as you finish it — not in a batch after all tasks are done.
    </HARD-GATE>
 
-   #### g) Mark complete
+#### g) Mark complete
+
    Edit `tasks.md`: change `[-]` → `[x]` (only after log-implementation succeeds).
 
 **Progress checkpoint** after each task:
+
 - Save progress to mem0 periodically: spec name, completed tasks, next task ID
 
 ---
@@ -554,9 +573,9 @@ This ensures every subagent writes code that matches project conventions.
 
 ### After all tasks are `[x]` (any option)
 
-4. Verify every task has a corresponding implementation log entry (cross-check task count vs log count)
-5. Call `spec-status` to confirm 100% complete
-6. Proceed to Step 5.5
+1. Verify every task has a corresponding implementation log entry (cross-check task count vs log count)
+2. Call `spec-status` to confirm 100% complete
+3. Proceed to Step 5.5
 
 ---
 
@@ -567,6 +586,7 @@ After all implementation tasks are `[x]` and logged, two gates must pass before 
 ### a) Test Authoring — dispatch test author agent
 
 Dispatch a subagent with:
+
 - All implementation logs for this spec (read from `<workflowRoot>/specs/{specName}/Implementation Logs/`)
 - The `browserbase-test-maintenance` skill
 - Instructions: "Review the implementation logs. Author new test steps that cover the new or changed behavior. Add steps to the existing test suite."
@@ -581,6 +601,7 @@ If no user-facing behavior changed (pure refactor, config-only), this gate can b
 ### b) DocVault Update — dispatch documentation agent
 
 Dispatch a subagent with:
+
 - All implementation logs for this spec
 - The `vault-update` skill
 - The DocVault repo path: `../DocVault`
@@ -596,6 +617,7 @@ If no documented behavior changed, this gate can be skipped with explicit justif
 ### Gate completion
 
 After both agents return successfully:
+
 - Log a summary entry: `log-implementation` with taskId `"post-gates"`, listing test files created and wiki pages updated
 - Proceed to Step 6
 
@@ -671,11 +693,13 @@ A spec with open issues is NOT complete. Verify the vault issue status is `done`
 ## Integration
 
 **Called by:**
+
 - User directly: `/spec {ISSUE-ID}`
 - After `/discover` completes (discovery's terminal state)
 - After `/start-patch` selects an issue (if the issue needs a spec)
 
 **Calls:**
+
 - `codebase-search` skill (Step 2, mandatory before requirements)
 - Agent tool (Step 5, subagent dispatch for implementation + review)
 - `browserbase-test-maintenance` skill (Step 5.5a, test authoring gate)

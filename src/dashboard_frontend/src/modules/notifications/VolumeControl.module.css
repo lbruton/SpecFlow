@@ -1,6 +1,6 @@
 /* Slider styles for VolumeControl component */
 .slider {
-  -webkit-appearance: none;
+  -webkit-appearance: none; /* stylelint-disable-line property-no-vendor-prefix -- Safari range input requires prefixed form */
   appearance: none;
   width: 80px;
   height: 4px;
@@ -17,15 +17,15 @@
 
 /* Webkit browsers (Chrome, Safari, Edge) */
 .slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
+  -webkit-appearance: none; /* stylelint-disable-line property-no-vendor-prefix -- WebKit thumb pseudo-element requires prefixed form */
   appearance: none;
   height: 16px;
   width: 16px;
   border-radius: 50%;
   background: #2563eb;
   cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 10%);
   transition: background 0.2s;
   margin-top: -6px;
 }
@@ -41,8 +41,8 @@
   border-radius: 50%;
   background: #2563eb;
   cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 10%);
   transition: background 0.2s;
 }
 

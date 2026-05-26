@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+
 @plugin "@tailwindcss/typography";
 
 @variant dark (.dark &);
@@ -43,7 +44,7 @@
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   background: var(--interactive-primary);
-  color: #ffffff;
+  color: #fff;
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
@@ -113,7 +114,7 @@
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   background: var(--status-error);
-  color: #ffffff;
+  color: #fff;
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
@@ -132,12 +133,15 @@
 .text-primary {
   color: var(--text-primary);
 }
+
 .text-secondary {
   color: var(--text-secondary);
 }
+
 .muted {
   color: var(--text-muted);
 }
+
 .text-faint {
   color: var(--text-faint);
 }
@@ -228,18 +232,23 @@
 .status-indicator-success {
   background: var(--status-success);
 }
+
 .status-indicator-warning {
   background: var(--status-warning);
 }
+
 .status-indicator-error {
   background: var(--status-error);
 }
+
 .status-indicator-info {
   background: var(--status-info);
 }
+
 .status-indicator-pending {
   background: var(--status-pending);
 }
+
 .status-indicator-in-progress {
   background: var(--status-in-progress);
 }
@@ -313,12 +322,15 @@
 .surface-base {
   background: var(--surface-base);
 }
+
 .surface-panel {
   background: var(--surface-panel);
 }
+
 .surface-elevated {
   background: var(--surface-elevated);
 }
+
 .surface-inset {
   background: var(--surface-inset);
 }
@@ -330,6 +342,7 @@
 .border-default {
   border-color: var(--border-default);
 }
+
 .border-strong {
   border-color: var(--border-strong);
 }
@@ -341,18 +354,23 @@
 .gap-1 {
   gap: var(--space-1);
 }
+
 .gap-2 {
   gap: var(--space-2);
 }
+
 .gap-3 {
   gap: var(--space-3);
 }
+
 .gap-4 {
   gap: var(--space-4);
 }
+
 .gap-6 {
   gap: var(--space-6);
 }
+
 .gap-8 {
   gap: var(--space-8);
 }
@@ -360,15 +378,19 @@
 .p-1 {
   padding: var(--space-1);
 }
+
 .p-2 {
   padding: var(--space-2);
 }
+
 .p-3 {
   padding: var(--space-3);
 }
+
 .p-4 {
   padding: var(--space-4);
 }
+
 .p-6 {
   padding: var(--space-6);
 }
@@ -380,7 +402,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgb(0 0 0 / 50%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -444,9 +466,11 @@
 .progress-fill-success {
   background: var(--status-success);
 }
+
 .progress-fill-warning {
   background: var(--status-warning);
 }
+
 .progress-fill-error {
   background: var(--status-error);
 }
@@ -517,6 +541,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -527,6 +552,7 @@
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

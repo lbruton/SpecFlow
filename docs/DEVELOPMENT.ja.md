@@ -162,86 +162,86 @@ spec-workflow-mcp/
 
 1. **`src/tools/`にツールファイルを作成**：
 
-```typescript
-// src/tools/my-new-tool.ts
-import { Tool } from '@anthropic/mcp-sdk';
-
-export const myNewTool: Tool = {
-  name: 'my-new-tool',
-  description: 'ツールの動作説明',
-  parameters: {
-    type: 'object',
-    properties: {
-      param1: { type: 'string', description: 'パラメータの説明' },
-      param2: { type: 'number', optional: true },
-    },
-    required: ['param1'],
-  },
-  handler: async (params) => {
-    // ツールの実装
-    const { param1, param2 = 0 } = params;
-
-    // ビジネスロジックをここに
-
-    return {
-      success: true,
-      data: 'ツールのレスポンス',
-    };
-  },
-};
-```
+   ```typescript
+   // src/tools/my-new-tool.ts
+   import { Tool } from '@anthropic/mcp-sdk';
+   
+   export const myNewTool: Tool = {
+     name: 'my-new-tool',
+     description: 'ツールの動作説明',
+     parameters: {
+       type: 'object',
+       properties: {
+         param1: { type: 'string', description: 'パラメータの説明' },
+         param2: { type: 'number', optional: true },
+       },
+       required: ['param1'],
+     },
+     handler: async (params) => {
+       // ツールの実装
+       const { param1, param2 = 0 } = params;
+   
+       // ビジネスロジックをここに
+   
+       return {
+         success: true,
+         data: 'ツールのレスポンス',
+       };
+     },
+   };
+   ```
 
 2. **インデックスに登録**（`src/tools/index.ts`）：
 
-```typescript
-export { myNewTool } from './my-new-tool';
-```
+   ```typescript
+   export { myNewTool } from './my-new-tool';
+   ```
 
 3. **サーバーに追加**（`src/index.ts`）：
 
-```typescript
-import { myNewTool } from './tools';
-
-server.registerTool(myNewTool);
-```
+   ```typescript
+   import { myNewTool } from './tools';
+   
+   server.registerTool(myNewTool);
+   ```
 
 ### ダッシュボード機能の追加
 
 1. **HTMLを更新**（`dashboard/index.html`）：
 
-```html
-<div class="new-feature">
-  <h3>新機能</h3>
-  <button id="new-action">アクション</button>
-</div>
-```
+   ```html
+   <div class="new-feature">
+     <h3>新機能</h3>
+     <button id="new-action">アクション</button>
+   </div>
+   ```
 
 2. **JavaScriptを追加**（`dashboard/script.js`）：
 
-```javascript
-document.getElementById('new-action').addEventListener('click', () => {
-  // 機能ロジック
-  ws.send(
-    JSON.stringify({
-      type: 'new-action',
-      data: {
-        /* ... */
-      },
-    }),
-  );
-});
-```
+   ```javascript
+   document.getElementById('new-action').addEventListener('click', () => {
+     // 機能ロジック
+     ws.send(
+       JSON.stringify({
+         type: 'new-action',
+         data: {
+           /* ... */
+         },
+       }),
+     );
+   });
+   ```
 
 3. **サーバーで処理**（`src/server.ts`）：
 
-```typescript
-ws.on('message', (message) => {
-  const { type, data } = JSON.parse(message);
-  if (type === 'new-action') {
-    // 新しいアクションを処理
-  }
-});
-```
+   ```typescript
+   ws.on('message', (message) => {
+     const { type, data } = JSON.parse(message);
+     if (type === 'new-action') {
+       // 新しいアクションを処理
+     }
+   });
+   ```
 
 ## テスト
 
@@ -315,23 +315,23 @@ describe('完全なワークフロー', () => {
 
 1. **デバッグ出力を追加**：
 
-```typescript
-console.error('[DEBUG]', 'ツールが呼び出されました:', toolName, params);
-```
+   ```typescript
+   console.error('[DEBUG]', 'ツールが呼び出されました:', toolName, params);
+   ```
 
 2. **VSCodeデバッガーを使用**：
 
-```json
-// .vscode/launch.json
-{
-  "type": "node",
-  "request": "launch",
-  "name": "Debug MCP Server",
-  "program": "${workspaceFolder}/dist/index.js",
-  "args": ["/path/to/test/project"],
-  "console": "integratedTerminal"
-}
-```
+   ```json
+   // .vscode/launch.json
+   {
+     "type": "node",
+     "request": "launch",
+     "name": "Debug MCP Server",
+     "program": "${workspaceFolder}/dist/index.js",
+     "args": ["/path/to/test/project"],
+     "console": "integratedTerminal"
+   }
+   ```
 
 ### ダッシュボードのデバッグ
 

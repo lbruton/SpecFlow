@@ -47,6 +47,7 @@ Resuming a spec does NOT mean "wing it." It means:
 6. **Use `spec-list`** — find the existing spec by issue ID before assuming a spec name or directory structure.
 
 **Common violations this rule prevents:**
+
 - Writing a `requirements.md` from scratch without reading the template → produces documents missing required sections (References, User Stories, Acceptance Criteria, Non-Functional Requirements)
 - Writing `tasks.md` without reading the user-template → produces tasks missing `_Prompt`, `_Leverage`, `_Requirements` fields, VERSION CHECKOUT GATE, and Standard Closing Tasks
 - Skipping `approvals` and asking the user "does this look good?" → verbal approval is never valid
@@ -55,6 +56,7 @@ Resuming a spec does NOT mean "wing it." It means:
 - Use `mcp__specflow__write-spec-doc` to write spec documents (requirements.md, discovery.md, design.md, tasks.md) — never use the `Write` tool for files in the spec directory. The tool enforces phase gates server-side.
 
 **Self-check before writing ANY spec document:**
+
 - [ ] Did I call `spec-workflow-guide`?
 - [ ] Did I call `spec-status` (if resuming)?
 - [ ] Did I read the template for this phase?
@@ -77,10 +79,12 @@ Read both config files to resolve all paths:
 Use the `Read` tool on `.claude/project.json` and `.specflow/config.json`.
 
 From `.claude/project.json` extract:
+
 - `issuePrefix` → used for issue file lookups
 - `name` → display label
 
 From `.specflow/config.json` extract:
+
 - `project` → project name for specflow paths
 - `docvault` → relative path to DocVault (e.g. `../DocVault`)
 - `issue_backend` → `"plane"` or `"docvault"` (default if absent: `"docvault"`)
@@ -98,6 +102,7 @@ SPECFLOW_GLOBAL="$DOCVAULT/specflow"
 ```
 
 Store these variables for the entire session:
+
 - `SPECFLOW_ROOT` → `{docvault}/specflow/{project}` (project-specific: specs, templates, steering, approvals)
 - `SPECFLOW_GLOBAL` → `{docvault}/specflow` (global templates fallback)
 - `DOCVAULT` → absolute DocVault root (for vault-update; for issue lookups only when backend is `docvault`)
@@ -118,6 +123,7 @@ mcp__plane__get_issue_using_readable_identifier
 For example, if `$ARGUMENTS` is `SFLW-3`, pass `project_identifier: "SFLW"` and `issue_identifier: "3"`. The Plane workspace is baked into the MCP server's startup config; the tool does not accept a `workspace_slug` parameter.
 
 Extract from the response:
+
 - `name` → title
 - `description_html` (or `description_stripped`) → description
 - `priority` → priority
@@ -181,6 +187,7 @@ ls "$SPECFLOW_ROOT/specs/{specName}/" 2>/dev/null
 ### Decision
 
 **If a matching spec is found (any method):**
+
 - Call `spec-status` with the matched `specName` to see phase progress
 - Display current state (phase, task completion counts, pending approvals)
 - **MANDATORY before resuming any phase:** Call `spec-workflow-guide` to reload the full workflow procedure. Do NOT rely on memory of how the workflow works.
@@ -190,6 +197,7 @@ ls "$SPECFLOW_ROOT/specs/{specName}/" 2>/dev/null
 - If Phase 5 in progress, jump to Step 5 (Implementation)
 
 **If no spec exists:**
+
 - Inform: "No existing spec found. Starting Phase 1 — Requirements."
 - Proceed to Step 2
 
@@ -404,6 +412,7 @@ Skipping any of these calls is a workflow violation.
 > **NO PRs DURING IMPLEMENTATION.** Do not create a PR, push code, run Codacy, or run Codex peer review here. The PR is the FINAL action in Step 6 — after ALL tasks pass, Step 5.5 gates clear, and issues close.
 
 > **SESSION BOUNDARY RULE:** If you are entering this phase from a handoff or new session, you MUST:
+>
 > 1. Call `spec-workflow-guide`
 > 2. Call `spec-status` to see task progress
 > 3. Read the full `tasks.md`
@@ -455,38 +464,47 @@ Skipping any of these calls is a workflow violation.
 
 For each pending task (or parallel batch of independent tasks):
 
-   #### a) Mark in-progress
+#### a) Mark in-progress
+
    Edit `tasks.md`: change `[ ]` → `[-]` for the current task.
 
-   #### b) Check prior implementation logs
+#### b) Check prior implementation logs
+
    ```bash
    ls "$SPECFLOW_ROOT/specs/{specName}/Implementation Logs/" 2>/dev/null
    ```
 
-   #### c) Dispatch implementer subagent
-   Use the Agent tool with:
-   - The full `_Prompt` text from the task
-   - All `_Leverage` file paths
-   - Reference: `$SPECFLOW_ROOT/templates/implementer-prompt-template.md` or `$SPECFLOW_GLOBAL/templates/` (if exists)
-   - **Inject specialized role context** based on the task's File Touch Map (see Specialized Agent Roles below)
-   - Subagent implements, tests, commits, and self-reviews
-   - **Main context does NOT write implementation code**
+#### c) Dispatch implementer subagent
 
-   #### d) Dispatch spec compliance reviewer
    Use the Agent tool with:
-   - Reference: `$SPECFLOW_ROOT/templates/spec-reviewer-template.md` or `$SPECFLOW_GLOBAL/templates/` (if exists)
-   - Reads actual code changes vs task requirements
-   - If fail → dispatch implementer again to fix → re-review
-   - Must pass before proceeding
 
-   #### e) Dispatch code quality reviewer
+- The full `_Prompt` text from the task
+- All `_Leverage` file paths
+- Reference: `$SPECFLOW_ROOT/templates/implementer-prompt-template.md` or `$SPECFLOW_GLOBAL/templates/` (if exists)
+- **Inject specialized role context** based on the task's File Touch Map (see Specialized Agent Roles below)
+- Subagent implements, tests, commits, and self-reviews
+- **Main context does NOT write implementation code**
+
+#### d) Dispatch spec compliance reviewer
+
    Use the Agent tool with:
-   - Reference: `$SPECFLOW_ROOT/templates/code-quality-reviewer-template.md` or `$SPECFLOW_GLOBAL/templates/` (if exists)
-   - Checks architecture, error handling, testing, production readiness
-   - If Critical or Important issues found → fix → re-review
-   - Must pass before proceeding
 
-   #### f) Log implementation (MANDATORY)
+- Reference: `$SPECFLOW_ROOT/templates/spec-reviewer-template.md` or `$SPECFLOW_GLOBAL/templates/` (if exists)
+- Reads actual code changes vs task requirements
+- If fail → dispatch implementer again to fix → re-review
+- Must pass before proceeding
+
+#### e) Dispatch code quality reviewer
+
+   Use the Agent tool with:
+
+- Reference: `$SPECFLOW_ROOT/templates/code-quality-reviewer-template.md` or `$SPECFLOW_GLOBAL/templates/` (if exists)
+- Checks architecture, error handling, testing, production readiness
+- If Critical or Important issues found → fix → re-review
+- Must pass before proceeding
+
+#### f) Log implementation (MANDATORY)
+
    ```
    log-implementation
      specName: "{specName}"
@@ -509,18 +527,21 @@ For each pending task (or parallel batch of independent tasks):
    Log EACH task individually as you finish it — not in a batch after all tasks are done.
    </HARD-GATE>
 
-   #### g) Mark complete
+#### g) Mark complete
+
    Edit `tasks.md`: change `[-]` → `[x]` (only after log-implementation succeeds).
 
    **NEVER mark a task `[x]` if it was skipped, blocked, or failed.** Use these states instead:
-   - `[x]` — task completed successfully, log-implementation call succeeded
-   - `[-]` — task in progress
-   - `[!]` — task BLOCKED — requires human decision (e.g., skipped peer review, unresolved findings)
-   - `[ ]` — task not started
+
+- `[x]` — task completed successfully, log-implementation call succeeded
+- `[-]` — task in progress
+- `[!]` — task BLOCKED — requires human decision (e.g., skipped peer review, unresolved findings)
+- `[ ]` — task not started
 
    A task marked `[!]` means the spec is NOT complete until the user resolves it.
 
 **Context budget check** after each task:
+
 - After 10+ dispatches or feeling context pressure → save progress to mem0 (spec name, completed tasks, next task ID) and suggest starting a new session with `/spec {ISSUE-ID} --resume`
 
 ---
@@ -637,10 +658,10 @@ This ensures frontend subagents have design system context; all agents follow ex
 
 ### After all tasks are `[x]` (any option)
 
-4. Verify every task has a corresponding implementation log entry (cross-check task count vs log count)
-5. **Check for any `[!]` blocked tasks** — if ANY exist, stop and present the blocked items to the user for resolution. Do NOT proceed to Step 5.5 with blocked tasks.
-6. Call `spec-status` to confirm 100% complete
-7. Proceed to Step 5.5
+1. Verify every task has a corresponding implementation log entry (cross-check task count vs log count)
+2. **Check for any `[!]` blocked tasks** — if ANY exist, stop and present the blocked items to the user for resolution. Do NOT proceed to Step 5.5 with blocked tasks.
+3. Call `spec-status` to confirm 100% complete
+4. Proceed to Step 5.5
 
 ---
 
@@ -651,6 +672,7 @@ After all implementation tasks are `[x]` and logged, the following gate must pas
 ### Test Coverage
 
 Read the project's steering document (`steering/tech.md`) to determine the correct test strategy:
+
 - **If steering says Playwright CLI / local dev server** → run the project's test command against a local build
 - **If steering says Browserbase / Stagehand** → run `/bb-test` against the PR preview URL (for web-facing E2E only)
 - **If no test strategy in steering** → ask the user what test approach to use
@@ -665,6 +687,7 @@ If no user-facing behavior changed (pure refactor, config-only), this gate can b
 ### DocVault Update — dispatch documentation agent
 
 Dispatch a subagent with:
+
 - All implementation logs for this spec
 - The `vault-update` skill
 - The DocVault repo path: `$DOCVAULT`
@@ -680,6 +703,7 @@ If no documented behavior changed, this gate can be skipped with explicit justif
 ### Gate completion
 
 After test coverage is verified and documentation is updated:
+
 - Log a summary entry: `log-implementation` with taskId `"post-gates"`, listing test results and DocVault pages updated
 - Proceed to Step 6
 
@@ -755,10 +779,12 @@ A spec with open issues is NOT complete. Verify the vault issue status is `done`
 ## Integration
 
 **Called by:**
+
 - User directly: `/spec {ISSUE-ID}`
 - After `/discover` completes (discovery's terminal state)
 
 **Calls:**
+
 - `codebase-search` skill (Step 3, mandatory before design)
 - Agent tool (Step 5, subagent dispatch for implementation + review)
 - `vault-update` skill (Step 5.5, DocVault documentation gate)

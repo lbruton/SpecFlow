@@ -157,6 +157,7 @@ cat ~/.codex/config.toml 2>/dev/null | head -100
 ```
 
 **Extract factual claims** from each file:
+
 - Tools/MCP servers referenced
 - Services referenced (Linear, GitHub, Jira, etc.)
 - Infrastructure references (IPs, ports, hostnames)
@@ -165,6 +166,7 @@ cat ~/.codex/config.toml 2>/dev/null | head -100
 - Workflow steps or mandatory gates
 
 **Compare across files.** Report contradictions:
+
 - Tool X mentioned in CLAUDE.md but not in Agents.md
 - Service Y marked as "retired" in one file but still referenced in another
 - Different IPs or ports for the same service
@@ -196,6 +198,7 @@ git log --oneline -30 --no-merges
 ```
 
 Identify:
+
 - **Stale issues**: open for >30 days with no recent commits referencing them
 - **Done but not closed**: issues whose work appears in git log but status is still open
 - **Orphan GitHub issues**: GitHub issues with no corresponding vault issue (or vice versa)

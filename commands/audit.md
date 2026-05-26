@@ -29,6 +29,7 @@ Dispatch ALL applicable scans simultaneously.
 ### 1.1: Code Health (if focus includes "code")
 
 Dispatch a `code-oracle` agent in background:
+
 - Dead code detection via CGC
 - Top 10 most complex functions via CGC
 - Convention violations in files changed in the last 14 days
@@ -62,6 +63,7 @@ gh api repos/<owner>/<repo>/vulnerability-alerts 2>/dev/null || echo "alerts-una
 ### 1.3: Instruction File Drift (if focus includes "drift")
 
 Read all instruction files that exist for this project:
+
 - `CLAUDE.md`, `.codex/config.toml` or `Agents.md`, `Gemini.md` or `.gemini/config.md`
 - Also check global: `~/.claude/CLAUDE.md`, `~/.codex/config.toml`
 
