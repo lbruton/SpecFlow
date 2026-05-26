@@ -162,10 +162,12 @@ export class MultiProjectDashboardServer {
     await this.jobScheduler.initialize();
 
     // Register rate-limit plugin (CodeQL-recognized pattern)
-    await this.app.register(fastifyRateLimit, {
-      max: 100,
-      timeWindow: '1 minute',
-    });
+    if (this.securityConfig.rateLimitEnabled) {
+      await this.app.register(fastifyRateLimit, {
+        max: this.securityConfig.rateLimitPerMinute,
+        timeWindow: '1 minute',
+      });
+    }
 
     // Register CORS plugin if enabled
     const corsConfig = getCorsConfig(this.securityConfig);
