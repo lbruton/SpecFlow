@@ -2,10 +2,16 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+const SUPPORTED_LOCALES = ['en', 'ja', 'zh'] as const;
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+
 // Dynamic import function for translations
 const loadTranslation = async (lang: string) => {
+  const safeLang: SupportedLocale = (SUPPORTED_LOCALES as readonly string[]).includes(lang)
+    ? (lang as SupportedLocale)
+    : 'en';
   try {
-    const translation = await import(`./locales/${lang}.json`);
+    const translation = await import(`./locales/${safeLang}.json`);
     return translation.default || translation;
   } catch (error) {
     console.error(`Failed to load translation for ${lang}:`, error);

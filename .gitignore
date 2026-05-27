@@ -57,6 +57,21 @@ web_modules/
 # Optional stylelint cache
 .stylelintcache
 
+# Codacy CLI
+codacy-*.sarif
+codacy-*.json
+.codacy/logs/
+.codacy/*.sarif
+.codacy/*.log
+.codacy/.cache/
+!/.codacy/
+!/.codacy/.gitignore
+!/.codacy/cli.sh
+!/.codacy/cli-config.yaml
+!/.codacy/codacy.yaml
+!/.codacy/tools-configs/
+!/.codacy/tools-configs/**
+
 # Microbundle cache
 .rpt2_cache/
 .rts2_cache_cjs/

@@ -207,7 +207,7 @@ export class ImplementationLogMigrator {
     totalSpecs: number;
     migratedSpecs: number;
     totalEntries: number;
-    errors: Array<{ spec: string; error: string }>;
+    errors: { spec: string; error: string }[];
   }> {
     this.log('='.repeat(80));
     this.log('Starting implementation logs migration from JSON to Markdown format');
@@ -218,7 +218,7 @@ export class ImplementationLogMigrator {
       totalSpecs: 0,
       migratedSpecs: 0,
       totalEntries: 0,
-      errors: [] as Array<{ spec: string; error: string }>,
+      errors: [] as { spec: string; error: string }[],
     };
 
     try {

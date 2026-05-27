@@ -1,0 +1,14 @@
+# Codacy CLOUD PLATFORM config — read by dashboard scans only.
+# The local CLI (codacy-cli-v2) does NOT read this file.
+# Local CLI exclusions live per-tool in .codacy/tools-configs/.
+---
+exclude_paths:
+  - "SFLW-37-HANDOFF.md"
+  - ".codacy/**"
+  - ".claude/**"
+  - ".github/**"
+  - "dist/**"
+  - "coverage/**"
+  - "vscode-extension/webview-dist/**"
+  - "node_modules/**"
+  - "assets/**"

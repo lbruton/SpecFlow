@@ -86,7 +86,7 @@ test_api_endpoint() {
     # Brief wait after startup confirmation
     sleep 1
     
-    while [ $attempt -le $max_attempts ]; do
+    while [ "$attempt" -le "$max_attempts" ]; do
         response=$(curl -s --max-time 2 "http://${host}:${port}/api/test" 2>/dev/null || echo "")
         if echo "$response" | grep -q "$EXPECTED_TEST_MESSAGE"; then
             return 0

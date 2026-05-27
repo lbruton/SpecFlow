@@ -3,7 +3,7 @@ import fastifyRateLimit from '@fastify/rate-limit';
 import fastifyStatic from '@fastify/static';
 import fastifyWebsocket from '@fastify/websocket';
 import fastifyCors from '@fastify/cors';
-import { join, dirname, basename, resolve } from 'path';
+import { join, dirname, resolve } from 'path';
 import { readFile } from 'fs/promises';
 import { promises as fs } from 'fs';
 import { fileURLToPath } from 'url';
@@ -22,7 +22,6 @@ import {
   createSecurityHeadersMiddleware,
   getCorsConfig,
   isLocalhostAddress,
-  DEFAULT_SECURITY_CONFIG,
 } from '../core/security-utils.js';
 import { SecurityConfig } from '../types.js';
 import { loadConfig } from '../core/config-loader.js';
@@ -300,7 +299,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Serve Claude icon as favicon
-    this.app.get('/favicon.ico', async (request, reply) => {
+    this.app.get('/favicon.ico', async (_request, reply) => {
       return reply.sendFile('claude-icon.svg');
     });
 
@@ -807,7 +806,7 @@ export class MultiProjectDashboardServer {
       }
 
       // Process all undo operations with continue-on-error
-      const results: { succeeded: string[]; failed: Array<{ id: string; error: string }> } = {
+      const results: { succeeded: string[]; failed: { id: string; error: string }[] } = {
         succeeded: [],
         failed: [],
       };
@@ -891,7 +890,7 @@ export class MultiProjectDashboardServer {
       const batchResponse = response || `Batch ${action}d`;
 
       // Process all approvals with continue-on-error (PE recommendation)
-      const results: { succeeded: string[]; failed: Array<{ id: string; error: string }> } = {
+      const results: { succeeded: string[]; failed: { id: string; error: string }[] } = {
         succeeded: [],
         failed: [],
       };
@@ -1315,6 +1314,7 @@ export class MultiProjectDashboardServer {
         const content = await readFile(changelogPath, 'utf-8');
 
         // Extract the section for the requested version
+        // codacy-disable-next-line ESLint8_security-node_non-literal-reg-expr
         const versionRegex = new RegExp(`## \\[${escapeRegExp(version)}\\][^]*?(?=## \\[|$)`, 'i');
         const match = content.match(versionRegex);
 
@@ -1340,6 +1340,7 @@ export class MultiProjectDashboardServer {
         const content = await readFile(changelogPath, 'utf-8');
 
         // Extract the section for the requested version
+        // codacy-disable-next-line ESLint8_security-node_non-literal-reg-expr
         const versionRegex = new RegExp(`## \\[${escapeRegExp(version)}\\][^]*?(?=## \\[|$)`, 'i');
         const match = content.match(versionRegex);
 

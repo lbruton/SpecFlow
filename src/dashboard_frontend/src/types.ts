@@ -25,43 +25,43 @@ export interface ImplementationLogEntry {
     filesChanged: number;
   };
   artifacts: {
-    apiEndpoints?: Array<{
+    apiEndpoints?: {
       method: string;
       path: string;
       purpose: string;
       requestFormat?: string;
       responseFormat?: string;
       location: string;
-    }>;
-    components?: Array<{
+    }[];
+    components?: {
       name: string;
       type: string;
       purpose: string;
       location: string;
       props?: string;
       exports?: string[];
-    }>;
-    functions?: Array<{
+    }[];
+    functions?: {
       name: string;
       purpose: string;
       location: string;
       signature?: string;
       isExported: boolean;
-    }>;
-    classes?: Array<{
+    }[];
+    classes?: {
       name: string;
       purpose: string;
       location: string;
       methods?: string[];
       isExported: boolean;
-    }>;
-    integrations?: Array<{
+    }[];
+    integrations?: {
       description: string;
       frontendComponent: string;
       backendEndpoint: string;
       dataFlow: string;
-    }>;
-    tests?: Array<{
+    }[];
+    tests?: {
       name: string;
       type: string;
       framework: string;
@@ -73,6 +73,6 @@ export interface ImplementationLogEntry {
       duration?: string;
       coveragePercent?: number;
       userStories?: string[];
-    }>;
+    }[];
   };
 }

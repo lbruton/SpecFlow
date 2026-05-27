@@ -690,9 +690,9 @@ export class ImplementationLogManager {
   async findArtifact(
     artifactType: string,
     searchTerm: string,
-  ): Promise<Array<{ log: ImplementationLogEntry; artifact: any }>> {
+  ): Promise<{ log: ImplementationLogEntry; artifact: any }[]> {
     const log = await this.loadLog();
-    const results: Array<{ log: ImplementationLogEntry; artifact: any }> = [];
+    const results: { log: ImplementationLogEntry; artifact: any }[] = [];
 
     log.entries.forEach((entry) => {
       if (entry.artifacts && entry.artifacts[artifactType as keyof typeof entry.artifacts]) {

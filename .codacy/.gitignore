@@ -1,0 +1,5 @@
+# Codacy CLI local outputs
+logs/
+*.sarif
+*.log
+.cache/

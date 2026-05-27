@@ -10,6 +10,9 @@ vscode-extension/webview-dist/
 *.tgz
 node_modules/
 
+# Codacy CLI rewrites its YAML config during install/analyze.
+.codacy/
+
 # Authored markdown — intentionally formatted, users copy verbatim
 skills/
 commands/

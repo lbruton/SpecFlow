@@ -9,7 +9,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   private _currentSelectedSpec: string | null = null;
   private logger: Logger;
   private _previousApprovals: any[] = [];
-  private _messageQueue: Array<{ type: string; data: any }> = [];
+  private _messageQueue: { type: string; data: any }[] = [];
 
   constructor(
     private readonly _extensionUri: vscode.Uri,

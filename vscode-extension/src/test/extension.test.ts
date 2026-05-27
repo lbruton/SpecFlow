@@ -124,8 +124,8 @@ suite('Extension Test Suite', () => {
     // Helper function that mirrors SidebarProvider.handleApprovalChanges logic
     // for detecting new pending approvals
     function detectNewPendingApprovals(
-      currentApprovals: Array<{ id: string; status: string }>,
-      previousApprovals: Array<{ id: string; status: string }>,
+      currentApprovals: { id: string; status: string }[],
+      previousApprovals: { id: string; status: string }[],
     ): string[] {
       const currentPendingIds = currentApprovals
         .filter((approval) => approval.status === 'pending')
@@ -197,7 +197,7 @@ suite('Extension Test Suite', () => {
     });
 
     test('should detect ALL as new when previous list is empty (edge case)', () => {
-      const previous: Array<{ id: string; status: string }> = [];
+      const previous: { id: string; status: string }[] = [];
       const current = [
         { id: 'approval-1', status: 'pending' },
         { id: 'approval-2', status: 'pending' },
