@@ -179,8 +179,7 @@ Automatic on Edit/Write/commit:
   - `*.css` files are linted and formatted by stylelint.
   - Expect formatting changes on top of your edits.
   - Config files: `.prettierrc.json`, `.prettierignore`, `.stylelintrc.json`.
-- **i18n validation** — `npm run validate:i18n` runs as step 1 of every build.
-  - Fails on missing, extra, or malformed translation keys.
+- **i18n validation** — `npm run validate:i18n`, mandatory first build step; fails on invalid keys.
 - **MDX validation** — `npm run validate:mdx` validates templates. `PathUtils.getWorkflowRoot()` is required for path resolution; hardcoded `.specflow/` breaks when DocVault layout changes.
 - **`Protect Main` ruleset** — gates all merges to `main`. Required checks:
   - `Codacy Static Code Analysis`, `CodeRabbit`, `CodeQL code_scanning` (errors/critical), `copilot_code_review`.
