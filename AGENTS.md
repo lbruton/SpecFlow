@@ -9,7 +9,7 @@ MCP server plugin for spec-driven development with a real-time web dashboard. Lo
 | Package | `@lbruton/specflow` |
 | Version | `3.7.2` |
 | Origin | [lbruton/SpecFlow](https://github.com/lbruton/SpecFlow) - standalone (detached from upstream [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mcp) on 2026-05-25) |
-| Branch | `main` - signed commits + PR + status checks. Origin is **SSH** (`git@github.com:lbruton/SpecFlow.git`) - push via SSH since the OAuth token lacks `workflow` scope |
+| Branch | `main` - signed commits + PR + status checks. Origin is SSH-only (OAuth lacks `workflow` scope; verify remote with `git remote -v`) |
 | Skills/commands ship | `skills/` and `commands/` - users copy to their harness skill/command dirs |
 | Shared skill source | Project/user authored skills should be mirrored through `.agents/skills/` or `~/.agents/skills/` |
 | MCP install (npm) | `npx -y @lbruton/specflow@latest .` in the client MCP config |
@@ -19,7 +19,7 @@ MCP server plugin for spec-driven development with a real-time web dashboard. Lo
 
 ## DocVault
 
-Project docs: `/Volumes/DATA/GitHub/DocVault/Projects/SpecFlow/`. Start at `Overview.md`; there is currently no `_Index.md` in this folder. Run `/vault-update` after behavior-affecting changes. Key wikilinks: [[SpecFlow/Architecture]] - [[SpecFlow/Publish Pipeline]] - [[SpecFlow/Tools & Prompts]] - [[SpecFlow/Dashboard]].
+Project docs: `/Volumes/DATA/GitHub/DocVault/Projects/SpecFlow/`. Run `/vault-update` after behavior-affecting changes. Key wikilinks: [[SpecFlow/Architecture]] - [[SpecFlow/Publish Pipeline]] - [[SpecFlow/Tools & Prompts]] - [[SpecFlow/Dashboard]].
 
 ## Distribution Model
 
@@ -28,17 +28,17 @@ Two independent channels (full diagram: [[SpecFlow/Architecture]] section Deploy
 - **npm `@lbruton/specflow`** - MCP server + dashboard. Built from `src/` to `dist/` and published.
 - **GitHub repo direct** - skills + commands ship as raw markdown from top-level `skills/` and `commands/`. Users copy them into their harness-specific skill and command directories.
 
-Installing one does not install the other. README must say both.
+The two channels are independent — README documents both.
 
 Hard rules:
 
-- Orphan dirs from pre-v3.6.0 (`plugin/`, `.claude-plugin/`, `.Codex-plugin/`, legacy plugin marketplace dirs) - delete on sight, never edit.
+- Orphan dirs from pre-v3.6.0 (`plugin/`, `.claude-plugin/`, `.Codex-plugin/`, legacy plugin marketplace dirs) are obsolete — safe to delete, counterproductive to edit.
 - Shared authored skills live in `.agents/skills/` for project-local copies and `~/.agents/skills/` for user-level copies. Claude/Codex/OpenCode/Gemini-specific folders are runtime install targets, not the shared source of truth.
 - User-level shared skill (`~/.agents/skills/<name>/SKILL.md`) and repo shipped copy (`skills/<name>/SKILL.md`) are intentionally separate files. Promote via `cp`, not symlinks.
 
 ## Project Agent Mirror
 
-Project-local Claude assets that should be visible to Codex and other compatible agents must be mirrored under `.agents/`:
+Project-local Claude assets need a mirror under `.agents/` to be visible to Codex and other compatible agents:
 
 - `.claude/skills/<name>/SKILL.md` -> `.agents/skills/<name>/SKILL.md` with harness-specific paths adapted.
 - `.claude/agents/<name>.md` -> `.agents/agents/<name>.md` when the instructions are generally useful outside Claude.
@@ -55,7 +55,7 @@ DocVault/specflow/
   templates/                  # global, bundled (overwritten on MCP boot)
   {Project}/
     steering/                 # product.md, tech.md, structure.md
-    templates/                # project overrides ONLY - never copies of globals
+    templates/                # project-specific overrides (not copies of global templates)
     specs/                    # requirements, design, tasks, logs
     approvals/
     archive/specs/
@@ -97,7 +97,7 @@ Ship a template change with `/publish-templates`. Inspect a template by reading 
 
 ## Two Parsers
 
-`src/core/parser.ts` (MCP tools) and `src/dashboard/parser.ts` (dashboard) parse the same files independently. Any parsing change must update both - grep the other parser for the same function names. Detail: [[SpecFlow/Architecture]] section Two Parsers Problem.
+`src/core/parser.ts` (MCP tools) and `src/dashboard/parser.ts` (dashboard) parse the same files independently. Parsing changes require both files to be updated in sync — grep the other parser for the same function names. Detail: [[SpecFlow/Architecture]] section Two Parsers Problem.
 
 ## Build / Test
 
@@ -164,7 +164,7 @@ Hand off step 5 to the user; wait for confirmation before step 6. Rationale: mem
 
 After battle-testing at `~/.agents/skills/<name>/SKILL.md`:
 
-1. **Sanitize** - strip lbruton paths, personal preferences, and workspace assumptions. Must work for any user/project.
+1. **Sanitize** - remove lbruton paths, personal preferences, and workspace assumptions to make the skill portable.
 2. **Copy** - `cp ~/.agents/skills/<name>/SKILL.md skills/<name>/SKILL.md` (mkdir if new).
 3. **Verify** - `diff` should show only sanitization changes.
 4. **PR** - worktree -> commit -> push -> PR. Same flow as source.

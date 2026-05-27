@@ -28,7 +28,7 @@ Primary tools available in this project:
 | Package | `@lbruton/specflow` |
 | Version | `3.7.2` |
 | Origin | [lbruton/SpecFlow](https://github.com/lbruton/SpecFlow) — standalone (detached from upstream [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mcp) on 2026-05-25) |
-| Branch | `main` — signed commits + PR + status checks. Origin is **SSH** (`git@github.com:lbruton/SpecFlow.git`) — push via SSH since the OAuth token lacks `workflow` scope |
+| Branch | `main` — signed commits + PR + status checks. Origin is SSH-only (OAuth lacks `workflow` scope; verify remote with `git remote -v`) |
 | Skills/commands ship | `skills/` and `commands/` — users copy → `~/.claude/{skills,commands}/` |
 | MCP install (npm) | `npx -y @lbruton/specflow@latest .` in `~/.claude/settings.json` |
 | Dashboard | Singleton Node process, default `:5000` (lbruton uses `:5051`). State: `~/.specflow-mcp/activeSession.json` |
@@ -37,7 +37,7 @@ Primary tools available in this project:
 
 ## DocVault
 
-Project docs: `/Volumes/DATA/GitHub/DocVault/Projects/SpecFlow/`. Start at `Overview.md`. Run `/vault-update` after behavior-affecting changes. Key wikilinks: [[SpecFlow/Architecture]] · [[SpecFlow/Publish Pipeline]] · [[SpecFlow/Tools & Prompts]] · [[SpecFlow/Dashboard]].
+Project docs: `/Volumes/DATA/GitHub/DocVault/Projects/SpecFlow/`. Run `/vault-update` after behavior-affecting changes. Key wikilinks: [[SpecFlow/Architecture]] · [[SpecFlow/Publish Pipeline]] · [[SpecFlow/Tools & Prompts]] · [[SpecFlow/Dashboard]].
 
 ## Distribution Model
 
@@ -46,11 +46,11 @@ Two independent channels (full diagram: [[SpecFlow/Architecture]] § Deployment 
 - **npm `@lbruton/specflow`** — MCP server + dashboard. Built from `src/` → `dist/` → published.
 - **GitHub repo direct** — skills + commands ship as raw markdown from top-level `skills/` and `commands/`. Users copy.
 
-Installing one does NOT install the other. README must say both.
+The two channels are independent — README documents both.
 
 Hard rules:
 
-- Orphan dirs from pre-v3.6.0 (`plugin/`, `.claude-plugin/`, `~/.claude/plugins/marketplaces/`) — delete on sight, never edit.
+- Orphan dirs from pre-v3.6.0 (`plugin/`, `.claude-plugin/`, `~/.claude/plugins/marketplaces/`) are obsolete — safe to delete, counterproductive to edit.
 - User-level (`~/.claude/skills/<n>/SKILL.md`) and repo copy (`skills/<n>/SKILL.md`) are intentionally separate files. Promote via `cp`, not symlinks.
 
 ## DocVault SpecFlow Layout
@@ -62,7 +62,7 @@ DocVault/specflow/
   templates/                  # global, bundled (overwritten on MCP boot)
   {Project}/
     steering/                 # product.md, tech.md, structure.md
-    templates/                # project overrides ONLY — never copies of globals
+    templates/                # project-specific overrides (not copies of global templates)
     specs/                    # requirements, design, tasks, logs
     approvals/
     archive/specs/
@@ -84,7 +84,7 @@ Ship a template change: `/publish-templates`. Inspect: read `src/markdown/templa
 
 ## Two Parsers
 
-`src/core/parser.ts` (MCP tools) and `src/dashboard/parser.ts` (dashboard) parse the same files independently. Any parsing change must update both — grep the other parser for the same function names. Detail: [[SpecFlow/Architecture]] § Two Parsers Problem.
+`src/core/parser.ts` (MCP tools) and `src/dashboard/parser.ts` (dashboard) parse the same files independently. Parsing changes require both files to be updated in sync — grep the other parser for the same function names. Detail: [[SpecFlow/Architecture]] § Two Parsers Problem.
 
 ## Build / Test
 
@@ -179,7 +179,7 @@ Automatic on Edit/Write/commit:
   - `*.css` files are linted and formatted by stylelint.
   - Expect formatting changes on top of your edits.
   - Config files: `.prettierrc.json`, `.prettierignore`, `.stylelintrc.json`.
-- **i18n validation** — `npm run validate:i18n`, mandatory first build step; fails on invalid keys.
+- **i18n validation** — `npm run validate:i18n`.
 - **MDX validation** — `npm run validate:mdx` validates templates. `PathUtils.getWorkflowRoot()` is required for path resolution; hardcoded `.specflow/` breaks when DocVault layout changes.
 - **`Protect Main` ruleset** — gates all merges to `main`. Required checks:
   - `Codacy Static Code Analysis`, `CodeRabbit`, `CodeQL code_scanning` (errors/critical), `copilot_code_review`.
@@ -196,7 +196,7 @@ Automatic on Edit/Write/commit:
 ## Hooks
 
 - **gitleaks** (pre-commit, OPS-116, 2026-04-14) — scans for secrets via the `pre-commit` framework. Detected secret types include: GitHub PATs, AWS keys, Stripe keys, Slack tokens, private keys, and generic high-entropy strings.
-- **husky + gitleaks coexistence** — husky v9 sets `core.hooksPath=.husky`, taking over from `.git/hooks/`. The husky `pre-commit` script MUST explicitly call `pre-commit run` to chain gitleaks, else gitleaks silently stops running.
+- **husky + gitleaks coexistence** — husky v9 sets `core.hooksPath=.husky`, taking over from `.git/hooks/`. The husky `pre-commit` script requires an explicit `pre-commit run` call to chain gitleaks; omitting it silently disables secret scanning.
 
 ## Gotchas
 
@@ -207,4 +207,12 @@ Automatic on Edit/Write/commit:
   - Canonical implementation: `~/.claude/hooks/mem0-session-start.py:83-140`.
   - Full ref: [[mem0-configuration]] § Schema Reality.
 - **Squash-merge branch delete** — `git branch -d` fails with "not fully merged" after squash because squash SHA ≠ branch SHA. Branch tracking `[gone]` confirms merge. Use `git branch -D <branch>` for confirmed-gone branches.
-- **Prompt path references** — MCP prompts in `src/prompts/` embed file paths in their text output. Use `PathUtils.getWorkflowRoot()` everywhere; never hardcode `.specflow/`. When path resolution changes, grep all prompts (`create-spec`, `implement-task`, `spec-status`, `create-steering-doc`, `inject-steering-guide`) for stale strings.
+- **Prompt path references** — MCP prompts in `src/prompts/` embed file paths in their text output. `PathUtils.getWorkflowRoot()` is the required path resolver — `.specflow/` hardcoding breaks on DocVault layout changes. When path resolution changes, grep all prompts (`create-spec`, `implement-task`, `spec-status`, `create-steering-doc`, `inject-steering-guide`) for stale strings.
+
+## Boundaries
+
+- Do not push directly to `main` — all changes go through a PR with status checks passing.
+- Do not edit `dist/` — it is generated by the build and gitignored.
+- Do not edit global DocVault templates at runtime paths — `src/markdown/templates/{name}.md` is the only editable source.
+- Do not publish to npm (`npm publish`) — this requires a passkey and is a manual user step.
+- Do not run destructive git commands (reset --hard, branch -D) without confirming the branch is merged.
