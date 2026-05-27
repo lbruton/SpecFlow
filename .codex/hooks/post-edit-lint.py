@@ -30,7 +30,7 @@ def main():
 
     # Run project-wide type check
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603
             ["npx", "tsc", "--noEmit"],
             cwd=PROJECT_DIR,
             capture_output=True,

@@ -37,7 +37,7 @@ def main():
     stem = os.path.splitext(os.path.basename(file_path))[0]
 
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603
             ["npx", "vitest", "run", "--reporter=verbose", stem],
             cwd=PROJECT_DIR,
             capture_output=True,
