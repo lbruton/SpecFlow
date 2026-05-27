@@ -127,43 +127,43 @@ export interface ImplementationLogEntry {
     filesChanged: number;
   };
   artifacts: {
-    apiEndpoints?: Array<{
+    apiEndpoints?: {
       method: string; // GET, POST, PUT, DELETE, PATCH
       path: string; // /api/specs/:name/logs
       purpose: string; // What this endpoint does
       requestFormat?: string; // Request body/params format or example
       responseFormat?: string; // Response format or example
       location: string; // File path and line number (e.g., "src/server.ts:245")
-    }>;
-    components?: Array<{
+    }[];
+    components?: {
       name: string; // ComponentName
       type: string; // "React", "Vue", "Svelte", etc.
       purpose: string; // What the component does
       location: string; // File path
       props?: string; // Props interface or signature
       exports?: string[]; // What it exports
-    }>;
-    functions?: Array<{
+    }[];
+    functions?: {
       name: string; // Function/method name
       purpose: string; // What it does
       location: string; // File path and line
       signature?: string; // Function signature
       isExported: boolean; // Can it be imported?
-    }>;
-    classes?: Array<{
+    }[];
+    classes?: {
       name: string; // Class name
       purpose: string; // What it does
       location: string; // File path
       methods?: string[]; // Public methods
       isExported: boolean;
-    }>;
-    integrations?: Array<{
+    }[];
+    integrations?: {
       description: string; // How frontend connects to backend
       frontendComponent: string; // Which component
       backendEndpoint: string; // Which API endpoint
       dataFlow: string; // How data flows
-    }>;
-    tests?: Array<{
+    }[];
+    tests?: {
       name: string; // Test suite or file name
       type: string; // unit | integration | e2e | smoke | acceptance
       framework: string; // playwright | vitest | jest | cypress | manual
@@ -175,7 +175,7 @@ export interface ImplementationLogEntry {
       duration?: string; // Execution time (e.g., "4.2s")
       coveragePercent?: number; // Code coverage percentage
       userStories?: string[]; // Linked requirement IDs from spec
-    }>;
+    }[];
   };
 }
 
@@ -199,10 +199,10 @@ export interface ToolResponse {
 
 // MCP-compliant response format (matches CallToolResult from MCP SDK)
 export interface MCPToolResponse {
-  content: Array<{
+  content: {
     type: 'text';
     text: string;
-  }>;
+  }[];
   isError?: boolean;
   _meta?: Record<string, any>;
 }

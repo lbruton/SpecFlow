@@ -142,7 +142,7 @@ export class SpecParser {
       );
       const metaContent = await readFile(metaPath, 'utf-8');
       const meta = JSON.parse(metaContent);
-      const snapshots: Array<{ trigger: string }> = meta.snapshots || [];
+      const snapshots: { trigger: string }[] = meta.snapshots || [];
       const latest = snapshots[snapshots.length - 1];
       return latest?.trigger === 'approved';
     } catch {

@@ -22,12 +22,12 @@ type NotificationActionsContextType = {
 
 // State context contains dynamic state that changes frequently
 type NotificationStateContextType = {
-  notifications: Array<{
+  notifications: {
     id: string;
     message: string;
     type: 'info' | 'success' | 'warning' | 'error';
     timestamp: number;
-  }>;
+  }[];
   soundEnabled: boolean;
   volume: number;
 };
@@ -47,12 +47,12 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const prevTaskDataRef = useRef<Map<string, any>>(new Map());
   const isInitialLoadRef = useRef(true);
   const [notifications, setNotifications] = useState<
-    Array<{
+    {
       id: string;
       message: string;
       type: 'info' | 'success' | 'warning' | 'error';
       timestamp: number;
-    }>
+    }[]
   >([]);
   const [soundEnabled, setSoundEnabled] = useState(() => {
     // Load sound preference from localStorage

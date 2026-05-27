@@ -71,7 +71,7 @@ export interface BatchApprovalResult {
   success: boolean;
   total: number;
   succeeded: string[];
-  failed: Array<{ id: string; error: string }>;
+  failed: { id: string; error: string }[];
 }
 
 async function getJson<T>(url: string): Promise<T> {

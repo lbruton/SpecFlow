@@ -1,0 +1,37 @@
+patterns:
+  Lizard_ccn-medium:
+    category: Complexity
+    description: Checks if the cyclomatic complexity of a function or logic block exceeds the medium threshold.
+    id: Lizard_ccn-medium
+    level: Warning
+    severityLevel: Warning
+    threshold: 15
+    timeToFix: 10
+    title: Enforce Medium Cyclomatic Complexity Threshold
+  Lizard_file-nloc-medium:
+    category: Complexity
+    description: Checks if the number of lines of code in a file exceeds a medium threshold.
+    id: Lizard_file-nloc-medium
+    level: Warning
+    severityLevel: Warning
+    threshold: 1000
+    timeToFix: 10
+    title: Enforce Medium File Length Limit Based on Number of Lines of Code
+  Lizard_nloc-medium:
+    category: Complexity
+    description: Checks if the number of lines of code in a function exceeds a medium threshold.
+    id: Lizard_nloc-medium
+    level: Warning
+    severityLevel: Warning
+    threshold: 100
+    timeToFix: 10
+    title: Enforce Medium Number of Lines of Code Limit
+  Lizard_parameter-count-medium:
+    category: Complexity
+    description: Checks if the number of parameters passed to a function exceeds a medium threshold.
+    id: Lizard_parameter-count-medium
+    level: Warning
+    severityLevel: Warning
+    threshold: 10
+    timeToFix: 10
+    title: Enforce Medium Parameter Count Limit

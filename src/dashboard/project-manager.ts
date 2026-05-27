@@ -261,7 +261,7 @@ export class ProjectManager extends EventEmitter {
    * Get projects list for API (enriched with approval/task counts and worktrees)
    */
   async getProjectsList(): Promise<
-    Array<{
+    {
       projectId: string;
       projectName: string;
       projectPath: string;
@@ -269,7 +269,7 @@ export class ProjectManager extends EventEmitter {
       worktrees: string[];
       pendingApprovals: number;
       activeTasks: number;
-    }>
+    }[]
   > {
     const projects = Array.from(this.projects.values());
     const results = await Promise.all(

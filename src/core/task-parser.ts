@@ -52,6 +52,7 @@ function parseStructuredPrompt(promptText: string): PromptSection[] | undefined 
       let lastKeyIndex = -1;
 
       for (const key of knownKeys) {
+        // codacy-disable-next-line ESLint8_security-node_non-literal-reg-expr
         const keyPattern = new RegExp(`\\b${key}:`, 'i');
         const match = part.match(keyPattern);
         if (match && match.index !== undefined && match.index > lastKeyIndex) {
@@ -232,7 +233,6 @@ export function parseTasksFromMarkdown(content: string): TaskParserResult {
     if (!checkboxMatch) continue;
 
     const indent = checkboxMatch[1];
-    const listMarker = checkboxMatch[2]; // '-' or '*'
     const statusChar = checkboxMatch[3];
     const taskText = checkboxMatch[4];
 
