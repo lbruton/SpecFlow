@@ -207,7 +207,8 @@ Automatic on Edit/Write/commit:
   - Canonical implementation: `~/.claude/hooks/mem0-session-start.py:83-140`.
   - Full ref: [[mem0-configuration]] § Schema Reality.
 - **Squash-merge branch delete** — `git branch -d` fails with "not fully merged" after squash because squash SHA ≠ branch SHA. Branch tracking `[gone]` confirms merge. Use `git branch -D <branch>` for confirmed-gone branches.
-- **Prompt path references** — MCP prompts in `src/prompts/` embed file paths in their text output. `PathUtils.getWorkflowRoot()` is the required path resolver — `.specflow/` hardcoding breaks on DocVault layout changes. When path resolution changes, grep all prompts (`create-spec`, `implement-task`, `spec-status`, `create-steering-doc`, `inject-steering-guide`) for stale strings.
+- **Prompt path references** — MCP prompts in `src/prompts/` embed filesystem paths. `PathUtils.getWorkflowRoot()` is the required resolver; `.specflow/` hardcoding breaks on DocVault layout changes.
+  - When changing path resolution, grep all five prompts for stale strings: `create-spec`, `implement-task`, `spec-status`, `create-steering-doc`, `inject-steering-guide`.
 
 ## Boundaries
 
