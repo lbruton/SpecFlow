@@ -6,7 +6,6 @@ description: >
   session-rag + mem0 are the durable session record. Run at end of any session, optionally
   after /pr-cleanup. Triggers: "wrap", "wrap up", "close session", "end of session",
   "done for the night", "finish up", "closing time".
-author: lbruton
 ---
 
 # Wrap Session

@@ -16,7 +16,6 @@ allowed-tools: >-
   mcp__plane__list_states,
   mcp__plane__list_labels,
   mcp__plane__update_issue
-author: lbruton
 ---
 
 $ARGUMENTS

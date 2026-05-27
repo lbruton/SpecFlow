@@ -7,7 +7,6 @@ description: >
   Triggers: "prime", "boot", "get me up to speed", "session status", "where are we",
   "what's the status", "catch me up", "project overview", "what's open".
   Also use proactively at session start if the user hasn't run it yet.
-author: lbruton
 ---
 
 # Prime v2 — Universal Session Boot

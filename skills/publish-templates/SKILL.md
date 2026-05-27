@@ -8,7 +8,6 @@ description: >
   DocVault guide pages are derived KB snapshots, not editable sources. Mandatory
   backup-before-edit. Triggers on "publish templates", "ship template changes",
   "promote template", "sync templates to npm", "publish a template".
-author: lbruton
 ---
 
 # /publish-templates — Battle-tested template → npm publish pipeline

@@ -21,7 +21,6 @@ allowed-tools: >-
   mcp__brave-search__brave_web_search,
   mcp__infisical__get-secret,
   mcp__plugin_specflow_specflow__spec-list
-author: lbruton
 ---
 
 # Discover — Phase 1 Structured Brainstorm

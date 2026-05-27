@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-
 set -e +o pipefail
+
+fatal() {
+    echo "ERROR: $*" >&2
+    exit 1
+}
 
 # Set up paths first
 bin_name="codacy-cli-v2"
@@ -47,15 +51,27 @@ get_version_from_yaml() {
 }
 
 get_latest_version() {
+    local url="https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest"
     local response
-    if [ -n "$GH_TOKEN" ]; then
-        response=$(curl -Lq --header "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest" 2>/dev/null)
+    if command -v curl > /dev/null 2>&1; then
+        if [ -n "$GH_TOKEN" ]; then
+            response=$(curl -Lq --header "Authorization: Bearer $GH_TOKEN" "$url" 2>/dev/null)
+        else
+            response=$(curl -Lq "$url" 2>/dev/null)
+        fi
+    elif command -v wget > /dev/null 2>&1; then
+        if [ -n "$GH_TOKEN" ]; then
+            response=$(wget -qO- --header "Authorization: Bearer $GH_TOKEN" "$url" 2>/dev/null)
+        else
+            response=$(wget -qO- "$url" 2>/dev/null)
+        fi
     else
-        response=$(curl -Lq "https://api.github.com/repos/codacy/codacy-cli-v2/releases/latest" 2>/dev/null)
+        fatal "Error: Could not find curl or wget, please install one."
     fi
 
     handle_rate_limit "$response"
-    local version=$(echo "$response" | grep -m 1 tag_name | cut -d'"' -f4)
+    local version
+    version=$(echo "$response" | grep -m 1 tag_name | cut -d'"' -f4)
     echo "$version"
 }
 
@@ -101,7 +117,7 @@ download_cli() {
         url="https://github.com/codacy/codacy-cli-v2/releases/download/${version}/${remote_file}"
 
         download "$url" "$bin_folder"
-        tar xzfv "${bin_folder}/${remote_file}" -C "${bin_folder}"
+        tar -xzf "${bin_folder}/${remote_file}" -C "${bin_folder}"
     fi
 }
 
@@ -137,13 +153,12 @@ bin_path="$bin_folder"/"$bin_name"
 download_cli "$bin_folder" "$bin_path" "$version"
 chmod +x "$bin_path"
 
-run_command="$bin_path"
-if [ -z "$run_command" ]; then
+if [ ! -f "$bin_path" ]; then
     fatal "Codacy cli v2 binary could not be found."
 fi
 
 if [ "$#" -eq 1 ] && [ "$1" = "download" ]; then
     echo "Codacy cli v2 download succeeded"
 else
-    eval "$run_command $*"
+    exec "$bin_path" "$@"
 fi

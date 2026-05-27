@@ -9,7 +9,6 @@ description: >-
   "resolve codacy", "codacy gate", "SRM findings", "code quality gate", or wants to
   manage Codacy configuration (.codacy.yml). Also use when Codacy quality gates are
   failing on a PR and the user wants to address the findings.
-author: lbruton
 ---
 
 # Codacy Resolve

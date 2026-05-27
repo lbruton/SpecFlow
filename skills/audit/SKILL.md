@@ -5,7 +5,6 @@ description: >
   drift (CLAUDE.md vs Agents.md vs Gemini.md), issue landscape, index health.
   Triggers: "audit", "health check", "check project health", "scan codebase", "code health",
   "instruction drift", "check for drift".
-author: lbruton
 ---
 
 # Project Health Audit
