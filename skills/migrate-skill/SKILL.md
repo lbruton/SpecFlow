@@ -5,6 +5,7 @@ description: >
   Use when porting a proven skill from ~/.claude/skills/ to the plugin for
   distribution. Covers generic vs project-specific classification, MCP prompt
   extraction, deprecation of user-level shims, and verification.
+author: lbruton
 ---
 
 # Migrate Skill — User-Level to Plugin

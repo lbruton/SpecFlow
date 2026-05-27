@@ -5,6 +5,7 @@ description: >
   conversation and saves them to mem0 as structured retro-learning memories. Unlike
   digest-session (descriptive — what happened), retro is prescriptive — what to do
   differently next time. Triggers on "/retro", "session retro", "what did we learn".
+author: lbruton
 ---
 
 # Retro

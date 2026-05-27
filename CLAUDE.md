@@ -1,6 +1,25 @@
 # SpecFlow
 
-MCP server plugin for spec-driven development with a real-time web dashboard. Loaded by every project — changes here affect: StakTrakr, HexTrackr, Forge, MyMelo, WhoseOnFirst, Playground, claude-context, HomeNetwork, Portfolio, obsidian-mcp, TRMCompare.
+## Identity
+
+You are Claude Code, an AI coding assistant, working within the SpecFlow project. SpecFlow is an MCP (Model Context Protocol) server plugin for spec-driven development with a real-time web dashboard.
+
+This file is loaded by every project that uses SpecFlow. Changes to SpecFlow affect: StakTrakr, HexTrackr, Forge, MyMelo, WhoseOnFirst, Playground, claude-context, HomeNetwork, Portfolio, obsidian-mcp, TRMCompare.
+
+## Tools
+
+Primary tools available in this project:
+
+- **Bash** — run shell commands, git, npm, and tests
+- **Read** — read files before editing them
+- **Edit / Write** — modify or create files
+- **Agent** — spawn specialized subagents for parallel or isolated tasks
+- **mcp__specflow__*** — spec workflow tools: spec-list, spec-status, approvals, log-implementation, write-spec-doc
+- **mcp__plane__*** — Plane issue tracker: create, update, and list issues
+- **mcp__codacy__*** — static analysis: list and get issues, analyze files
+- **mcp__mem0__*** — persistent memory across sessions
+- **mcp__github__*** — GitHub PR, issue, and file operations
+- **mcp__claude-context__*** — semantic codebase search (index first with index_codebase)
 
 ## Quick Reference
 
@@ -109,15 +128,13 @@ Template-only changes → `/publish-templates` (automates pipeline, stops before
 
 Code/MCP/dashboard changes:
 
-```bash
-# 1. Edit package.json version
-# 2. npm run build
-# 3. npm test
-# 4. git add package.json package-lock.json && commit && push (worktree + PR)
-# 5. npm publish --access public   # PASSKEY — manual user step, Claude cannot run
-# 6. Clear npx cache: find ~/.npm/_npx -path "*/specflow/package.json" -exec dirname {} \; | xargs rm -rf
-# 7. npm view @lbruton/specflow version   # verify
-```
+1. Edit `package.json` version.
+2. Run `npm run build`.
+3. Run `npm test`.
+4. Stage and commit: `git add package.json package-lock.json && commit && push` (worktree + PR).
+5. Run `npm publish --access public` — PASSKEY required, manual user step, Claude cannot run this.
+6. Clear npx cache: `find ~/.npm/_npx -path "*/specflow/package.json" -exec dirname {} \; | xargs rm -rf`
+7. Verify: `npm view @lbruton/specflow version`
 
 Hand off step 5 to user; wait for confirmation before step 6. Rationale: mem0 `feedback_npm_publish_passkey.md`.
 
@@ -132,11 +149,13 @@ Hand off step 5 to user; wait for confirmation before step 6. Rationale: mem0 `f
 
 After battle-testing at `~/.claude/skills/<n>/SKILL.md`:
 
-1. **Sanitize** — strip lbruton paths, personal prefs, workspace assumptions. Must work for any user/project.
-2. **Copy** — `cp ~/.claude/skills/<n>/SKILL.md skills/<n>/SKILL.md` (mkdir if new).
-3. **Verify** — `diff` should show only sanitization changes.
-4. **PR** — worktree → commit → push → PR. Same flow as source.
-5. **README** — update inventory in the same PR if skill is new.
+1. **Sanitize** — remove lbruton paths, personal prefs, and workspace assumptions.
+   - The result must work for any user/project.
+2. **Copy** — `cp ~/.claude/skills/<n>/SKILL.md skills/<n>/SKILL.md`
+   - Create the directory first with `mkdir -p` if it does not exist.
+3. **Verify** — run `diff` to confirm only sanitization changes appear.
+4. **PR** — open via worktree → commit → push → PR. Same flow as source changes.
+5. **README** — add the skill to the inventory table if it is newly added.
 
 Same flow for `commands/`. No build, no npm.
 
@@ -156,19 +175,37 @@ Every DocVault folder needs `_Index.md`. Creating/deleting/moving files: update 
 
 Automatic on Edit/Write/commit:
 
-- **prettier + lint-staged + husky** — staged `.{ts,tsx,js,cjs,mjs,json,html}` auto-formatted via `prettier --write`; staged `*.css` files linted and formatted by stylelint. Expect formatting changes on top of edits. Config: `.prettierrc.json`, `.prettierignore`, `.stylelintrc.json`.
-- **i18n validation** — `npm run validate:i18n` is step 1 of every build. Fails on missing/extra/misformatted keys. Script: `scripts/validate-i18n.js`.
-- **MDX validation** — `npm run validate:mdx` (`scripts/validate-mdx.ts` → `src/core/mdx-validator.ts`). Use `PathUtils.getWorkflowRoot()` everywhere; hardcoded `.specflow/` breaks the validator.
-- **`Protect Main` ruleset gates merges** — requires `Codacy Static Code Analysis` + `CodeRabbit` status checks, CodeQL `code_scanning` (errors/critical), `copilot_code_review`, signed commits, linear history, and review-thread resolution. Verify via `gh api repos/lbruton/SpecFlow/rulesets`. Merge with **squash or rebase** (not a merge commit — linear history is required). `copilot_code_review` has `review_on_push:false`, so **re-request Copilot review after every push** (`gh api -X POST repos/lbruton/SpecFlow/pulls/{n}/requested_reviewers`, reviewer `copilot-pull-request-reviewer[bot]`) or the PR stays `BLOCKED`. Pre-existing CodeQL alerts on unchanged lines are pre-existing — they can be mis-flagged "new in PR" when your diff shifts their line numbers.
-- **OAuth lacks `workflow` scope** — HTTPS pushes touching `.github/workflows/` are rejected; origin is set to **SSH** (`git@github.com:lbruton/SpecFlow.git`), which bypasses this. `.github/` is in `.prettierignore`. File workflow changes as a separate issue.
+- **prettier + lint-staged + husky** — runs automatically on commit for staged files:
+  - `.{ts,tsx,js,cjs,mjs,json,html}` files are auto-formatted via `prettier --write`.
+  - `*.css` files are linted and formatted by stylelint.
+  - Expect formatting changes on top of your edits.
+  - Config files: `.prettierrc.json`, `.prettierignore`, `.stylelintrc.json`.
+- **i18n validation** — `npm run validate:i18n` is step 1 of every build and blocks on any invalid translation key.
+- **MDX validation** — `npm run validate:mdx` validates templates; always use `PathUtils.getWorkflowRoot()` — never hardcode `.specflow/`.
+- **`Protect Main` ruleset** — gates all merges to `main`. Required checks:
+  - `Codacy Static Code Analysis`, `CodeRabbit`, `CodeQL code_scanning` (errors/critical), `copilot_code_review`.
+  - Signed commits, linear history, and resolved review threads.
+  - Verify rules via `gh api repos/lbruton/SpecFlow/rulesets`.
+  - Merge with squash or rebase (not a merge commit — linear history required).
+  - `copilot_code_review` has `review_on_push:false` — re-request after every push or the PR stays BLOCKED.
+  - Re-request command: `gh api -X POST repos/lbruton/SpecFlow/pulls/{n}/requested_reviewers` with reviewer `copilot-pull-request-reviewer[bot]`.
+  - Pre-existing CodeQL alerts can be mis-flagged as "new in PR" when your diff shifts line numbers.
+- **OAuth lacks `workflow` scope** — HTTPS pushes touching `.github/workflows/` are rejected.
+  - Origin is set to SSH (`git@github.com:lbruton/SpecFlow.git`), which bypasses this restriction.
+  - `.github/` is in `.prettierignore`. File workflow changes as a separate issue.
 
 ## Hooks
 
-- **gitleaks** (pre-commit, OPS-116, 2026-04-14) — scans for `github-pat`, `aws`, `stripe`, etc. via the `pre-commit` framework.
+- **gitleaks** (pre-commit, OPS-116, 2026-04-14) — scans for secrets via the `pre-commit` framework. Detected secret types include: GitHub PATs, AWS keys, Stripe keys, Slack tokens, private keys, and generic high-entropy strings.
 - **husky + gitleaks coexistence** — husky v9 sets `core.hooksPath=.husky`, taking over from `.git/hooks/`. The husky `pre-commit` script MUST explicitly call `pre-commit run` to chain gitleaks, else gitleaks silently stops running.
 
 ## Gotchas
 
-- **mem0 reader pattern (SWF-90)** — mem0 cloud v1 API leaves top-level `agent_id` null. Project tag lives in `metadata.project`. Fetch unfiltered, post-filter on `metadata.project` case-insensitively (legacy records: `SpecFlow` vs `specflow`). Do NOT use `filters: {AND: [{agent_id: <tag>}]}`. Canonical: `~/.claude/hooks/mem0-session-start.py:83-140`. Full ref: [[mem0-configuration]] § Schema Reality.
+- **mem0 reader pattern (SWF-90)** — the mem0 cloud v1 API leaves top-level `agent_id` null.
+  - Project tag lives in `metadata.project`.
+  - Fetch unfiltered, then post-filter on `metadata.project` case-insensitively (legacy records use `SpecFlow` vs `specflow`).
+  - Do not use `filters: {AND: [{agent_id: <tag>}]}`.
+  - Canonical implementation: `~/.claude/hooks/mem0-session-start.py:83-140`.
+  - Full ref: [[mem0-configuration]] § Schema Reality.
 - **Squash-merge branch delete** — `git branch -d` fails with "not fully merged" after squash because squash SHA ≠ branch SHA. Branch tracking `[gone]` confirms merge. Use `git branch -D <branch>` for confirmed-gone branches.
 - **Prompt path references** — MCP prompts in `src/prompts/` embed file paths in their text output. Use `PathUtils.getWorkflowRoot()` everywhere; never hardcode `.specflow/`. When path resolution changes, grep all prompts (`create-spec`, `implement-task`, `spec-status`, `create-steering-doc`, `inject-steering-guide`) for stale strings.

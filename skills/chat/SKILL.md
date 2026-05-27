@@ -16,6 +16,7 @@ allowed-tools: >-
   mcp__context7__resolve-library-id,
   mcp__context7__query-docs,
   mcp__brave-search__brave_web_search
+author: lbruton
 ---
 
 # Chat — Phase 0 Discovery

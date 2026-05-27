@@ -7,6 +7,7 @@ description: >
   Triggers on: "create issue", "issue", "new issue", "new bug", "file a bug",
   "track this".
 user-invocable: false
+author: lbruton
 ---
 
 # Issue Management — Backend-Aware

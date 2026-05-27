@@ -6,6 +6,7 @@ description: >
   to /prime for continuing same-day work or resuming after a short break. No indexing,
   no code search, no agent dispatch.
   Triggers: "start", "quick start", "resume", "orient me", "where were we".
+author: lbruton
 ---
 
 # Start
