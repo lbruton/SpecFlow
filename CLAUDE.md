@@ -149,8 +149,7 @@ Hand off step 5 to user; wait for confirmation before step 6. Rationale: mem0 `f
 
 After battle-testing at `~/.claude/skills/<n>/SKILL.md`:
 
-1. **Sanitize** — remove lbruton paths, personal prefs, and workspace assumptions.
-   - The result must work for any user/project.
+1. **Sanitize** — remove lbruton paths, personal prefs, and workspace assumptions so the skill works for any user/project.
 2. **Copy** — `cp ~/.claude/skills/<n>/SKILL.md skills/<n>/SKILL.md`
    - Create the directory first with `mkdir -p` if it does not exist.
 3. **Verify** — run `diff` to confirm only sanitization changes appear.
@@ -180,8 +179,9 @@ Automatic on Edit/Write/commit:
   - `*.css` files are linted and formatted by stylelint.
   - Expect formatting changes on top of your edits.
   - Config files: `.prettierrc.json`, `.prettierignore`, `.stylelintrc.json`.
-- **i18n validation** — `npm run validate:i18n` is step 1 of every build and blocks on any invalid translation key.
-- **MDX validation** — `npm run validate:mdx` validates templates; always use `PathUtils.getWorkflowRoot()` — never hardcode `.specflow/`.
+- **i18n validation** — `npm run validate:i18n` runs as step 1 of every build.
+  - Fails on missing, extra, or malformed translation keys.
+- **MDX validation** — `npm run validate:mdx` validates templates. `PathUtils.getWorkflowRoot()` is required for path resolution; hardcoded `.specflow/` breaks when DocVault layout changes.
 - **`Protect Main` ruleset** — gates all merges to `main`. Required checks:
   - `Codacy Static Code Analysis`, `CodeRabbit`, `CodeQL code_scanning` (errors/critical), `copilot_code_review`.
   - Signed commits, linear history, and resolved review threads.
@@ -191,7 +191,7 @@ Automatic on Edit/Write/commit:
   - Re-request command: `gh api -X POST repos/lbruton/SpecFlow/pulls/{n}/requested_reviewers` with reviewer `copilot-pull-request-reviewer[bot]`.
   - Pre-existing CodeQL alerts can be mis-flagged as "new in PR" when your diff shifts line numbers.
 - **OAuth lacks `workflow` scope** — HTTPS pushes touching `.github/workflows/` are rejected.
-  - Origin is set to SSH (`git@github.com:lbruton/SpecFlow.git`), which bypasses this restriction.
+  - Origin is configured as SSH (verify with `git remote -v`), which bypasses this restriction.
   - `.github/` is in `.prettierignore`. File workflow changes as a separate issue.
 
 ## Hooks
@@ -201,7 +201,7 @@ Automatic on Edit/Write/commit:
 
 ## Gotchas
 
-- **mem0 reader pattern (SWF-90)** — the mem0 cloud v1 API leaves top-level `agent_id` null.
+- **mem0 reader pattern (SFLW-90)** — the mem0 cloud v1 API leaves top-level `agent_id` null.
   - Project tag lives in `metadata.project`.
   - Fetch unfiltered, then post-filter on `metadata.project` case-insensitively (legacy records use `SpecFlow` vs `specflow`).
   - Do not use `filters: {AND: [{agent_id: <tag>}]}`.

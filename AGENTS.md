@@ -204,7 +204,7 @@ These gates fire automatically on Edit/Write/commit:
 |------|-------------|
 | prettier + lint-staged | Formats `.{ts,tsx,js,cjs,mjs,json,css,html}` on commit. Expect reformatting on top of your changes. |
 | i18n validation | `npm run validate:i18n` — step 1 of every build. Blocks on missing, extra, or malformed keys. |
-| MDX validation | `npm run validate:mdx` — use `PathUtils.getWorkflowRoot()` everywhere, never hardcode `.specflow/`. |
+| MDX validation | `npm run validate:mdx` — `PathUtils.getWorkflowRoot()` is required; hardcoded `.specflow/` breaks DocVault layout. |
 | Protect Main ruleset | Requires Codacy, CodeRabbit, CodeQL, copilot_code_review, signed commits, linear history. Merge via squash or rebase only. |
 
 **Protect Main detail — Copilot re-request required after every push:**
@@ -218,7 +218,7 @@ gh api -X POST repos/lbruton/SpecFlow/pulls/{n}/requested_reviewers \
 
 Without this the PR will be BLOCKED. Pre-existing CodeQL alerts may appear as "new" when line numbers shift — these are not new findings.
 
-**OAuth scope:** HTTPS pushes to `.github/workflows/` fail (missing `workflow` scope). Use SSH remote (`git@github.com:lbruton/SpecFlow.git`) for all pushes.
+**OAuth scope:** HTTPS pushes to `.github/workflows/` fail (missing `workflow` scope). Use the SSH remote (already configured — verify with `git remote -v`) for all pushes.
 
 ## Hooks
 
@@ -229,7 +229,7 @@ Without this the PR will be BLOCKED. Pre-existing CodeQL alerts may appear as "n
 
 ## Gotchas
 
-**mem0 API schema (issue SWF-90):** The mem0 cloud v1 API returns null for the top-level `agent_id` field. Store project identity in `metadata.project` instead.
+**mem0 API schema (issue SFLW-90):** The mem0 cloud v1 API returns null for the top-level `agent_id` field. Store project identity in `metadata.project` instead.
 
 - Fetch all records without filters.
 - Filter client-side on `metadata.project`, case-insensitive.
@@ -239,8 +239,8 @@ Without this the PR will be BLOCKED. Pre-existing CodeQL alerts may appear as "n
 
 **Squash-merge cleanup:** After a squash-merge, `git branch -d <branch>` refuses with "not fully merged".
 
-- This happens because the squash commit hash differs from the branch tip.
+- The failure occurs because the squash commit hash differs from the branch tip.
 - Confirm the merge by checking for `[gone]` status in `git branch -v`.
 - Force-delete the local branch with `git branch -D <branch>`.
 
-**Prompt path references:** All MCP prompts in `src/prompts/` embed filesystem paths. Always use `PathUtils.getWorkflowRoot()` — hardcoded `.specflow/` paths break when DocVault layout changes. When modifying path resolution, audit all five prompts: `create-spec`, `implement-task`, `spec-status`, `create-steering-doc`, `inject-steering-guide`.
+**Prompt path references:** All MCP prompts in `src/prompts/` embed filesystem paths. `PathUtils.getWorkflowRoot()` is required for path resolution — hardcoded `.specflow/` paths break when DocVault layout changes. When modifying path resolution, audit all five prompts: `create-spec`, `implement-task`, `spec-status`, `create-steering-doc`, `inject-steering-guide`.
