@@ -276,9 +276,14 @@ export class SpecWorkflowMCPServer {
 
         // Dispatch OUTSIDE the config-load try so a tool-execution error is never
         // misreported as a config-load failure (handleToolCall does its own error
-        // mapping). Only reached when recovery succeeded.
+        // mapping). Only reached when recovery succeeded. Wrapped in the same
+        // McpError mapping as the normal path for consistent error surfacing.
         if (callContext) {
-          return await handleToolCall(name, args, callContext);
+          try {
+            return await handleToolCall(name, args, callContext);
+          } catch (error: any) {
+            throw new McpError(ErrorCode.InternalError, error.message);
+          }
         }
       }
 
