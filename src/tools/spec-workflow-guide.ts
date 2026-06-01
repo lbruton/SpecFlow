@@ -30,8 +30,9 @@ export function specWorkflowGuideHandler(
 ): ToolResponse {
   // Use context projectPath as default, allow override via args. This tool does
   // no filesystem I/O — projectPath only selects the workflow-root string shown
-  // in the guide — so it stays safe to run even when project init failed.
-  const projectPath = args.projectPath || context.projectPath;
+  // in the guide — so it stays safe to run even when project init failed. Fall
+  // back to '.' so getWorkflowRoot never throws on an empty path in degraded mode.
+  const projectPath = args.projectPath || context.projectPath || '.';
 
   // Dashboard URL is populated from registry in server.ts
   const dashboardMessage = context.dashboardUrl

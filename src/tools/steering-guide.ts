@@ -27,7 +27,8 @@ Call ONLY when user explicitly requests steering document creation or asks about
 export function steeringGuideHandler(args: any, context: ToolContext): ToolResponse {
   // Use context projectPath as default, allow override via args. No filesystem
   // I/O — projectPath only selects the workflow-root string shown in the guide.
-  const projectPath = args.projectPath || context.projectPath;
+  // Fall back to '.' so getWorkflowRoot never throws on an empty path.
+  const projectPath = args.projectPath || context.projectPath || '.';
 
   return {
     success: true,

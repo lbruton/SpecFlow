@@ -138,7 +138,7 @@ export class SpecWorkflowMCPServer {
       } catch (registryError: any) {
         console.error(
           `WARNING: Global project registry update failed — the dashboard may not list this ` +
-            `project, but tools will work normally. Error: ${registryError.message || registryError}`,
+            `project, but tools will work normally. Error: ${registryError?.message || registryError}`,
         );
       }
       projectInitialized = true;
@@ -264,7 +264,19 @@ export class SpecWorkflowMCPServer {
         // filesystem I/O and still render from context.projectPath (which is set
         // even in degraded mode), so let them through instead of erroring.
         if (DEGRADED_MODE_SAFE_TOOLS.has(request.params.name)) {
-          return await handleToolCall(request.params.name, args, context);
+          try {
+            return await handleToolCall(request.params.name, args, context);
+          } catch (error: any) {
+            return {
+              content: [
+                {
+                  type: 'text' as const,
+                  text: `Failed to execute ${request.params.name} in degraded mode: ${error?.message || error}`,
+                },
+              ],
+              isError: true,
+            };
+          }
         }
 
         return {
