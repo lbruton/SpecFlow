@@ -20,9 +20,17 @@ Call this tool FIRST when users request spec creation, feature development, or m
 };
 
 export function specWorkflowGuideHandler(
-  args: any,
+  _args: any,
   context: ToolContext,
 ): ToolResponse {
+  // This tool does no filesystem I/O — it only substitutes the server's resolved
+  // workflow root into a static guide — so it stays safe to run even in degraded
+  // mode. There is intentionally no projectPath override: getWorkflowRoot returns
+  // the configured DocVault root once initialized regardless of any path passed,
+  // so advertising an override would mislead. Fall back to '.' so getWorkflowRoot
+  // never throws on an empty path in degraded mode.
+  const projectPath = context.projectPath || '.';
+
   // Dashboard URL is populated from registry in server.ts
   const dashboardMessage = context.dashboardUrl
     ? `Monitor progress on dashboard: ${context.dashboardUrl}`
@@ -32,7 +40,7 @@ export function specWorkflowGuideHandler(
     success: true,
     message: 'Complete spec workflow guide loaded - follow this workflow exactly',
     data: {
-      guide: getSpecWorkflowGuide(PathUtils.getWorkflowRoot(context.projectPath)),
+      guide: getSpecWorkflowGuide(PathUtils.getWorkflowRoot(projectPath)),
       dashboardUrl: context.dashboardUrl,
       dashboardAvailable: !!context.dashboardUrl,
     },

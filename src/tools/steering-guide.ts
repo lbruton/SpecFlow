@@ -19,12 +19,18 @@ Call ONLY when user explicitly requests steering document creation or asks about
   },
 };
 
-export function steeringGuideHandler(args: any, context: ToolContext): ToolResponse {
+export function steeringGuideHandler(_args: any, context: ToolContext): ToolResponse {
+  // No filesystem I/O and no projectPath override — getWorkflowRoot returns the
+  // configured DocVault root once initialized regardless of any path passed, so
+  // advertising an override would mislead. Fall back to '.' so getWorkflowRoot
+  // never throws on an empty path.
+  const projectPath = context.projectPath || '.';
+
   return {
     success: true,
     message: 'Steering workflow guide loaded - follow this workflow exactly to avoid errors',
     data: {
-      guide: getSteeringGuide(PathUtils.getWorkflowRoot(context.projectPath)),
+      guide: getSteeringGuide(PathUtils.getWorkflowRoot(projectPath)),
       dashboardUrl: context.dashboardUrl,
     },
     nextSteps: [

@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { promises as fs } from 'fs';
 import { basename, resolve } from 'path';
-import { createHash } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import { getGlobalDir, getPermissionErrorHelp } from './global-dir.js';
 
 export interface ProjectInstance {
@@ -163,10 +163,20 @@ export class ProjectRegistry {
     const data = Object.fromEntries(registry);
     const content = JSON.stringify(data, null, 2);
 
-    // Write to temporary file first, then rename for atomic operation
-    const tempPath = `${this.registryPath}.tmp`;
-    await fs.writeFile(tempPath, content, 'utf-8');
-    await fs.rename(tempPath, this.registryPath);
+    // Write to a temporary file first, then rename for an atomic swap.
+    // The temp name is namespaced by PID + a random UUID so concurrent MCP
+    // instances (one per project, all sharing this global registry) never write
+    // to or rename the same temp file — the previous shared `.tmp` name let them
+    // clobber each other mid-write and produce corrupt JSON.
+    const tempPath = `${this.registryPath}.tmp.${process.pid}.${randomUUID()}`;
+    try {
+      await fs.writeFile(tempPath, content, 'utf-8');
+      await fs.rename(tempPath, this.registryPath);
+    } catch (error) {
+      // Clean up the temp file if the write/rename failed partway through.
+      await fs.unlink(tempPath).catch(() => {});
+      throw error;
+    }
   }
 
   /**

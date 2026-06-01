@@ -10,16 +10,25 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { registerTools, handleToolCall } from './tools/index.js';
 import { registerPrompts, handlePromptList, handlePromptGet } from './prompts/index.js';
-import { ToolContext } from './types.js';
+import { ToolContext, MCPToolResponse } from './types.js';
 import { validateProjectPath, PathUtils } from './core/path-utils.js';
 import { WorkspaceInitializer } from './core/workspace-initializer.js';
-import { loadOrCreateConfig, loadConfig } from './core/config-loader.js';
+import { loadOrCreateConfig, loadConfig, ResolvedConfig } from './core/config-loader.js';
 import { needsMigration, migrateToDocVault } from './core/migration.js';
 import { ProjectRegistry } from './core/project-registry.js';
 import { DashboardSessionManager } from './core/dashboard-session.js';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+
+/**
+ * Tools that perform NO filesystem I/O and only return static guidance. They
+ * substitute a workflow-root string into a template, so they remain usable even
+ * when project initialization failed (degraded mode). The degraded-mode gate
+ * exempts these instead of returning the blanket "no valid project" error —
+ * unlike the data tools, they don't depend on a resolved project.
+ */
+export const DEGRADED_MODE_SAFE_TOOLS = new Set(['spec-workflow-guide', 'steering-guide']);
 
 export class SpecWorkflowMCPServer {
   private server: Server;
@@ -106,18 +115,8 @@ export class SpecWorkflowMCPServer {
         );
       }
 
-      // Register this project in the global registry
-      // Use DocVault specflow root (where specs/approvals/steering live) as the
-      // workflowRootPath, not the git root. The dashboard uses this path to find
-      // spec documents, approvals, and steering files.
-      const projectId = await this.projectRegistry.registerProject(
-        this.workspacePath,
-        process.pid,
-        {
-          workflowRootPath: config.specflowRoot,
-        },
-      );
-      console.error(`Project registered: ${projectId} (workflow root: ${config.specflowRoot})`);
+      // Register this project in the global registry (non-essential — see method).
+      await this.registerProjectSafely(config);
       projectInitialized = true;
     } catch (error: any) {
       // Project initialization failed — enter degraded mode instead of crashing.
@@ -192,35 +191,73 @@ export class SpecWorkflowMCPServer {
     }
   }
 
-  private setupHandlers(context: any) {
-    // Tool handlers
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: registerTools(),
-    }));
+  /**
+   * Register this project in the shared global registry (~/.specflow-mcp).
+   *
+   * This write is NON-ESSENTIAL for tool operation: by the time it runs, config
+   * is loaded and PathUtils is initialized, so tools resolve paths without it —
+   * only the dashboard's multi-project list depends on the registry. A failure
+   * here (read-only $HOME in a sandboxed subagent, or a transient corrupted
+   * registry) must NOT trip degraded mode and break every tool, so it is caught
+   * and downgraded to a warning. DocVault specflow root (where specs/approvals/
+   * steering live) is used as the workflowRootPath, not the git root.
+   */
+  private async registerProjectSafely(config: ResolvedConfig): Promise<void> {
+    try {
+      const projectId = await this.projectRegistry.registerProject(
+        this.workspacePath,
+        process.pid,
+        {
+          workflowRootPath: config.specflowRoot,
+        },
+      );
+      console.error(`Project registered: ${projectId} (workflow root: ${config.specflowRoot})`);
+    } catch (registryError: any) {
+      console.error(
+        `WARNING: Global project registry update failed — the dashboard may not list this ` +
+          `project, but tools will work normally. Error: ${registryError?.message || registryError}`,
+      );
+    }
+  }
 
-    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      const args = request.params.arguments || {};
+  /**
+   * Route a single CallTool request to its handler, applying degraded-mode
+   * policy. Extracted from the request-handler closure so it can be unit-tested
+   * directly (the MCP transport need not be wired up).
+   *
+   * Degraded-mode policy:
+   * - If args.projectPath is supplied, attempt on-the-fly config load and run
+   *   the tool against that project.
+   * - Pure read-only guide tools (DEGRADED_MODE_SAFE_TOOLS) do no filesystem I/O,
+   *   so they are exempt: they render even when no project resolves and even when
+   *   an on-the-fly load fails.
+   * - All other tools return a structured "no valid project" error.
+   */
+  async routeToolCall(name: string, args: any, context: any): Promise<MCPToolResponse> {
+    if (context.degraded) {
+      const overridePath = args.projectPath as string | undefined;
+      const isSafeTool = DEGRADED_MODE_SAFE_TOOLS.has(name);
 
-      // In degraded mode, try to resolve a project on-the-fly from args.projectPath
-      if (context.degraded) {
-        const overridePath = args.projectPath as string | undefined;
-
-        if (overridePath) {
-          try {
-            await validateProjectPath(overridePath);
-            const config = await loadConfig(overridePath);
-            // Global state — acceptable here because degraded mode has no prior
-            // config set, so we're going from nothing to something. Concurrent
-            // calls with different projectPath values would race; a future refactor
-            // should thread config through ToolContext instead.
-            PathUtils.initializeDocVault(config);
-            const callContext: ToolContext = {
-              projectPath: overridePath,
-              dashboardUrl: context.dashboardUrl,
-              lang: context.lang,
-            };
-            return await handleToolCall(request.params.name, args, callContext);
-          } catch (configError: any) {
+      if (overridePath) {
+        let callContext: ToolContext | undefined;
+        try {
+          await validateProjectPath(overridePath);
+          const config = await loadConfig(overridePath);
+          // Global state — acceptable here because degraded mode has no prior
+          // config set, so we're going from nothing to something. Concurrent
+          // calls with different projectPath values would race; a future refactor
+          // should thread config through ToolContext instead.
+          PathUtils.initializeDocVault(config);
+          callContext = {
+            projectPath: overridePath,
+            dashboardUrl: context.dashboardUrl,
+            lang: context.lang,
+          };
+        } catch (configError: any) {
+          // Pure read-only guide tools don't need config/filesystem access, so a
+          // failed on-the-fly load must not block them — fall through to render
+          // them below. Only the data tools surface the config-load error.
+          if (!isSafeTool) {
             return {
               content: [
                 {
@@ -237,30 +274,72 @@ export class SpecWorkflowMCPServer {
           }
         }
 
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text:
-                `SpecFlow MCP server is running in degraded mode — no valid project found.\n\n` +
-                `Error: ${context.degradedReason}\n\n` +
-                `To use this tool, pass the "projectPath" parameter with the absolute path to your project directory.\n` +
-                `The project must have a .specflow/config.json file.\n\n` +
-                `Example: { "projectPath": "/path/to/your/project", ... }\n\n` +
-                `Alternatively, fix the MCP config to pass the project path at startup:\n` +
-                `  npx -y @lbruton/specflow@latest /path/to/your/project`,
-            },
-          ],
-          isError: true,
-        };
+        // Dispatch OUTSIDE the config-load try so a tool-execution error is never
+        // misreported as a config-load failure (handleToolCall does its own error
+        // mapping). Only reached when recovery succeeded. Wrapped in the same
+        // McpError mapping as the normal path for consistent error surfacing.
+        if (callContext) {
+          try {
+            return await handleToolCall(name, args, callContext);
+          } catch (error: any) {
+            throw new McpError(ErrorCode.InternalError, error.message);
+          }
+        }
       }
 
-      try {
-        return await handleToolCall(request.params.name, args, context);
-      } catch (error: any) {
-        throw new McpError(ErrorCode.InternalError, error.message);
+      // Pure read-only guide tools do no filesystem I/O and still render from
+      // context.projectPath (set even in degraded mode), so let them through
+      // instead of erroring — whether or not a projectPath was supplied.
+      if (isSafeTool) {
+        try {
+          return await handleToolCall(name, args, context);
+        } catch (error: any) {
+          return {
+            content: [
+              {
+                type: 'text' as const,
+                text: `Failed to execute ${name} in degraded mode: ${error?.message || error}`,
+              },
+            ],
+            isError: true,
+          };
+        }
       }
-    });
+
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text:
+              `SpecFlow MCP server is running in degraded mode — no valid project found.\n\n` +
+              `Error: ${context.degradedReason}\n\n` +
+              `To use this tool, pass the "projectPath" parameter with the absolute path to your project directory.\n` +
+              `The project must have a .specflow/config.json file.\n\n` +
+              `Example: { "projectPath": "/path/to/your/project", ... }\n\n` +
+              `Alternatively, fix the MCP config to pass the project path at startup:\n` +
+              `  npx -y @lbruton/specflow@latest /path/to/your/project`,
+          },
+        ],
+        isError: true,
+      };
+    }
+
+    try {
+      return await handleToolCall(name, args, context);
+    } catch (error: any) {
+      throw new McpError(ErrorCode.InternalError, error.message);
+    }
+  }
+
+  private setupHandlers(context: any) {
+    // Tool handlers
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
+      tools: registerTools(),
+    }));
+
+    this.server.setRequestHandler(CallToolRequestSchema, async (request) =>
+      this.routeToolCall(request.params.name, request.params.arguments || {}, context),
+    );
 
     // Prompt handlers
     this.server.setRequestHandler(ListPromptsRequestSchema, async () => {

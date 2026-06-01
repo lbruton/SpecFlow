@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { promises as fs } from 'fs';
 import { join, resolve } from 'path';
 import { tmpdir } from 'os';
@@ -310,5 +310,32 @@ describe('ProjectRegistry worktree identity', () => {
 
     // An unrelated path should not
     expect(await registry.isProjectRegistered('/tmp/other-repo')).toBe(false);
+  });
+
+  it('writes via a unique per-process temp path (no shared .tmp clobber)', async () => {
+    const registry = new ProjectRegistry();
+    const registryPath = join(tempDir, 'activeProjects.json');
+    const tmpPrefix = `${registryPath}.tmp`;
+
+    // Capture the path passed to writeFile while preserving the real write.
+    const writeSpy = vi.spyOn(fs, 'writeFile');
+
+    await registry.registerProject('/tmp/repo-a', process.pid, {
+      workflowRootPath: '/tmp/repo-a',
+    });
+
+    const tempPaths = writeSpy.mock.calls
+      .map((call) => String(call[0]))
+      .filter((p) => p.startsWith(tmpPrefix));
+
+    expect(tempPaths.length).toBeGreaterThan(0);
+    for (const p of tempPaths) {
+      // Must not reuse the shared name that races across concurrent instances...
+      expect(p).not.toBe(tmpPrefix);
+      // ...and must be namespaced by the PID for cross-process uniqueness.
+      expect(p).toContain(String(process.pid));
+    }
+
+    writeSpy.mockRestore();
   });
 });
