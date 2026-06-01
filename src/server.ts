@@ -239,6 +239,7 @@ export class SpecWorkflowMCPServer {
       const isSafeTool = DEGRADED_MODE_SAFE_TOOLS.has(name);
 
       if (overridePath) {
+        let callContext: ToolContext | undefined;
         try {
           await validateProjectPath(overridePath);
           const config = await loadConfig(overridePath);
@@ -247,12 +248,11 @@ export class SpecWorkflowMCPServer {
           // calls with different projectPath values would race; a future refactor
           // should thread config through ToolContext instead.
           PathUtils.initializeDocVault(config);
-          const callContext: ToolContext = {
+          callContext = {
             projectPath: overridePath,
             dashboardUrl: context.dashboardUrl,
             lang: context.lang,
           };
-          return await handleToolCall(name, args, callContext);
         } catch (configError: any) {
           // Pure read-only guide tools don't need config/filesystem access, so a
           // failed on-the-fly load must not block them — fall through to render
@@ -272,6 +272,13 @@ export class SpecWorkflowMCPServer {
               isError: true,
             };
           }
+        }
+
+        // Dispatch OUTSIDE the config-load try so a tool-execution error is never
+        // misreported as a config-load failure (handleToolCall does its own error
+        // mapping). Only reached when recovery succeeded.
+        if (callContext) {
+          return await handleToolCall(name, args, callContext);
         }
       }
 
