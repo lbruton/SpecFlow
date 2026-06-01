@@ -227,6 +227,7 @@ export class SpecWorkflowMCPServer {
       // In degraded mode, try to resolve a project on-the-fly from args.projectPath
       if (context.degraded) {
         const overridePath = args.projectPath as string | undefined;
+        const isSafeTool = DEGRADED_MODE_SAFE_TOOLS.has(request.params.name);
 
         if (overridePath) {
           try {
@@ -244,26 +245,31 @@ export class SpecWorkflowMCPServer {
             };
             return await handleToolCall(request.params.name, args, callContext);
           } catch (configError: any) {
-            return {
-              content: [
-                {
-                  type: 'text' as const,
-                  text:
-                    `SpecFlow MCP server started without a valid project (startup error: ${context.degradedReason}).\n\n` +
-                    `Attempted on-demand config load for projectPath="${overridePath}" but it also failed:\n` +
-                    `${configError.message}\n\n` +
-                    `Ensure the project has a valid .specflow/config.json with a "docvault" path.`,
-                },
-              ],
-              isError: true,
-            };
+            // Pure read-only guide tools don't need config/filesystem access, so a
+            // failed on-the-fly load must not block them — fall through to render
+            // them below. Only the data tools surface the config-load error.
+            if (!isSafeTool) {
+              return {
+                content: [
+                  {
+                    type: 'text' as const,
+                    text:
+                      `SpecFlow MCP server started without a valid project (startup error: ${context.degradedReason}).\n\n` +
+                      `Attempted on-demand config load for projectPath="${overridePath}" but it also failed:\n` +
+                      `${configError.message}\n\n` +
+                      `Ensure the project has a valid .specflow/config.json with a "docvault" path.`,
+                  },
+                ],
+                isError: true,
+              };
+            }
           }
         }
 
-        // No projectPath to recover from — but pure read-only guide tools do no
-        // filesystem I/O and still render from context.projectPath (which is set
-        // even in degraded mode), so let them through instead of erroring.
-        if (DEGRADED_MODE_SAFE_TOOLS.has(request.params.name)) {
+        // Pure read-only guide tools do no filesystem I/O and still render from
+        // context.projectPath (set even in degraded mode), so let them through
+        // instead of erroring — whether or not a projectPath was supplied.
+        if (isSafeTool) {
           try {
             return await handleToolCall(request.params.name, args, context);
           } catch (error: any) {
