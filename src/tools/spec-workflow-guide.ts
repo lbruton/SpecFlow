@@ -10,8 +10,13 @@ export const specWorkflowGuideTool: Tool = {
 Call this tool FIRST when users request spec creation, feature development, or mention specifications. This provides the complete workflow sequence (Requirements → Design → Tasks → Implementation) that must be followed. Always load before any other spec tools to ensure proper workflow understanding. Its important that you follow this workflow exactly to avoid errors.`,
   inputSchema: {
     type: 'object',
-    properties: {},
-    additionalProperties: false,
+    properties: {
+      projectPath: {
+        type: 'string',
+        description:
+          'Absolute path to the project root (optional - uses server context path if not provided)',
+      },
+    },
   },
   annotations: {
     title: 'Spec Workflow Guide',
@@ -23,6 +28,11 @@ export function specWorkflowGuideHandler(
   args: any,
   context: ToolContext,
 ): ToolResponse {
+  // Use context projectPath as default, allow override via args. This tool does
+  // no filesystem I/O — projectPath only selects the workflow-root string shown
+  // in the guide — so it stays safe to run even when project init failed.
+  const projectPath = args.projectPath || context.projectPath;
+
   // Dashboard URL is populated from registry in server.ts
   const dashboardMessage = context.dashboardUrl
     ? `Monitor progress on dashboard: ${context.dashboardUrl}`
@@ -32,7 +42,7 @@ export function specWorkflowGuideHandler(
     success: true,
     message: 'Complete spec workflow guide loaded - follow this workflow exactly',
     data: {
-      guide: getSpecWorkflowGuide(PathUtils.getWorkflowRoot(context.projectPath)),
+      guide: getSpecWorkflowGuide(PathUtils.getWorkflowRoot(projectPath)),
       dashboardUrl: context.dashboardUrl,
       dashboardAvailable: !!context.dashboardUrl,
     },

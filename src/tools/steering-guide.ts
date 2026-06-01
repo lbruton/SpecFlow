@@ -10,8 +10,13 @@ export const steeringGuideTool: Tool = {
 Call ONLY when user explicitly requests steering document creation or asks about project architecture docs. Not part of standard spec workflow. Provides templates and guidance for product.md, tech.md, and structure.md creation. Its important that you follow this workflow exactly to avoid errors.`,
   inputSchema: {
     type: 'object',
-    properties: {},
-    additionalProperties: false,
+    properties: {
+      projectPath: {
+        type: 'string',
+        description:
+          'Absolute path to the project root (optional - uses server context path if not provided)',
+      },
+    },
   },
   annotations: {
     title: 'Steering Guide',
@@ -20,11 +25,15 @@ Call ONLY when user explicitly requests steering document creation or asks about
 };
 
 export function steeringGuideHandler(args: any, context: ToolContext): ToolResponse {
+  // Use context projectPath as default, allow override via args. No filesystem
+  // I/O — projectPath only selects the workflow-root string shown in the guide.
+  const projectPath = args.projectPath || context.projectPath;
+
   return {
     success: true,
     message: 'Steering workflow guide loaded - follow this workflow exactly to avoid errors',
     data: {
-      guide: getSteeringGuide(PathUtils.getWorkflowRoot(context.projectPath)),
+      guide: getSteeringGuide(PathUtils.getWorkflowRoot(projectPath)),
       dashboardUrl: context.dashboardUrl,
     },
     nextSteps: [

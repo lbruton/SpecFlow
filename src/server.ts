@@ -21,6 +21,15 @@ import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
+/**
+ * Tools that perform NO filesystem I/O and only return static guidance. They
+ * substitute a workflow-root string into a template, so they remain usable even
+ * when project initialization failed (degraded mode). The degraded-mode gate
+ * exempts these instead of returning the blanket "no valid project" error —
+ * unlike the data tools, they don't depend on a resolved project.
+ */
+export const DEGRADED_MODE_SAFE_TOOLS = new Set(['spec-workflow-guide', 'steering-guide']);
+
 export class SpecWorkflowMCPServer {
   private server: Server;
   private projectPath!: string; // workflowRootPath for .specflow operations
@@ -106,18 +115,32 @@ export class SpecWorkflowMCPServer {
         );
       }
 
-      // Register this project in the global registry
+      // Register this project in the global registry.
       // Use DocVault specflow root (where specs/approvals/steering live) as the
       // workflowRootPath, not the git root. The dashboard uses this path to find
       // spec documents, approvals, and steering files.
-      const projectId = await this.projectRegistry.registerProject(
-        this.workspacePath,
-        process.pid,
-        {
-          workflowRootPath: config.specflowRoot,
-        },
-      );
-      console.error(`Project registered: ${projectId} (workflow root: ${config.specflowRoot})`);
+      //
+      // This write to the shared global registry (~/.specflow-mcp) is NON-ESSENTIAL
+      // for tool operation: config is loaded and PathUtils is initialized above, so
+      // tools can fully resolve paths without it. Only the dashboard's multi-project
+      // list depends on the registry. A failure here (read-only $HOME in a sandboxed
+      // subagent, or a transient corrupted registry) must NOT trip degraded mode and
+      // break every tool — so it is caught separately and downgraded to a warning.
+      try {
+        const projectId = await this.projectRegistry.registerProject(
+          this.workspacePath,
+          process.pid,
+          {
+            workflowRootPath: config.specflowRoot,
+          },
+        );
+        console.error(`Project registered: ${projectId} (workflow root: ${config.specflowRoot})`);
+      } catch (registryError: any) {
+        console.error(
+          `WARNING: Global project registry update failed — the dashboard may not list this ` +
+            `project, but tools will work normally. Error: ${registryError.message || registryError}`,
+        );
+      }
       projectInitialized = true;
     } catch (error: any) {
       // Project initialization failed — enter degraded mode instead of crashing.
@@ -235,6 +258,13 @@ export class SpecWorkflowMCPServer {
               isError: true,
             };
           }
+        }
+
+        // No projectPath to recover from — but pure read-only guide tools do no
+        // filesystem I/O and still render from context.projectPath (which is set
+        // even in degraded mode), so let them through instead of erroring.
+        if (DEGRADED_MODE_SAFE_TOOLS.has(request.params.name)) {
+          return await handleToolCall(request.params.name, args, context);
         }
 
         return {
