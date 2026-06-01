@@ -38,8 +38,11 @@ describe('routeToolCall degraded-mode gate', () => {
 
   it('still renders a safe tool when on-the-fly projectPath recovery fails', async () => {
     const server = new SpecWorkflowMCPServer();
-    // A non-existent projectPath makes validateProjectPath/loadConfig throw; the
-    // safe tool must fall through to render rather than surface the config error.
+    // The router defensively attempts recovery for any supplied projectPath. A
+    // non-existent one makes validateProjectPath/loadConfig throw; a safe tool
+    // must fall through to render rather than surface the config error. (Guide
+    // tools no longer advertise projectPath, but the router stays robust if one
+    // is passed anyway.)
     const res = await server.routeToolCall(
       'spec-workflow-guide',
       { projectPath: '/nonexistent/path/does-not-exist-xyz' },

@@ -5,9 +5,11 @@ import { PathUtils } from '../../core/path-utils.js';
 import { ToolContext } from '../../types.js';
 
 // The guide tools are pure, read-only informational tools: they perform no
-// filesystem I/O and only substitute a workflow-root string into a static
-// template. They must therefore (a) always return their guide and (b) honor an
-// optional args.projectPath override, mirroring the sibling tools.
+// filesystem I/O and only substitute the server's resolved workflow root into a
+// static template. They must always render — even in degraded mode — using
+// context.projectPath, falling back to '.' so the root resolution never throws.
+// They intentionally take no projectPath argument (getWorkflowRoot returns the
+// configured DocVault root regardless, so an override would mislead).
 describe('guide tools', () => {
   const ctx: ToolContext = { projectPath: '/test/project', dashboardUrl: undefined };
 
@@ -16,7 +18,7 @@ describe('guide tools', () => {
   });
 
   describe('spec-workflow-guide', () => {
-    it('returns a non-empty guide using context.projectPath', () => {
+    it('returns a non-empty guide resolved from context.projectPath', () => {
       const spy = vi
         .spyOn(PathUtils, 'getWorkflowRoot')
         .mockReturnValue('/test/project/.specflow');
@@ -29,20 +31,18 @@ describe('guide tools', () => {
       expect(spy).toHaveBeenCalledWith('/test/project');
     });
 
-    it('honors an args.projectPath override', () => {
-      const spy = vi
-        .spyOn(PathUtils, 'getWorkflowRoot')
-        .mockReturnValue('/override/path/.specflow');
+    it("falls back to '.' when context.projectPath is empty", () => {
+      const spy = vi.spyOn(PathUtils, 'getWorkflowRoot').mockReturnValue('./.specflow');
 
-      const res = specWorkflowGuideHandler({ projectPath: '/override/path' }, ctx);
+      const res = specWorkflowGuideHandler({}, { projectPath: '' });
 
       expect(res.success).toBe(true);
-      expect(spy).toHaveBeenCalledWith('/override/path');
+      expect(spy).toHaveBeenCalledWith('.');
     });
   });
 
   describe('steering-guide', () => {
-    it('returns a non-empty guide using context.projectPath', () => {
+    it('returns a non-empty guide resolved from context.projectPath', () => {
       const spy = vi
         .spyOn(PathUtils, 'getWorkflowRoot')
         .mockReturnValue('/test/project/.specflow');
@@ -54,15 +54,13 @@ describe('guide tools', () => {
       expect(spy).toHaveBeenCalledWith('/test/project');
     });
 
-    it('honors an args.projectPath override', () => {
-      const spy = vi
-        .spyOn(PathUtils, 'getWorkflowRoot')
-        .mockReturnValue('/override/path/.specflow');
+    it("falls back to '.' when context.projectPath is empty", () => {
+      const spy = vi.spyOn(PathUtils, 'getWorkflowRoot').mockReturnValue('./.specflow');
 
-      const res = steeringGuideHandler({ projectPath: '/override/path' }, ctx);
+      const res = steeringGuideHandler({}, { projectPath: '' });
 
       expect(res.success).toBe(true);
-      expect(spy).toHaveBeenCalledWith('/override/path');
+      expect(spy).toHaveBeenCalledWith('.');
     });
   });
 });

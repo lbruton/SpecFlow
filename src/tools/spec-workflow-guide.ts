@@ -10,13 +10,8 @@ export const specWorkflowGuideTool: Tool = {
 Call this tool FIRST when users request spec creation, feature development, or mention specifications. This provides the complete workflow sequence (Requirements → Design → Tasks → Implementation) that must be followed. Always load before any other spec tools to ensure proper workflow understanding. Its important that you follow this workflow exactly to avoid errors.`,
   inputSchema: {
     type: 'object',
-    properties: {
-      projectPath: {
-        type: 'string',
-        description:
-          'Absolute path to the project root (optional - uses server context path if not provided)',
-      },
-    },
+    properties: {},
+    additionalProperties: false,
   },
   annotations: {
     title: 'Spec Workflow Guide',
@@ -25,14 +20,16 @@ Call this tool FIRST when users request spec creation, feature development, or m
 };
 
 export function specWorkflowGuideHandler(
-  args: any,
+  _args: any,
   context: ToolContext,
 ): ToolResponse {
-  // Use context projectPath as default, allow override via args. This tool does
-  // no filesystem I/O — projectPath only selects the workflow-root string shown
-  // in the guide — so it stays safe to run even when project init failed. Fall
-  // back to '.' so getWorkflowRoot never throws on an empty path in degraded mode.
-  const projectPath = args.projectPath || context.projectPath || '.';
+  // This tool does no filesystem I/O — it only substitutes the server's resolved
+  // workflow root into a static guide — so it stays safe to run even in degraded
+  // mode. There is intentionally no projectPath override: getWorkflowRoot returns
+  // the configured DocVault root once initialized regardless of any path passed,
+  // so advertising an override would mislead. Fall back to '.' so getWorkflowRoot
+  // never throws on an empty path in degraded mode.
+  const projectPath = context.projectPath || '.';
 
   // Dashboard URL is populated from registry in server.ts
   const dashboardMessage = context.dashboardUrl

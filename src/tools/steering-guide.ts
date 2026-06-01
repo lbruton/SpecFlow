@@ -10,13 +10,8 @@ export const steeringGuideTool: Tool = {
 Call ONLY when user explicitly requests steering document creation or asks about project architecture docs. Not part of standard spec workflow. Provides templates and guidance for product.md, tech.md, and structure.md creation. Its important that you follow this workflow exactly to avoid errors.`,
   inputSchema: {
     type: 'object',
-    properties: {
-      projectPath: {
-        type: 'string',
-        description:
-          'Absolute path to the project root (optional - uses server context path if not provided)',
-      },
-    },
+    properties: {},
+    additionalProperties: false,
   },
   annotations: {
     title: 'Steering Guide',
@@ -24,11 +19,12 @@ Call ONLY when user explicitly requests steering document creation or asks about
   },
 };
 
-export function steeringGuideHandler(args: any, context: ToolContext): ToolResponse {
-  // Use context projectPath as default, allow override via args. No filesystem
-  // I/O — projectPath only selects the workflow-root string shown in the guide.
-  // Fall back to '.' so getWorkflowRoot never throws on an empty path.
-  const projectPath = args.projectPath || context.projectPath || '.';
+export function steeringGuideHandler(_args: any, context: ToolContext): ToolResponse {
+  // No filesystem I/O and no projectPath override — getWorkflowRoot returns the
+  // configured DocVault root once initialized regardless of any path passed, so
+  // advertising an override would mislead. Fall back to '.' so getWorkflowRoot
+  // never throws on an empty path.
+  const projectPath = context.projectPath || '.';
 
   return {
     success: true,
