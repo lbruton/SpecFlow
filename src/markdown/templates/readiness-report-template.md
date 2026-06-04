@@ -28,8 +28,10 @@ updated: {{YYYY-MM-DD}}
 
 | Requirement | Acceptance Criteria Coverage | Tasks | Test Tasks | Coverage |
 |-------------|------------------------------|-------|------------|----------|
-| REQ-1 [title] | [list ACs covered] | [task numbers] | [test task numbers per AC, or `N/A`] | [Complete / Partial / Missing] |
-| REQ-2 [title] | [list ACs covered] | [task numbers] | [test task numbers per AC, or `N/A`] | [Complete / Partial / Missing] |
+| REQ-1 [title] | [list ACs covered] | [task numbers] | [per-AC, e.g. `AC-1: B.2; AC-2: N/A`] | [Complete / Partial / Missing] |
+| REQ-2 [title] | [list ACs covered] | [task numbers] | [per-AC, e.g. `AC-1: B.2; AC-2: N/A`] | [Complete / Partial / Missing] |
+
+> **`Test Tasks` column format:** encode one entry per acceptance criterion — `AC-1: <test task>; AC-2: N/A; …` — so the Phase 4.9 audit can confirm each AC maps to a planned test task or a justified `N/A`.
 
 ### Manual verification notes
 
