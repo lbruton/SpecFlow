@@ -210,6 +210,120 @@ describe('bundled tasks-template.md', () => {
     expect(peerReviewTask).not.toContain('Critical/Important');
   });
 });
+
+describe('bundled readiness-report-template.md', () => {
+  function readReadinessTemplate(): string {
+    const templatePath = join(
+      __dirname_test,
+      '..',
+      '..',
+      'markdown',
+      'templates',
+      'readiness-report-template.md',
+    );
+    return readFileSync(templatePath, 'utf-8');
+  }
+
+  /** Slice content between startHeading (inclusive) and endHeading (exclusive). */
+  function sliceSection(content: string, startHeading: string, endHeading: string): string {
+    return content.slice(content.indexOf(startHeading), content.indexOf(endHeading));
+  }
+
+  // AC-1 (D-1): the per-AC test mapping lives in the Requirements → Tasks
+  // Traceability table via a new `Test Tasks` column.
+  it('adds a Test Tasks column to the Requirements → Tasks Traceability table (AC-1)', () => {
+    const content = readReadinessTemplate();
+    const traceabilityTable = content.slice(
+      content.indexOf('## Requirements → Tasks Traceability'),
+      content.indexOf('## Design → Tasks Alignment'),
+    );
+    expect(traceabilityTable).toContain('Test Tasks');
+  });
+
+  // AC-5 / AC-6: the structured N/A escape hatch must carry labelled sub-fields,
+  // not buried prose.
+  it('carries the structured N/A sub-field labels (AC-5/AC-6)', () => {
+    const content = readReadinessTemplate();
+    expect(content).toContain('Justification for N/A:');
+    expect(content).toContain('Manual Validation Notes:');
+  });
+
+  // AC-7 / D-2: every readiness section ends with a standardized
+  // `**Verdict:** [PASS | CONCERNS | FAIL]` line. A bare `**Verdict:**` assertion
+  // would be a FALSE-RED — today's template already carries descriptive-prose
+  // verdicts (e.g. `[All requirements covered / N orphaned requirements found]`),
+  // so the assertion targets the standardized [PASS | CONCERNS | FAIL] form only.
+  it('standardizes every section verdict to [PASS | CONCERNS | FAIL] (AC-7/D-2)', () => {
+    const content = readReadinessTemplate();
+    const sections = [
+      '## Requirements → Tasks Traceability',
+      '## Design → Tasks Alignment',
+      '## Contradictions',
+      '## Prototype Consistency',
+      '## File Touch Map Validation',
+      '## Test Design Coverage',
+      '## Release Hygiene',
+    ];
+
+    for (const heading of sections) {
+      const start = content.indexOf(heading);
+      expect(start).toBeGreaterThanOrEqual(0);
+      const next = content.indexOf('\n## ', start + heading.length);
+      const section = content.slice(start, next === -1 ? undefined : next);
+      expect(section).toContain('**Verdict:** [PASS | CONCERNS | FAIL]');
+    }
+  });
+
+  // AC-7 / D-2: the currently verdict-less `## Prototype Consistency` section must
+  // now carry a standardized verdict line.
+  it('gives the Prototype Consistency section a standardized verdict (AC-7/D-2)', () => {
+    const content = readReadinessTemplate();
+    const prototypeSection = sliceSection(
+      content,
+      '## Prototype Consistency',
+      '## File Touch Map Validation',
+    );
+    expect(prototypeSection).toContain('**Verdict:** [PASS | CONCERNS | FAIL]');
+  });
+
+  // AC-7: the explicit propagation rule — a section FAIL blocks both top-level
+  // PASS signals — must be present in the template text.
+  it('states the explicit FAIL-propagation rule (AC-7)', () => {
+    const content = readReadinessTemplate();
+    expect(content).toContain(
+      'any section FAIL blocks both the Cross-Validation Summary Status and the Agent Recommendation from being PASS.',
+    );
+  });
+
+  // D-1 discoverability: because the AC→test mapping moved to the Traceability
+  // table, the Test Design Coverage section must point the reader up to it.
+  it('points the reader from Test Design Coverage to the Traceability table (D-1)', () => {
+    const content = readReadinessTemplate();
+    const testDesignSection = sliceSection(
+      content,
+      '## Test Design Coverage',
+      '## Release Hygiene',
+    );
+    expect(testDesignSection).toContain('Requirements → Tasks Traceability');
+  });
+
+  // AC-2 / D-4: the structural pattern (baseline → red → implementation) is the
+  // normative wording. Assert the pattern phrasing is present and that the
+  // RESTRICTIVE "must be 0.4/0.5" wording is absent. The template MAY still cite
+  // 0.4/0.5 as example defaults, so the negative assertion targets only the
+  // restrictive phrasing — never a bare mention of those strings.
+  it('uses numbering-agnostic baseline → red → implementation wording (AC-2/D-4)', () => {
+    const content = readReadinessTemplate();
+    const testDesignSection = sliceSection(
+      content,
+      '## Test Design Coverage',
+      '## Release Hygiene',
+    );
+    expect(testDesignSection).toContain('baseline → red → implementation');
+    expect(testDesignSection).not.toContain('must be 0.4/0.5');
+  });
+});
+
 describe('writeUserTemplates', () => {
   it('should not overwrite existing user-template files', async () => {
     // Simulate that the design template already exists

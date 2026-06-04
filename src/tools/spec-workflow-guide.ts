@@ -19,10 +19,7 @@ Call this tool FIRST when users request spec creation, feature development, or m
   },
 };
 
-export function specWorkflowGuideHandler(
-  _args: any,
-  context: ToolContext,
-): ToolResponse {
+export function specWorkflowGuideHandler(_args: any, context: ToolContext): ToolResponse {
   // This tool does no filesystem I/O — it only substitutes the server's resolved
   // workflow root into a static guide — so it stays safe to run even in degraded
   // mode. There is intentionally no projectPath override: getWorkflowRoot returns
@@ -361,7 +358,15 @@ flowchart TD
    - **No contradictions**: Check for conflicting statements between documents (e.g., design says "modal" but tasks say "inline panel").
    - **Prototype consistency**: If design.md references a prototype HTML file, verify it appears in task 0.1-0.3 artifacts and/or task \`_Leverage\` fields.
    - **File touch map validation**: Verify the File Touch Map in tasks.md covers all files mentioned in individual tasks.
-   - **Test Design Coverage**: At least one task in tasks.md covers test authoring for new behavior (matching task title/description patterns: "test", "TDD", "verify", "write tests"). If no test task found → FAIL.
+   - **Test Design Coverage**: Validate per-acceptance-criterion test coverage and the TDD structural sequence:
+     - **Per-AC coverage (AC-1)**: Every acceptance criterion must map to a planned test task. The mapping lives in the \`Test Tasks\` column of the **Requirements → Tasks Traceability** table — read that column rather than re-mapping ACs in a separate sub-table. Encode the column per-AC — e.g. \`AC-1: Task B.2; AC-2: N/A\` — one entry per acceptance criterion, so each AC is unambiguously mapped to a test task or a justified \`N/A\`.
+     - **Structural sequence (AC-2)**: Require the numbering-agnostic \`baseline → red → implementation\` SEQUENCE, not merely the presence of a test-ish task. The baseline and red (failing-tests) steps MUST be sequenced *before any implementation task*. Match the sequence structurally — do NOT pin literal task numbers (a spec may use \`A.1\`/\`A.2\`, \`C1\`/\`C2\`, or human-chosen numbering — all valid).
+     - **Structured N/A (AC-5, AC-6)**: An acceptance criterion may be exempt only via a structured \`Not Applicable\` entry that fills BOTH labelled sub-fields — \`Justification for N/A:\` (why the AC has no executable test, e.g. a pure-content/template change) and \`Manual Validation Notes:\` (exactly how the AC is validated by hand).
+     - **Verdict conditions (AC-3, AC-4)**:
+       - **FAIL** — an acceptance criterion has \`no planned test task\` AND no justified \`Not Applicable\` entry.
+       - **CONCERNS** — coverage is partial (an \`unmapped\` acceptance criterion), or the \`baseline → red → implementation\` sequence is mis-ordered.
+       - **PASS** — every acceptance criterion maps to a test task or a justified \`Not Applicable\`, and the sequence is correctly ordered.
+     - **Verdict propagation (AC-7)**: A \`FAIL\` in this section propagates — neither the \`Cross-Validation Summary\` Status nor the \`Agent Recommendation\` may be PASS when this section is FAIL.
    - **Release Hygiene**: Check \`${wr}/project-conventions.json\` (if exists):
      - If version lock detected: verify a task covers version bump. Missing → FAIL.
      - If changelog detected: verify a task covers changelog entry. Missing → FAIL.
@@ -401,7 +406,25 @@ flowchart TD
 - Consistent | [Task 5 touches foo.js but File Touch Map omits it]
 
 ## Test Design Coverage
-- Task N: "[test task title]" ✓ | [NO TEST TASK FOUND] ✗
+(Per-AC test mapping lives in the \`Test Tasks\` column of Requirements → Tasks Traceability above — this section audits the TDD sequence + verdict conditions only.)
+
+| Structural Step | Task Reference | Status |
+|-----------------|----------------|--------|
+| Baseline — passing test state before changes | Task B.1 | Covered |
+| Red — failing tests for new behavior (TDD) | Task B.2 | Covered |
+| Implementation — make the red tests green | Task C.1 | Covered |
+| Green — full test suite passes after implementation | CLOSE-1 | Covered |
+| Requirement-to-code verification with evidence | CLOSE-3 | Covered |
+
+### If a requirement has no planned test (N/A escape hatch)
+- AC-4 — Not Applicable
+  - Justification for N/A: pure-content template change with no executable behavior
+  - Manual Validation Notes: reviewer confirmed rendered output by hand before merge
+
+**Verdict:** [PASS | CONCERNS | FAIL]
+- FAIL — an AC has no planned test task and no justified N/A.
+- CONCERNS — coverage is partial (an unmapped AC) or the baseline → red → implementation sequence is mis-ordered.
+- PASS — every AC maps to a test task or a justified Not Applicable, and the sequence is correctly ordered.
 
 ## Release Hygiene
 - Version bump task: ✓ / ✗ / N/A (no version lock)

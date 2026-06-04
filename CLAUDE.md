@@ -26,7 +26,7 @@ Primary tools available in this project:
 | Field | Value |
 |-------|-------|
 | Package | `@lbruton/specflow` |
-| Version | `3.7.3` |
+| Version | `3.7.4` |
 | Origin | [lbruton/SpecFlow](https://github.com/lbruton/SpecFlow) — standalone (detached from upstream [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mcp) on 2026-05-25) |
 | Branch | `main` — signed commits + PR + status checks. Origin is SSH-only (OAuth lacks `workflow` scope; verify remote with `git remote -v`) |
 | Skills/commands ship | `skills/` and `commands/` — users copy → `~/.claude/{skills,commands}/` |
