@@ -224,6 +224,11 @@ describe('bundled readiness-report-template.md', () => {
     return readFileSync(templatePath, 'utf-8');
   }
 
+  /** Slice content between startHeading (inclusive) and endHeading (exclusive). */
+  function sliceSection(content: string, startHeading: string, endHeading: string): string {
+    return content.slice(content.indexOf(startHeading), content.indexOf(endHeading));
+  }
+
   // AC-1 (D-1): the per-AC test mapping lives in the Requirements → Tasks
   // Traceability table via a new `Test Tasks` column.
   it('adds a Test Tasks column to the Requirements → Tasks Traceability table (AC-1)', () => {
@@ -250,16 +255,33 @@ describe('bundled readiness-report-template.md', () => {
   // so the assertion targets the standardized [PASS | CONCERNS | FAIL] form only.
   it('standardizes every section verdict to [PASS | CONCERNS | FAIL] (AC-7/D-2)', () => {
     const content = readReadinessTemplate();
-    expect(content).toContain('**Verdict:** [PASS | CONCERNS | FAIL]');
+    const sections = [
+      '## Requirements → Tasks Traceability',
+      '## Design → Tasks Alignment',
+      '## Contradictions',
+      '## Prototype Consistency',
+      '## File Touch Map Validation',
+      '## Test Design Coverage',
+      '## Release Hygiene',
+    ];
+
+    for (const heading of sections) {
+      const start = content.indexOf(heading);
+      expect(start).toBeGreaterThanOrEqual(0);
+      const next = content.indexOf('\n## ', start + heading.length);
+      const section = content.slice(start, next === -1 ? undefined : next);
+      expect(section).toContain('**Verdict:** [PASS | CONCERNS | FAIL]');
+    }
   });
 
   // AC-7 / D-2: the currently verdict-less `## Prototype Consistency` section must
   // now carry a standardized verdict line.
   it('gives the Prototype Consistency section a standardized verdict (AC-7/D-2)', () => {
     const content = readReadinessTemplate();
-    const prototypeSection = content.slice(
-      content.indexOf('## Prototype Consistency'),
-      content.indexOf('## File Touch Map Validation'),
+    const prototypeSection = sliceSection(
+      content,
+      '## Prototype Consistency',
+      '## File Touch Map Validation',
     );
     expect(prototypeSection).toContain('**Verdict:** [PASS | CONCERNS | FAIL]');
   });
@@ -277,9 +299,10 @@ describe('bundled readiness-report-template.md', () => {
   // table, the Test Design Coverage section must point the reader up to it.
   it('points the reader from Test Design Coverage to the Traceability table (D-1)', () => {
     const content = readReadinessTemplate();
-    const testDesignSection = content.slice(
-      content.indexOf('## Test Design Coverage'),
-      content.indexOf('## Release Hygiene'),
+    const testDesignSection = sliceSection(
+      content,
+      '## Test Design Coverage',
+      '## Release Hygiene',
     );
     expect(testDesignSection).toContain('Requirements → Tasks Traceability');
   });
@@ -291,9 +314,10 @@ describe('bundled readiness-report-template.md', () => {
   // restrictive phrasing — never a bare mention of those strings.
   it('uses numbering-agnostic baseline → red → implementation wording (AC-2/D-4)', () => {
     const content = readReadinessTemplate();
-    const testDesignSection = content.slice(
-      content.indexOf('## Test Design Coverage'),
-      content.indexOf('## Release Hygiene'),
+    const testDesignSection = sliceSection(
+      content,
+      '## Test Design Coverage',
+      '## Release Hygiene',
     );
     expect(testDesignSection).toContain('baseline → red → implementation');
     expect(testDesignSection).not.toContain('must be 0.4/0.5');

@@ -408,11 +408,13 @@ flowchart TD
 ## Test Design Coverage
 (Per-AC test mapping lives in the \`Test Tasks\` column of Requirements → Tasks Traceability above — this section audits the TDD sequence + verdict conditions only.)
 
-| Structural Step (baseline → red → implementation) | Task Reference | Status |
-|----------------------------------------------------|----------------|--------|
+| Structural Step | Task Reference | Status |
+|-----------------|----------------|--------|
 | Baseline — passing test state before changes | Task B.1 | Covered |
 | Red — failing tests for new behavior (TDD) | Task B.2 | Covered |
 | Implementation — make the red tests green | Task C.1 | Covered |
+| Green — full test suite passes after implementation | CLOSE-1 | Covered |
+| Requirement-to-code verification with evidence | CLOSE-3 | Covered |
 
 ### If a requirement has no planned test (N/A escape hatch)
 - AC-4 — Not Applicable

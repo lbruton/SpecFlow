@@ -69,14 +69,18 @@ describe('guide tools', () => {
       // rule must demand the sequence, not merely "a test-ish task exists".
       it('requires the baseline → red → implementation sequence, numbering-agnostic (AC-2)', () => {
         const g = guide();
+        const phase49 = g.slice(
+          g.indexOf('### Phase 4.9: Implementation Readiness Gate'),
+          g.indexOf('### Phase 5: Implementation'),
+        );
         // The normative structural pattern, expressed as a sequence.
-        expect(g).toContain('baseline → red → implementation');
+        expect(phase49).toContain('baseline → red → implementation');
         // It must require the SEQUENCE (baseline before red before implementation),
         // not just the presence of a test task.
-        expect(g).toContain('before any implementation task');
-        // Numbering-agnostic: the rule must NOT pin literal 0.4 / 0.5 task numbers.
-        expect(g).not.toContain('0.4');
-        expect(g).not.toContain('0.5');
+        expect(phase49).toContain('before any implementation task');
+        // Numbering-agnostic: the rule must NOT pin the restrictive "must be 0.4/0.5"
+        // wording. Bare occurrences of 0.4/0.5 are allowed (e.g. example table values).
+        expect(phase49).not.toContain('must be 0.4/0.5');
       });
 
       // AC-5 / AC-6: structured N/A escape hatch with labelled sub-fields, and

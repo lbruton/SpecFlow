@@ -102,8 +102,8 @@ updated: {{YYYY-MM-DD}}
 
 The TDD structure is a numbering-agnostic **structural pattern: baseline → red → implementation**. Match the *sequence*, not literal task numbers — a spec may use `0.4`/`0.5`, `C1`/`C2`, or human-chosen numbering. The pattern requires a baseline task, then a red (failing-tests) task, both sequenced *before* any implementation task.
 
-| Structural Step (baseline → red → implementation) | Task Reference | Status |
-|----------------------------------------------------|----------------|--------|
+| Structural Step | Task Reference | Status |
+|-----------------|----------------|--------|
 | Baseline — establish passing test state before changes | [task #] | [Covered / Missing] |
 | Red — write failing tests for new behavior (TDD) | [task #] | [Covered / Missing] |
 | Implementation — make the red tests green | [task #] | [Covered / Missing] |
