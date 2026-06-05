@@ -199,7 +199,8 @@ describe('bundled tasks-template.md', () => {
     // Guard the slice markers: if a marker is missing or the tasks are reordered,
     // indexOf returns -1 and slice() would silently yield a misleading substring.
     const start = content.indexOf('- [ ] N+3. Cross-Model Peer Review');
-    const end = content.indexOf('- [ ] N+4. Generate verification.md');
+    // Search for the end marker after `start` so we slice the task that follows N+3.
+    const end = content.indexOf('- [ ] N+4. Generate verification.md', start);
     expect(start, 'peer-review task marker (N+3) not found in tasks-template.md').toBeGreaterThan(
       -1,
     );
