@@ -1360,12 +1360,12 @@ export class MultiProjectDashboardServer {
     // Global settings endpoints
 
     // Get all automation jobs
-    this.app.get('/api/jobs', async () => {
+    this.app.get('/api/jobs', readRateLimit, async () => {
       return await this.jobScheduler.getAllJobs();
     });
 
     // Create a new automation job
-    this.app.post('/api/jobs', async (request, reply) => {
+    this.app.post('/api/jobs', writeRateLimit, async (request, reply) => {
       const job = request.body as any;
 
       if (!job.id || !job.name || !job.type || job.config === undefined || !job.schedule) {
@@ -1391,7 +1391,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Get a specific automation job
-    this.app.get('/api/jobs/:jobId', async (request, reply) => {
+    this.app.get('/api/jobs/:jobId', readRateLimit, async (request, reply) => {
       const { jobId } = request.params as { jobId: string };
       const settingsManager = new (await import('./settings-manager.js')).SettingsManager();
 
@@ -1407,7 +1407,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Update an automation job
-    this.app.put('/api/jobs/:jobId', async (request, reply) => {
+    this.app.put('/api/jobs/:jobId', writeRateLimit, async (request, reply) => {
       const { jobId } = request.params as { jobId: string };
       const updates = request.body as any;
 
@@ -1420,7 +1420,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Delete an automation job
-    this.app.delete('/api/jobs/:jobId', async (request, reply) => {
+    this.app.delete('/api/jobs/:jobId', writeRateLimit, async (request, reply) => {
       const { jobId } = request.params as { jobId: string };
 
       try {
@@ -1432,7 +1432,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Manually run a job
-    this.app.post('/api/jobs/:jobId/run', async (request, reply) => {
+    this.app.post('/api/jobs/:jobId/run', writeRateLimit, async (request, reply) => {
       const { jobId } = request.params as { jobId: string };
 
       try {
@@ -1444,7 +1444,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Get job execution history
-    this.app.get('/api/jobs/:jobId/history', async (request, reply) => {
+    this.app.get('/api/jobs/:jobId/history', readRateLimit, async (request, reply) => {
       const { jobId } = request.params as { jobId: string };
       const { limit } = request.query as { limit?: string };
 
@@ -1460,7 +1460,7 @@ export class MultiProjectDashboardServer {
     });
 
     // Get job statistics
-    this.app.get('/api/jobs/:jobId/stats', async (request, reply) => {
+    this.app.get('/api/jobs/:jobId/stats', readRateLimit, async (request, reply) => {
       const { jobId } = request.params as { jobId: string };
 
       try {
