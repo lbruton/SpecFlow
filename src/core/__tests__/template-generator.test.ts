@@ -185,7 +185,7 @@ describe('generateUserTemplates', () => {
 });
 
 describe('bundled tasks-template.md', () => {
-  it('should define the peer review dispatch chain without disabled rescue paths', () => {
+  it('routes cross-model peer review through CodeRabbit and bars disabled rescue paths', () => {
     const templatePath = join(
       __dirname_test,
       '..',
@@ -196,16 +196,39 @@ describe('bundled tasks-template.md', () => {
     );
     const content = readFileSync(templatePath, 'utf-8');
 
-    const peerReviewTask = content.slice(
-      content.indexOf('- [ ] N+4. Cross-Model Peer Review'),
-      content.indexOf('- [ ] N+5. Loop or proceed to shipping'),
+    // Guard the slice markers: if a marker is missing or the tasks are reordered,
+    // indexOf returns -1 and slice() would silently yield a misleading substring.
+    const start = content.indexOf('- [ ] N+3. Cross-Model Peer Review');
+    // Search for the end marker after `start` so we slice the task that follows N+3.
+    const end = content.indexOf('- [ ] N+4. Generate verification.md', start);
+    expect(start, 'peer-review task marker (N+3) not found in tasks-template.md').toBeGreaterThan(
+      -1,
     );
+    expect(end, 'verification task marker (N+4) not found in tasks-template.md').toBeGreaterThan(
+      -1,
+    );
+    expect(
+      end,
+      'verification task marker (N+4) appears before peer-review task (N+3) — tasks reordered?',
+    ).toBeGreaterThan(start);
 
-    expect(peerReviewTask).toContain('pr-review-toolkit:review-pr');
-    expect(peerReviewTask).toContain('Critical/High/Medium/Low severity contract');
-    expect(peerReviewTask).toContain('/sketch review <issue> <phase> <reviewer>');
-    expect(peerReviewTask).toContain('gemini:rescue');
-    expect(peerReviewTask).not.toContain('codex:rescue`)**');
+    const peerReviewTask = content.slice(start, end);
+
+    expect(peerReviewTask).toContain('coderabbit:review');
+    expect(peerReviewTask).toContain('CodeRabbit is the cross-model peer reviewer');
+    expect(peerReviewTask).toContain('Critical/High/Medium/Low severity');
+    // codex:rescue / gemini:rescue are named only as disabled dispatch paths the
+    // reviewer must NOT use — they are never active rescue steps in the chain.
+    expect(peerReviewTask).toContain(
+      'disabled plugin dispatch paths such as codex:rescue or gemini:rescue',
+    );
+    // Each rescue token must appear EXACTLY ONCE — solely in the prohibition clause
+    // above. More than one occurrence implies an active rescue step was reintroduced.
+    const countOccurrences = (haystack: string, needle: string): number =>
+      haystack.split(needle).length - 1;
+    expect(countOccurrences(peerReviewTask, 'codex:rescue')).toBe(1);
+    expect(countOccurrences(peerReviewTask, 'gemini:rescue')).toBe(1);
+    expect(peerReviewTask).not.toContain('pr-review-toolkit:review-pr');
     expect(peerReviewTask).not.toContain('$CODEX_SESSION');
     expect(peerReviewTask).not.toContain('Critical/Important');
   });
