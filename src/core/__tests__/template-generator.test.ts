@@ -185,7 +185,7 @@ describe('generateUserTemplates', () => {
 });
 
 describe('bundled tasks-template.md', () => {
-  it('should define the peer review dispatch chain without disabled rescue paths', () => {
+  it('routes cross-model peer review through CodeRabbit and bars disabled rescue paths', () => {
     const templatePath = join(
       __dirname_test,
       '..',
@@ -196,10 +196,18 @@ describe('bundled tasks-template.md', () => {
     );
     const content = readFileSync(templatePath, 'utf-8');
 
-    const peerReviewTask = content.slice(
-      content.indexOf('- [ ] N+3. Cross-Model Peer Review'),
-      content.indexOf('- [ ] N+4. Generate verification.md'),
+    // Guard the slice markers: if a marker is missing or the tasks are reordered,
+    // indexOf returns -1 and slice() would silently yield a misleading substring.
+    const start = content.indexOf('- [ ] N+3. Cross-Model Peer Review');
+    const end = content.indexOf('- [ ] N+4. Generate verification.md');
+    expect(start, 'peer-review task marker (N+3) not found in tasks-template.md').toBeGreaterThan(
+      -1,
     );
+    expect(end, 'verification task marker (N+4) not found in tasks-template.md').toBeGreaterThan(
+      start,
+    );
+
+    const peerReviewTask = content.slice(start, end);
 
     expect(peerReviewTask).toContain('coderabbit:review');
     expect(peerReviewTask).toContain('CodeRabbit is the cross-model peer reviewer');
