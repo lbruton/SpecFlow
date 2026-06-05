@@ -24,6 +24,12 @@ export function MermaidRenderer({ code }: MermaidRendererProps) {
           theme: mermaidTheme,
           themeVariables: mermaidThemeVariables,
           securityLevel: 'loose',
+          // SFLW-40: render node labels as native SVG <text> (not HTML in
+          // <foreignObject>) so they survive the strict SVG-only DOMPurify
+          // profile in sanitizeSvg(). Without this, labels are stripped and
+          // nodes render as empty boxes.
+          htmlLabels: false,
+          flowchart: { htmlLabels: false },
         });
 
         const uniqueId = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
