@@ -21,7 +21,8 @@ The MCP tool reporting a spec's phase completion and task progress.
 The MCP tool listing all specs in a project, with filtering and search.
 
 **write-spec-doc**:
-The MCP tool that creates a single spec phase document from a template.
+The MCP tool that writes a single spec phase document to disk after validating
+phase gates; the caller supplies the markdown content.
 
 **approvals**:
 The MCP tool that requests, checks, and deletes human approvals through the
@@ -73,8 +74,11 @@ once per project, not per spec.
 ## Workflow Concepts
 
 **Phase Gate**:
-A checkpoint that blocks advancing to the next phase until prerequisites and
-approvals are met (G1 issue pattern → G2 requirements → G3 design → G4 tasks).
+A checkpoint that blocks creating the next phase document until its
+prerequisites are met. Each gate is named for the document it guards: G1
+(requirements — issue-ID prefix check) → G2 (discovery — needs approved
+requirements) → G3 (design — needs approved requirements, and discovery if it
+exists) → G4 (tasks — needs approved design).
 
 **Approval**:
 A human sign-off on a document; creates an immutable snapshot with a status of
@@ -85,8 +89,8 @@ The STOP checkpoint requiring failing tests to exist *before* implementation
 code is written.
 
 **Closing Tasks**:
-The mandatory N…N+8 verification-loop and shipping block appended verbatim to
-every `tasks.md`.
+The mandatory closing block appended verbatim to every `tasks.md`: the N…N+5
+verification loop followed by the N+6…N+8 shipping tasks.
 
 **Two Parsers**:
 `src/core/parser.ts` (MCP tools) and `src/dashboard/parser.ts` (dashboard) parse
@@ -113,8 +117,10 @@ The single Node process serving the web UI (default `:5000`); every MCP server
 registers with it via `~/.specflow-mcp/activeSession.json`.
 
 **Templates Source of Truth**:
-`src/markdown/templates/{name}.md` — the only editable template source. DocVault
-and `dist/` copies are overwritten on MCP boot.
+`src/markdown/templates/{name}.md` — the editable source for all global/bundled
+templates. The DocVault runtime cache and `dist/` copies are overwritten on MCP
+boot. The exception is project-specific override files in
+`{workflowRoot}/templates/`, which are editable and not clobbered.
 
 ## Relationships
 
