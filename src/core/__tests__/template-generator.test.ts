@@ -204,8 +204,12 @@ describe('bundled tasks-template.md', () => {
       -1,
     );
     expect(end, 'verification task marker (N+4) not found in tasks-template.md').toBeGreaterThan(
-      start,
+      -1,
     );
+    expect(
+      end,
+      'verification task marker (N+4) appears before peer-review task (N+3) — tasks reordered?',
+    ).toBeGreaterThan(start);
 
     const peerReviewTask = content.slice(start, end);
 
