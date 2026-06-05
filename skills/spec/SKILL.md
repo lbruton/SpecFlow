@@ -190,6 +190,7 @@ ls "$SPECFLOW_ROOT/specs/{specName}/" 2>/dev/null
 
 - Call `spec-status` with the matched `specName` to see phase progress
 - Display current state (phase, task completion counts, pending approvals)
+- **MANDATORY — reconcile workflow vs code state:** `spec-status` returns a `divergence` block comparing the workflow state (gates, task markers, logs) against actual git state (commits on the branch). **If `divergence.detected` is `true`, STOP.** A previous session committed code that ran ahead of the workflow (e.g. commits on the branch while the readiness gate is unapproved). Present the divergence reasons and the three options to the user — **(1)** catch up gates, **(2)** roll back, **(3)** continue as-is — and let them choose before doing any other work. Never silently continue from the code state.
 - **MANDATORY before resuming any phase:** Call `spec-workflow-guide` to reload the full workflow procedure. Do NOT rely on memory of how the workflow works.
 - **MANDATORY before writing/editing any phase document:** Read the template for that phase from `$SPECFLOW_ROOT/templates/` (preferred) or `$SPECFLOW_GLOBAL/templates/` (fallback). Do NOT write from memory.
 - If `--resume` flag was passed, jump directly to the current phase (but still load guide + template first)
@@ -209,9 +210,9 @@ ls "$SPECFLOW_ROOT/specs/{specName}/" 2>/dev/null
 | Phase 2 (Discovery) — optional | `spec-workflow-guide` → `spec-status` → read `$SPECFLOW_ROOT/templates/discovery-template.md` (fallback: `$SPECFLOW_GLOBAL/templates/`) → read existing `requirements.md` |
 | Phase 3 (Design) | `spec-workflow-guide` → `spec-status` → read `$SPECFLOW_ROOT/templates/design-template.md` (fallback: `$SPECFLOW_GLOBAL/templates/`) → read existing `requirements.md` |
 | Phase 4 (Tasks) | `spec-workflow-guide` → `spec-status` → read `$SPECFLOW_ROOT/templates/tasks-template.md` (fallback: `$SPECFLOW_GLOBAL/templates/`) → read existing `requirements.md` + `design.md` |
-| Phase 5 (Implementation) | `spec-workflow-guide` → `spec-status` → read existing `tasks.md` → check Implementation Logs directory |
+| Phase 5 (Implementation) | `spec-workflow-guide` → `spec-status` (**check `divergence.detected` — resolve before any work**) → read existing `tasks.md` → check Implementation Logs directory |
 
-Skipping any of these calls is a workflow violation.
+Skipping any of these calls is a workflow violation. On resume, acting on a detected `spec-status` `divergence` (code ahead of workflow) takes priority over every other step.
 
 ---
 

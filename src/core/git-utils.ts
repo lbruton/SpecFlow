@@ -1,5 +1,6 @@
 import { execFileSync, ExecFileSyncOptionsWithStringEncoding } from 'child_process';
 import { resolve } from 'path';
+import type { GitState, GitCommitSummary } from '../types.js';
 
 export const SPEC_WORKFLOW_SHARED_ROOT_ENV = 'SPEC_WORKFLOW_SHARED_ROOT';
 const GIT_EXEC_OPTIONS: ExecFileSyncOptionsWithStringEncoding = {
@@ -20,13 +21,17 @@ function resolveGitCommandPath(projectPath: string): string | null {
   return resolve(projectPath);
 }
 
-function gitRevParse(projectPath: string, args: string[]): string | null {
+function gitExec(projectPath: string, args: string[]): string | null {
   const gitPath = resolveGitCommandPath(projectPath);
   if (!gitPath) {
     return null;
   }
 
-  return execFileSync('git', ['-C', gitPath, 'rev-parse', ...args], GIT_EXEC_OPTIONS).trim();
+  return execFileSync('git', ['-C', gitPath, ...args], GIT_EXEC_OPTIONS).trim();
+}
+
+function gitRevParse(projectPath: string, args: string[]): string | null {
+  return gitExec(projectPath, ['rev-parse', ...args]);
 }
 
 /**
@@ -127,5 +132,109 @@ export function isGitWorktree(projectPath: string): boolean {
     return gitCommonDir !== '.git';
   } catch {
     return false;
+  }
+}
+
+// Candidate base refs to measure feature-branch divergence against, in priority order.
+// origin/HEAD tracks the remote default branch; the rest cover common local defaults
+// across SpecFlow-consuming projects (some use `dev`, legacy repos use `master`).
+const BASE_REF_CANDIDATES = ['origin/HEAD', 'main', 'master', 'dev'];
+const MAX_DIVERGENCE_COMMITS = 10;
+
+/**
+ * Returns the current branch name, or "HEAD" when detached, or null when not a git repo.
+ *
+ * @param projectPath - Any path inside the workspace
+ */
+export function getCurrentBranch(projectPath: string): string | null {
+  try {
+    return gitExec(projectPath, ['rev-parse', '--abbrev-ref', 'HEAD']) || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Resolves the first base-ref candidate that exists and differs from HEAD.
+ * Returns null when no candidate resolves (e.g. on the default branch itself,
+ * or a repo with no remote and no matching local branch).
+ */
+function resolveBaseRef(projectPath: string, headSha: string): string | null {
+  for (const candidate of BASE_REF_CANDIDATES) {
+    try {
+      const sha = gitExec(projectPath, [
+        'rev-parse',
+        '--verify',
+        '--quiet',
+        `${candidate}^{commit}`,
+      ]);
+      if (sha && sha !== headSha) {
+        return candidate;
+      }
+    } catch {
+      // Candidate ref does not resolve — try the next one.
+    }
+  }
+  return null;
+}
+
+function parseCommitLines(raw: string | null): GitCommitSummary[] {
+  if (!raw) {
+    return [];
+  }
+  return raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const tabIndex = line.indexOf('\t');
+      return tabIndex === -1
+        ? { sha: line, subject: '' }
+        : { sha: line.slice(0, tabIndex), subject: line.slice(tabIndex + 1) };
+    });
+}
+
+/**
+ * Heuristically measures how far the current branch has advanced past its base branch.
+ * Used to reconcile actual code state against workflow state on spec resume (SFLW-29).
+ *
+ * @param projectPath - The worktree/repo path to inspect
+ * @returns Git state (branch, base ref, ahead count, recent commits), or null when
+ *          the path is not a git repository / git is unavailable.
+ */
+export function getGitState(projectPath: string): GitState | null {
+  try {
+    const headSha = gitExec(projectPath, ['rev-parse', 'HEAD']);
+    if (!headSha) {
+      return null;
+    }
+
+    const branch = getCurrentBranch(projectPath) ?? 'HEAD';
+    const baseRef = resolveBaseRef(projectPath, headSha);
+
+    let aheadCount = 0;
+    let commits: GitCommitSummary[] = [];
+
+    if (baseRef) {
+      const mergeBase = gitExec(projectPath, ['merge-base', baseRef, 'HEAD']);
+      const range = `${mergeBase ?? baseRef}..HEAD`;
+      const countRaw = gitExec(projectPath, ['rev-list', '--count', range]);
+      aheadCount = countRaw ? parseInt(countRaw, 10) || 0 : 0;
+
+      if (aheadCount > 0) {
+        const logRaw = gitExec(projectPath, [
+          'log',
+          '-n',
+          String(MAX_DIVERGENCE_COMMITS),
+          '--format=%h%x09%s',
+          range,
+        ]);
+        commits = parseCommitLines(logRaw);
+      }
+    }
+
+    return { branch, baseRef, aheadCount, commits };
+  } catch {
+    return null;
   }
 }

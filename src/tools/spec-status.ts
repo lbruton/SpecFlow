@@ -1,9 +1,11 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { ToolContext, ToolResponse } from '../types.js';
+import type { GitState, SpecDivergence } from '../types.js';
 import { PathUtils } from '../core/path-utils.js';
 import { SpecParser } from '../core/parser.js';
 import { ImplementationLogManager } from '../dashboard/implementation-log-manager.js';
 import { parseTasksFromMarkdown } from '../core/task-parser.js';
+import { resolveGitWorkspaceRoot, getGitState } from '../core/git-utils.js';
 import type { ProjectConventions } from '../core/convention-detector.js';
 
 export const specStatusTool: Tool = {
@@ -298,6 +300,7 @@ export async function specStatusHandler(args: any, context: ToolContext): Promis
 
     // Implementation log audit: check for completed tasks without logs
     let unloggedTasks: string[] = [];
+    let loggedTaskCount = 0;
     try {
       const specPath = PathUtils.getSpecPath(translatedPath, specName);
       const tasksFile = `${specPath}/tasks.md`;
@@ -308,10 +311,12 @@ export async function specStatusHandler(args: any, context: ToolContext): Promis
         .filter((t) => t.status === 'completed')
         .map((t) => t.id);
 
+      const logManager = new ImplementationLogManager(specPath);
+      const allLogs = await logManager.getAllLogs();
+      const loggedTaskIds = new Set(allLogs.map((l) => l.taskId));
+      loggedTaskCount = loggedTaskIds.size;
+
       if (completedTasks.length > 0) {
-        const logManager = new ImplementationLogManager(specPath);
-        const allLogs = await logManager.getAllLogs();
-        const loggedTaskIds = new Set(allLogs.map((l) => l.taskId));
         unloggedTasks = completedTasks.filter((id) => !loggedTaskIds.has(id));
       }
     } catch {
@@ -323,6 +328,51 @@ export async function specStatusHandler(args: any, context: ToolContext): Promis
       nextSteps.unshift(
         `⚠️ UNLOGGED TASKS: ${unloggedTasks.length} task(s) marked [x] without implementation logs: ${unloggedTasks.join(', ')}`,
         'Run log-implementation for each unlogged task BEFORE considering them complete',
+      );
+    }
+
+    // Workflow/code reconciliation (SFLW-29): on resume, a compacted summary preserves
+    // code state but loses workflow state. Detect "code ahead of workflow" — commits on the
+    // branch while the readiness gate is still unapproved — so resume can surface the choice
+    // (catch up / roll back / continue) instead of silently continuing from the code state.
+    let gitState: GitState | undefined;
+    let divergence: SpecDivergence | undefined;
+    try {
+      const workspaceRoot = resolveGitWorkspaceRoot(translatedPath);
+      const state = getGitState(workspaceRoot);
+      if (state) {
+        gitState = state;
+        const gateApproved = !!spec.phases.readinessReport.approved;
+        const tasksCompleted = spec.taskProgress?.completed ?? 0;
+        const tasksTotal = spec.taskProgress?.total ?? 0;
+
+        const reasons: string[] = [];
+        if (state.aheadCount > 0 && !gateApproved) {
+          reasons.push(
+            `${state.aheadCount} commit(s) on branch '${state.branch}' (vs ${state.baseRef ?? 'base'}) ` +
+              `but the implementation readiness gate is not approved ` +
+              `(workflow: ${tasksCompleted}/${tasksTotal} tasks complete, ${loggedTaskCount} logged)`,
+          );
+        }
+
+        divergence = {
+          detected: reasons.length > 0,
+          reasons,
+          gitState: state,
+          workflowState: { gateApproved, tasksCompleted, tasksTotal, loggedTaskCount },
+        };
+      }
+    } catch {
+      // Git unavailable or not a repository — skip reconciliation silently
+    }
+
+    if (divergence?.detected) {
+      nextSteps.unshift(
+        `⚠️ WORKFLOW/CODE DIVERGENCE DETECTED: ${divergence.reasons.join('; ')}`,
+        'STOP and choose how to reconcile before continuing any work:',
+        '  1. Catch up gates (create readiness report, submit for approval, log completed work)',
+        '  2. Roll back (revert commits, restart from the readiness gate)',
+        '  3. Continue as-is (accept divergence, back-fill gates later)',
       );
     }
 
@@ -343,6 +393,8 @@ export async function specStatusHandler(args: any, context: ToolContext): Promis
           pending: 0,
         },
         unloggedTasks: unloggedTasks.length > 0 ? unloggedTasks : undefined,
+        gitState,
+        divergence,
       },
       nextSteps,
       projectContext: {
