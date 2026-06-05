@@ -197,15 +197,19 @@ describe('bundled tasks-template.md', () => {
     const content = readFileSync(templatePath, 'utf-8');
 
     const peerReviewTask = content.slice(
-      content.indexOf('- [ ] N+4. Cross-Model Peer Review'),
-      content.indexOf('- [ ] N+5. Loop or proceed to shipping'),
+      content.indexOf('- [ ] N+3. Cross-Model Peer Review'),
+      content.indexOf('- [ ] N+4. Generate verification.md'),
     );
 
-    expect(peerReviewTask).toContain('pr-review-toolkit:review-pr');
-    expect(peerReviewTask).toContain('Critical/High/Medium/Low severity contract');
-    expect(peerReviewTask).toContain('/sketch review <issue> <phase> <reviewer>');
-    expect(peerReviewTask).toContain('gemini:rescue');
-    expect(peerReviewTask).not.toContain('codex:rescue`)**');
+    expect(peerReviewTask).toContain('coderabbit:review');
+    expect(peerReviewTask).toContain('CodeRabbit is the cross-model peer reviewer');
+    expect(peerReviewTask).toContain('Critical/High/Medium/Low severity');
+    // codex:rescue / gemini:rescue are named only as disabled dispatch paths the
+    // reviewer must NOT use — they are never active rescue steps in the chain.
+    expect(peerReviewTask).toContain(
+      'disabled plugin dispatch paths such as codex:rescue or gemini:rescue',
+    );
+    expect(peerReviewTask).not.toContain('pr-review-toolkit:review-pr');
     expect(peerReviewTask).not.toContain('$CODEX_SESSION');
     expect(peerReviewTask).not.toContain('Critical/Important');
   });
