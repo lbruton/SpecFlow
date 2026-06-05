@@ -4,6 +4,8 @@ import {
   resolveGitRoot,
   resolveGitWorkspaceRoot,
   isGitWorktree,
+  getCurrentBranch,
+  getGitState,
   SPEC_WORKFLOW_SHARED_ROOT_ENV,
 } from '../git-utils.js';
 
@@ -269,5 +271,130 @@ describe('isGitWorktree', () => {
     });
 
     expect(isGitWorktree('/some/path')).toBe(false);
+  });
+});
+
+describe('getCurrentBranch', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should return the branch name', () => {
+    mockedExecFileSync.mockReturnValue('feature/x\n');
+
+    expect(getCurrentBranch('/repo')).toBe('feature/x');
+    expect(mockedExecFileSync).toHaveBeenCalledWith(
+      'git',
+      ['-C', '/repo', 'rev-parse', '--abbrev-ref', 'HEAD'],
+      expect.objectContaining({ timeout: 5000 }),
+    );
+  });
+
+  it('should return null when git fails', () => {
+    mockedExecFileSync.mockImplementation(() => {
+      throw new Error('not a git repository');
+    });
+
+    expect(getCurrentBranch('/repo')).toBeNull();
+  });
+});
+
+describe('getGitState', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  // Dispatch git output by the subcommand args (dropping the leading `-C <path>`).
+  function mockGit(map: Record<string, string | Error>): void {
+    mockedExecFileSync.mockImplementation(((_cmd: string, argv: string[]) => {
+      const args = argv.slice(2).join(' ');
+      if (!(args in map)) {
+        throw new Error(`unmocked git invocation: ${args}`);
+      }
+      const value = map[args];
+      if (value instanceof Error) {
+        throw value;
+      }
+      return value;
+    }) as unknown as typeof execFileSync);
+  }
+
+  it('returns null when the path is not a git repository', () => {
+    mockedExecFileSync.mockImplementation(() => {
+      throw new Error('not a git repository');
+    });
+
+    expect(getGitState('/repo')).toBeNull();
+  });
+
+  it('measures commits ahead of origin/HEAD on a feature branch', () => {
+    mockGit({
+      'rev-parse HEAD': 'headsha',
+      'rev-parse --abbrev-ref HEAD': 'feature/x',
+      'rev-parse --verify --quiet origin/HEAD^{commit}': 'basesha',
+      'merge-base origin/HEAD HEAD': 'mergesha',
+      'rev-list --count mergesha..HEAD': '3',
+      'log -n 10 --format=%h%x09%s mergesha..HEAD': 'abc1234\tFirst commit\ndef5678\tSecond commit',
+    });
+
+    expect(getGitState('/repo')).toEqual({
+      branch: 'feature/x',
+      baseRef: 'origin/HEAD',
+      aheadCount: 3,
+      commits: [
+        { sha: 'abc1234', subject: 'First commit' },
+        { sha: 'def5678', subject: 'Second commit' },
+      ],
+    });
+  });
+
+  it('falls back to the next base-ref candidate when origin/HEAD is absent', () => {
+    mockGit({
+      'rev-parse HEAD': 'headsha',
+      'rev-parse --abbrev-ref HEAD': 'feature/y',
+      'rev-parse --verify --quiet origin/HEAD^{commit}': new Error('unknown revision'),
+      'rev-parse --verify --quiet main^{commit}': 'mainsha',
+      'merge-base main HEAD': 'mb',
+      'rev-list --count mb..HEAD': '1',
+      'log -n 10 --format=%h%x09%s mb..HEAD': 'aaa1111\tOnly commit',
+    });
+
+    const state = getGitState('/repo');
+    expect(state?.baseRef).toBe('main');
+    expect(state?.aheadCount).toBe(1);
+  });
+
+  it('falls back to baseRef..HEAD when merge-base fails (unrelated/shallow history)', () => {
+    mockGit({
+      'rev-parse HEAD': 'headsha',
+      'rev-parse --abbrev-ref HEAD': 'feature/z',
+      'rev-parse --verify --quiet origin/HEAD^{commit}': 'basesha',
+      'merge-base origin/HEAD HEAD': new Error('no merge base found'),
+      'rev-list --count origin/HEAD..HEAD': '2',
+      'log -n 10 --format=%h%x09%s origin/HEAD..HEAD': 'c1\tone\nc2\ttwo',
+    });
+
+    const state = getGitState('/repo');
+    expect(state?.baseRef).toBe('origin/HEAD');
+    expect(state?.aheadCount).toBe(2);
+    expect(state?.commits).toHaveLength(2);
+  });
+
+  it('reports zero ahead with no base when on the default branch itself', () => {
+    mockGit({
+      'rev-parse HEAD': 'samesha',
+      'rev-parse --abbrev-ref HEAD': 'main',
+      'rev-parse --verify --quiet origin/HEAD^{commit}': 'samesha',
+      'rev-parse --verify --quiet main^{commit}': 'samesha',
+      'rev-parse --verify --quiet master^{commit}': new Error('no master'),
+      'rev-parse --verify --quiet dev^{commit}': new Error('no dev'),
+    });
+
+    expect(getGitState('/repo')).toEqual({
+      branch: 'main',
+      baseRef: null,
+      aheadCount: 0,
+      commits: [],
+    });
   });
 });

@@ -183,6 +183,33 @@ export interface ImplementationLog {
   entries: ImplementationLogEntry[];
   lastUpdated?: string;
 }
+// Git reconciliation (SFLW-29): compare workflow state against actual code state on resume.
+export interface GitCommitSummary {
+  sha: string;
+  subject: string;
+}
+
+export interface GitState {
+  branch: string;
+  baseRef: string | null;
+  aheadCount: number;
+  commits: GitCommitSummary[];
+}
+
+export interface WorkflowState {
+  gateApproved: boolean;
+  tasksCompleted: number;
+  tasksTotal: number;
+  loggedTaskCount: number;
+}
+
+export interface SpecDivergence {
+  detected: boolean;
+  reasons: string[];
+  gitState: GitState;
+  workflowState: WorkflowState;
+}
+
 export interface ToolResponse {
   success: boolean;
   message: string;
