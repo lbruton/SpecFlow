@@ -222,6 +222,12 @@ describe('bundled tasks-template.md', () => {
     expect(peerReviewTask).toContain(
       'disabled plugin dispatch paths such as codex:rescue or gemini:rescue',
     );
+    // Each rescue token must appear EXACTLY ONCE — solely in the prohibition clause
+    // above. More than one occurrence implies an active rescue step was reintroduced.
+    const countOccurrences = (haystack: string, needle: string): number =>
+      haystack.split(needle).length - 1;
+    expect(countOccurrences(peerReviewTask, 'codex:rescue')).toBe(1);
+    expect(countOccurrences(peerReviewTask, 'gemini:rescue')).toBe(1);
     expect(peerReviewTask).not.toContain('pr-review-toolkit:review-pr');
     expect(peerReviewTask).not.toContain('$CODEX_SESSION');
     expect(peerReviewTask).not.toContain('Critical/Important');
