@@ -242,20 +242,27 @@ If ANY tool is missing, report the missing tools to the user and STOP.
   - _Requirements: All_
   - _Prompt: Role: Project Coordinator | Task: Call the log-implementation MCP tool with a comprehensive summary covering all implementation tasks in this spec. Aggregate: (1) all functions added or modified with file paths, (2) all files created or changed, (3) all test files and test counts, (4) any new endpoints, routes, or APIs, (5) any configuration changes. This is the consolidated implementation record. | Restrictions: Do not skip any task's artifacts. | Success: log-implementation MCP tool call succeeds with full artifact listing._
 
-- [ ] N+2. Security Review — Codacy CLI + CodeRabbit (parallel scan)
+- [ ] N+2. Security Review — Codacy CLI
   - File: (no file changes — review only, fixes happen via loop-back if needed)
-  - **PARALLEL DISPATCH — MANDATORY:** In a SINGLE message, invoke BOTH scanners simultaneously:
-    1. `codacy-cli` skill — local SAST/quality scan via `.codacy/cli.sh analyze` against changed files (SARIF output). Bootstraps `.codacy/cli.sh` if missing.
-    2. `coderabbit:review` skill — AI review of the branch diff (catches logic bugs, architecture smells, test gaps that often surface post-PR).
-  - Do NOT serialize the two scans. Do NOT treat CodeRabbit as a fallback — it runs every time alongside Codacy CLI.
-  - After BOTH complete: merge findings, deduplicate overlaps, triage by severity.
+  - Run the `codacy-cli` skill — local SAST/quality scan via `.codacy/cli.sh analyze` against changed files (SARIF output). Bootstraps `.codacy/cli.sh` if missing.
   - Triage: Critical/High -> MUST fix, Medium -> fix or document waiver, Low/Info -> advisory
-  - Purpose: Catch security + review regressions BEFORE PR.
-  - _Leverage: `codacy-cli` skill (local Codacy CLI v2 scanner — NOT the Codacy MCP), `coderabbit:review` skill, branch git diff_
+  - Purpose: Catch security + quality regressions BEFORE PR.
+  - _Leverage: `codacy-cli` skill (local Codacy CLI v2 scanner — NOT the Codacy MCP), branch git diff_
   - _Requirements: Security NFR from requirements.md_
-  - _Prompt: Role: Security Engineer | Task: Run pre-PR security + review scans IN PARALLEL. In a single message, dispatch BOTH (1) the codacy-cli skill against files changed in this spec, AND (2) the coderabbit:review skill to review the branch diff. Wait for both to complete, merge findings, deduplicate. For each Critical/High finding: read the code, determine real vs false positive, fix or add inline suppression with justification. Medium: fix or waiver. Low/Info: advisory. | Restrictions: Do NOT call mcp__codacy__* tools — use the local Codacy CLI skill. Do NOT serialize the scanners. Do NOT skip CodeRabbit. Do not blanket-disable rules. | Success: Both scans completed and merged. Zero unaddressed Critical/High findings. All triage decisions logged._
+  - _Prompt: Role: Security Engineer | Task: Run a pre-PR security + quality scan by dispatching the codacy-cli skill against files changed in this spec. For each Critical/High finding: read the code, determine real vs false positive, fix or add inline suppression with justification. Medium: fix or waiver. Low/Info: advisory. | Restrictions: Do NOT call mcp__codacy__* tools — use the local Codacy CLI skill. Do not blanket-disable rules. | Success: Scan completed. Zero unaddressed Critical/High findings. All triage decisions logged._
 
-- [ ] N+3. Generate verification.md
+- [ ] N+3. Cross-Model Peer Review — CodeRabbit
+  - File: (no file changes — review only, fixes happen via loop-back if needed)
+  - Run the `coderabbit:review` skill — AI review of the branch diff (catches logic bugs, architecture smells, and test gaps that a single-model review misses).
+  - CodeRabbit is the cross-model peer reviewer for this project.
+  - Address all Critical and High findings before proceeding. Medium and Low findings are advisory.
+  - **NEVER silently skip this task.** If CodeRabbit is unavailable, mark `[!]` (BLOCKED) and present to the user for a manual review decision.
+  - Purpose: Cross-model peer review catches blind spots a single-model review misses.
+  - _Leverage: `coderabbit:review` skill, branch git diff_
+  - _Requirements: All_
+  - _Prompt: Role: Code Review Coordinator | Task: Run an independent cross-model peer review of the branch diff using the coderabbit:review skill. Triage findings by Critical/High/Medium/Low severity with file:line references. Fix Critical/High findings by looping back to implementation. Medium/Low findings are advisory. | Restrictions: Do NOT use disabled plugin dispatch paths such as codex:rescue or gemini:rescue. NEVER mark [x] if review was skipped — use [!]. | Success: Review completed with Critical/High issues addressed, OR [!] BLOCKED with documented reason._
+
+- [ ] N+4. Generate verification.md
   - File: `{{workflowRoot}}/specs/{{spec-name}}/verification.md`
   - Generate a verification checklist in the spec directory
   - List every requirement and acceptance criterion from requirements.md as a checklist item
@@ -265,33 +272,18 @@ If ANY tool is missing, report the missing tools to the user and STOP.
   - _Requirements: All_
   - _Prompt: Role: QA Engineer | Task: Generate verification.md in the spec directory. Read requirements.md and list every requirement and acceptance criterion as a markdown checklist. For each item, search the codebase for the implementing code and mark [x] with file:line evidence. If any criterion cannot be verified, mark [ ] with a gap description. Run /verification-before-completion for a final check. | Restrictions: Do not mark [x] without concrete file:line evidence. Do not fabricate evidence. | Success: verification.md exists with every requirement/AC listed and evidenced. /verification-before-completion passed._
 
-- [ ] N+4. Cross-Model Peer Review
-  - File: (no file changes — review only, fixes happen via loop-back if needed)
-  - **Note:** CodeRabbit already ran in task N+2 alongside Codacy CLI — do NOT re-invoke it here. This task is an independent cross-model or peer review pass.
-  - **Review dispatch chain (try in order, use first that works):**
-    1. **Built-in code review (`pr-review-toolkit:review-pr`)** — review the branch diff for Critical/High/Medium/Low findings with file:line references.
-    2. **Harness peer review** — if the built-in review skill is unavailable, ask another available harness/model to review the branch diff using the same severity contract.
-    3. **Sketch-tier review** — for sketch-driven work, `/sketch review <issue> <phase> <reviewer>` is an acceptable peer-review path when it covers the implemented phase. Resolve placeholders from the current spec or issue context, and use the peer harness/model name as `<reviewer>`.
-    4. **Mark `[!]` BLOCKED** — only if no peer review path is available. Present to user for manual review decision.
-  - Address all Critical and High findings before proceeding. Medium and Low findings are advisory.
-  - **NEVER silently skip this task.** If ALL review options fail, mark `[!]` (BLOCKED).
-  - Purpose: Cross-model peer review catches blind spots a single-model review misses.
-  - _Leverage: `pr-review-toolkit:review-pr` skill, available peer harness/model, `/sketch review` for sketch-tier work, branch git diff_
-  - _Requirements: All_
-  - _Prompt: Role: Code Review Coordinator | Task: Run an independent peer review of the branch diff. Try in order: (1) pr-review-toolkit:review-pr via Skill tool, (2) another available harness/model using the same Critical/High/Medium/Low severity contract with file:line references, (3) for sketch-tier work, `/sketch review <issue> <phase> <reviewer>` after resolving placeholders from the current context, (4) mark [!] BLOCKED. Fix Critical/High findings by looping back to implementation. Medium/Low findings are advisory. | Restrictions: Do NOT invoke coderabbit:review (already ran in N+2). Do NOT use disabled plugin dispatch paths such as codex:rescue or gemini:rescue. NEVER mark [x] if review was skipped — use [!]. | Success: Review completed with Critical/High issues addressed, OR [!] BLOCKED with documented reason._
-
 - [ ] N+5. Loop or proceed to shipping
   - File: (no file changes — decision gate only)
   - IF ANY task above is marked `[!]` (BLOCKED) -> STOP. Present to user for decision.
   - IF verification.md has ANY unchecked `[ ]` items -> fix the failing requirements/code first, THEN loop back through N–N+4
   - IF N+2 has unaddressed Critical/High -> fix the flagged code first, THEN loop back through N–N+4
-  - IF N+4 has unaddressed Critical/High -> fix the flagged code first, THEN loop back through N–N+4
+  - IF N+3 has unaddressed Critical/High -> fix the flagged code first, THEN loop back through N–N+4
   - ONLY when ALL clean AND zero `[!]` tasks remain -> **proceed to shipping tasks N+6–N+8**
   - **DO NOT create the PR or push code from this task** — that is task N+8.
   - Purpose: Enforce the verification loop — implementation is verified before shipping begins.
-  - _Leverage: verification.md from N+3, scan results from N+2, review results from N+4_
+  - _Leverage: verification.md from N+4, scan results from N+2, review results from N+3_
   - _Requirements: All_
-  - _Prompt: Role: Project Coordinator | Task: Scan ALL tasks for [!] BLOCKED — if any exist, present to user and STOP. Then check: verification.md unchecked items, N+2 unaddressed Critical/High, N+4 unaddressed Critical/High. If any count is non-zero, FIX the failing code or tests first (do not re-run verification without fixing the root cause), then loop back through N–N+4. Only when all clean: proceed to shipping tasks N+6–N+8. Do NOT create a PR or push code from this task — that is task N+8. | Restrictions: Do NOT proceed to shipping if ANY gaps remain. Do NOT remove unchecked items to force completion. Do NOT change [!] to [x] without user decision. Do NOT push code or open a PR from this task. | Success: Zero [!] tasks. verification.md fully checked. All reviews clean. Ready to proceed to shipping tasks N+6–N+8._
+  - _Prompt: Role: Project Coordinator | Task: Scan ALL tasks for [!] BLOCKED — if any exist, present to user and STOP. Then check: verification.md unchecked items, N+2 unaddressed Critical/High, N+3 unaddressed Critical/High. If any count is non-zero, FIX the failing code or tests first (do not re-run verification without fixing the root cause), then loop back through N–N+4. Only when all clean: proceed to shipping tasks N+6–N+8. Do NOT create a PR or push code from this task — that is task N+8. | Restrictions: Do NOT proceed to shipping if ANY gaps remain. Do NOT remove unchecked items to force completion. Do NOT change [!] to [x] without user decision. Do NOT push code or open a PR from this task. | Success: Zero [!] tasks. verification.md fully checked. All reviews clean. Ready to proceed to shipping tasks N+6–N+8._
 
 ---
 
