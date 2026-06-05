@@ -195,6 +195,32 @@ function parseCommitLines(raw: string | null): GitCommitSummary[] {
 }
 
 /**
+ * Counts commits on HEAD ahead of the given base ref and collects their summaries.
+ */
+function getCommitsAhead(
+  projectPath: string,
+  baseRef: string,
+): { aheadCount: number; commits: GitCommitSummary[] } {
+  const mergeBase = gitExec(projectPath, ['merge-base', baseRef, 'HEAD']);
+  const range = `${mergeBase ?? baseRef}..HEAD`;
+  const countRaw = gitExec(projectPath, ['rev-list', '--count', range]);
+  const aheadCount = countRaw ? parseInt(countRaw, 10) || 0 : 0;
+
+  if (aheadCount === 0) {
+    return { aheadCount, commits: [] };
+  }
+
+  const logRaw = gitExec(projectPath, [
+    'log',
+    '-n',
+    String(MAX_DIVERGENCE_COMMITS),
+    '--format=%h%x09%s',
+    range,
+  ]);
+  return { aheadCount, commits: parseCommitLines(logRaw) };
+}
+
+/**
  * Heuristically measures how far the current branch has advanced past its base branch.
  * Used to reconcile actual code state against workflow state on spec resume (SFLW-29).
  *
@@ -211,27 +237,9 @@ export function getGitState(projectPath: string): GitState | null {
 
     const branch = getCurrentBranch(projectPath) ?? 'HEAD';
     const baseRef = resolveBaseRef(projectPath, headSha);
-
-    let aheadCount = 0;
-    let commits: GitCommitSummary[] = [];
-
-    if (baseRef) {
-      const mergeBase = gitExec(projectPath, ['merge-base', baseRef, 'HEAD']);
-      const range = `${mergeBase ?? baseRef}..HEAD`;
-      const countRaw = gitExec(projectPath, ['rev-list', '--count', range]);
-      aheadCount = countRaw ? parseInt(countRaw, 10) || 0 : 0;
-
-      if (aheadCount > 0) {
-        const logRaw = gitExec(projectPath, [
-          'log',
-          '-n',
-          String(MAX_DIVERGENCE_COMMITS),
-          '--format=%h%x09%s',
-          range,
-        ]);
-        commits = parseCommitLines(logRaw);
-      }
-    }
+    const { aheadCount, commits } = baseRef
+      ? getCommitsAhead(projectPath, baseRef)
+      : { aheadCount: 0, commits: [] };
 
     return { branch, baseRef, aheadCount, commits };
   } catch {

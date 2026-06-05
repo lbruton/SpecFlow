@@ -311,12 +311,13 @@ export async function specStatusHandler(args: any, context: ToolContext): Promis
         .filter((t) => t.status === 'completed')
         .map((t) => t.id);
 
-      const logManager = new ImplementationLogManager(specPath);
-      const allLogs = await logManager.getAllLogs();
-      const loggedTaskIds = new Set(allLogs.map((l) => l.taskId));
-      loggedTaskCount = loggedTaskIds.size;
-
+      // Only read logs when there are completed tasks to audit — getAllLogs() parses
+      // every log file, so skip the I/O on the common no-completed-tasks path.
       if (completedTasks.length > 0) {
+        const logManager = new ImplementationLogManager(specPath);
+        const allLogs = await logManager.getAllLogs();
+        const loggedTaskIds = new Set(allLogs.map((l) => l.taskId));
+        loggedTaskCount = loggedTaskIds.size;
         unloggedTasks = completedTasks.filter((id) => !loggedTaskIds.has(id));
       }
     } catch {
@@ -348,9 +349,10 @@ export async function specStatusHandler(args: any, context: ToolContext): Promis
 
         const reasons: string[] = [];
         if (state.aheadCount > 0 && !gateApproved) {
+          const gateState = spec.phases.readinessReport.exists ? 'not approved' : 'not created';
           reasons.push(
             `${state.aheadCount} commit(s) on branch '${state.branch}' (vs ${state.baseRef ?? 'base'}) ` +
-              `but the implementation readiness gate is not approved ` +
+              `but the implementation readiness gate is ${gateState} ` +
               `(workflow: ${tasksCompleted}/${tasksTotal} tasks complete, ${loggedTaskCount} logged)`,
           );
         }
