@@ -364,6 +364,22 @@ describe('getGitState', () => {
     expect(state?.aheadCount).toBe(1);
   });
 
+  it('falls back to baseRef..HEAD when merge-base fails (unrelated/shallow history)', () => {
+    mockGit({
+      'rev-parse HEAD': 'headsha',
+      'rev-parse --abbrev-ref HEAD': 'feature/z',
+      'rev-parse --verify --quiet origin/HEAD^{commit}': 'basesha',
+      'merge-base origin/HEAD HEAD': new Error('no merge base found'),
+      'rev-list --count origin/HEAD..HEAD': '2',
+      'log -n 10 --format=%h%x09%s origin/HEAD..HEAD': 'c1\tone\nc2\ttwo',
+    });
+
+    const state = getGitState('/repo');
+    expect(state?.baseRef).toBe('origin/HEAD');
+    expect(state?.aheadCount).toBe(2);
+    expect(state?.commits).toHaveLength(2);
+  });
+
   it('reports zero ahead with no base when on the default branch itself', () => {
     mockGit({
       'rev-parse HEAD': 'samesha',

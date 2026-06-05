@@ -457,7 +457,7 @@ flowchart TD
 - Direct editing: Mark tasks as in-progress [-] or complete [x] in tasks.md
 
 **Process**:
-1. Check current status with spec-status. On resume, inspect its \`divergence\` block: if \`divergence.detected\` is true, code ran ahead of the workflow in a prior session (commits on the branch while the readiness gate is unapproved) — STOP and have the user choose catch up / roll back / continue before doing any other work.
+1. Check current status with spec-status. On resume, if its response includes a \`divergence\` block (git repos only) and \`divergence.detected\` is true, code ran ahead of the workflow in a prior session (commits on the branch while the readiness gate is unapproved) — STOP and have the user choose catch up / roll back / continue before doing any other work.
 2. Read \`tasks.md\` to see all tasks
 3. For each task:
    - **UI GATE CHECK**: Before dispatching any task that creates or modifies UI components, verify:

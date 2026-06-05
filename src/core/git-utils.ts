@@ -196,28 +196,46 @@ function parseCommitLines(raw: string | null): GitCommitSummary[] {
 
 /**
  * Counts commits on HEAD ahead of the given base ref and collects their summaries.
+ * Degrades gracefully: merge-base can fail on unrelated/shallow histories, in which
+ * case we still measure `baseRef..HEAD` directly; a rev-list/log failure falls back
+ * to a safe zero/empty result rather than nulling the whole git state.
  */
 function getCommitsAhead(
   projectPath: string,
   baseRef: string,
 ): { aheadCount: number; commits: GitCommitSummary[] } {
-  const mergeBase = gitExec(projectPath, ['merge-base', baseRef, 'HEAD']);
+  let mergeBase: string | null = null;
+  try {
+    mergeBase = gitExec(projectPath, ['merge-base', baseRef, 'HEAD']);
+  } catch {
+    // No common ancestor (unrelated/shallow history) — fall back to the base ref.
+  }
   const range = `${mergeBase ?? baseRef}..HEAD`;
-  const countRaw = gitExec(projectPath, ['rev-list', '--count', range]);
-  const aheadCount = countRaw ? parseInt(countRaw, 10) || 0 : 0;
+
+  let aheadCount = 0;
+  try {
+    const countRaw = gitExec(projectPath, ['rev-list', '--count', range]);
+    aheadCount = countRaw ? parseInt(countRaw, 10) || 0 : 0;
+  } catch {
+    return { aheadCount: 0, commits: [] };
+  }
 
   if (aheadCount === 0) {
     return { aheadCount, commits: [] };
   }
 
-  const logRaw = gitExec(projectPath, [
-    'log',
-    '-n',
-    String(MAX_DIVERGENCE_COMMITS),
-    '--format=%h%x09%s',
-    range,
-  ]);
-  return { aheadCount, commits: parseCommitLines(logRaw) };
+  try {
+    const logRaw = gitExec(projectPath, [
+      'log',
+      '-n',
+      String(MAX_DIVERGENCE_COMMITS),
+      '--format=%h%x09%s',
+      range,
+    ]);
+    return { aheadCount, commits: parseCommitLines(logRaw) };
+  } catch {
+    return { aheadCount, commits: [] };
+  }
 }
 
 /**
