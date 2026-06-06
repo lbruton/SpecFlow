@@ -336,11 +336,12 @@ export async function detectConventions(projectPath: string): Promise<ProjectCon
 }
 
 /**
- * Resolve the canonical path of a project's `project-conventions.json`.
+ * Resolve the canonical write path of a project's `project-conventions.json`.
  *
  * When DocVault is configured: the DocVault specflow root.
- * Otherwise: the local `.specflow/` directory. This is the single path that
- * both the writer and the readiness gate / spec-status reader rely on.
+ * Otherwise: the local `.specflow/` directory. This is the location the writer
+ * uses; the spec-status reader checks this path first, then falls back to the
+ * local `.specflow/` copy for backward compatibility.
  */
 export function getConventionsPath(projectPath: string): string {
   const dir = PathUtils.isDocVaultConfigured()

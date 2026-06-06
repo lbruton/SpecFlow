@@ -46,8 +46,8 @@ export async function detectConventionsHandler(
 
   try {
     const translatedPath = PathUtils.translatePath(projectPath);
-    // Validate before any filesystem writes — mirrors write-spec-doc / approvals.
-    // validateProjectPath resolves to the canonical, security-checked absolute path.
+    // Validate the path before any filesystem write; validateProjectPath
+    // resolves to the canonical, security-checked absolute path.
     const validatedPath = await validateProjectPath(translatedPath);
     const force = args.force ?? true;
     return buildResult(await ensureConventions(validatedPath, { force }));
