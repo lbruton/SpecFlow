@@ -366,7 +366,7 @@
     },
     {
       "toolId": "markdownlint",
-      "localConfigurationFile": "/Users/lbruton/codacy-mig-worktrees/SpecFlow/.markdownlint.json",
+      "localConfigurationFile": ".markdownlint.json",
       "useLocalConfigurationFile": true,
       "patterns": []
     },
@@ -3221,7 +3221,7 @@
     },
     {
       "toolId": "Stylelint",
-      "localConfigurationFile": "/Users/lbruton/codacy-mig-worktrees/SpecFlow/.stylelintrc.json",
+      "localConfigurationFile": ".stylelintrc.json",
       "useLocalConfigurationFile": true,
       "patterns": []
     },
