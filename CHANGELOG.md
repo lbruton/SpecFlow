@@ -16,6 +16,12 @@ SpecFlow is a fork of [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spe
 - Enforced readiness-gate approval before implementation is considered ready in MCP status and task prompts
 - Swept live plugin skills, commands, and templates to use resolved workflow-root paths and current `specflow` runtime references
 
+## [3.9.0] - 2026-06-05
+
+### Added
+
+- `detect-conventions` MCP tool and automatic boot-time seeding that generate `project-conventions.json` from a project's source files (test framework + command, version lock / package version, changelog). The Phase 4.9 readiness gate and `spec-status` consume this file to drive release-hygiene checks; it is a regenerable, source-derived artifact, never a hand-maintained copy (SFLW-42).
+
 ## [3.5.10] - 2026-04-05
 
 ### Changed

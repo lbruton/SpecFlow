@@ -139,6 +139,25 @@ Spec Workflow MCP provides specialized tools for structured software development
 "List all my specs"
 ```
 
+### detect-conventions
+
+**Purpose**: Detects a project's release-hygiene conventions and writes them to `project-conventions.json` — the file the Phase 4.9 readiness gate and `spec-status` consume. Conventions are derived from the project's source files (test framework + command, version lock / package version, changelog), so the file is a regenerable artifact, never a hand-maintained copy. The server seeds it automatically on boot when missing; call this tool to refresh it after the project's tooling changes.
+
+**Parameters**:
+
+| Parameter   | Type    | Required | Description                                                                             |
+| ----------- | ------- | -------- | --------------------------------------------------------------------------------------- |
+| projectPath | string  | No       | Absolute path to the project root (defaults to the server context path).                |
+| force       | boolean | No       | Regenerate even if the file exists (default: true). When false, writes only if missing. |
+
+**Returns**: `{ created, path, conventions }`
+
+**Usage Example**:
+
+```
+"Refresh the project conventions"
+```
+
 ### spec-status
 
 **Purpose**: Gets detailed status information for a specific spec.

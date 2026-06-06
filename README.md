@@ -31,7 +31,7 @@ Built on [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mc
 
 **The npm package** (`@lbruton/specflow`) ships:
 
-- 7 MCP tools and 7 MCP prompts for spec lifecycle management
+- 8 MCP tools and 7 MCP prompts for spec lifecycle management
 - A real-time web dashboard for approvals and progress tracking
 - 11 spec templates (requirements, discovery, design, tasks, readiness report, steering docs, review prompts)
 - Multi-project support via project config files
@@ -92,15 +92,16 @@ An optional Discovery phase (`/discover`) supports structured research before co
 
 ## MCP Tools
 
-| Tool                  | Description                       |
-| --------------------- | --------------------------------- |
-| `spec-status`         | Get detailed status of a spec     |
-| `spec-list`           | List all specs across projects    |
-| `approvals`           | Manage phase approval workflow    |
-| `log-implementation`  | Record implementation artifacts   |
-| `write-spec-doc`      | Create or update spec documents   |
-| `spec-workflow-guide` | Get workflow guidance             |
-| `steering-guide`      | Access project steering documents |
+| Tool                  | Description                                             |
+| --------------------- | ------------------------------------------------------- |
+| `spec-status`         | Get detailed status of a spec                           |
+| `spec-list`           | List all specs across projects                          |
+| `approvals`           | Manage phase approval workflow                          |
+| `log-implementation`  | Record implementation artifacts                         |
+| `write-spec-doc`      | Create or update spec documents                         |
+| `detect-conventions`  | Detect and persist project-conventions.json from source |
+| `spec-workflow-guide` | Get workflow guidance                                   |
+| `steering-guide`      | Access project steering documents                       |
 
 ## MCP Prompts
 
@@ -118,21 +119,21 @@ An optional Discovery phase (`/discover`) supports structured research before co
 
 These are markdown skill definitions installed by copying from the repo, not MCP tools.
 
-| Skill                  | Purpose                                           |
-| ---------------------- | ------------------------------------------------- |
-| `/spec`                | Full spec lifecycle orchestrator                  |
-| `/discover`            | Structured research before committing to a spec   |
-| `/chat`                | Exploratory conversation with context             |
-| `/start`               | Quick session resume (~15s)                       |
-| `/prime`               | Full session boot with health checks              |
-| `/wrap`                | End-of-session cleanup and summary                |
-| `/retro`               | Extract prescriptive lessons from the session     |
-| `/audit`               | On-demand project health check                    |
-| `/issue`               | Create and manage project issues                  |
-| `/pr-cleanup`          | Post-merge branch and worktree cleanup            |
-| `/codacy-resolve`      | Triage and resolve Codacy dashboard findings      |
-| `/publish-templates`   | Promote a template into the plugin                |
-| `/migrate-skill`       | Port a user-level skill into the plugin           |
+| Skill                | Purpose                                         |
+| -------------------- | ----------------------------------------------- |
+| `/spec`              | Full spec lifecycle orchestrator                |
+| `/discover`          | Structured research before committing to a spec |
+| `/chat`              | Exploratory conversation with context           |
+| `/start`             | Quick session resume (~15s)                     |
+| `/prime`             | Full session boot with health checks            |
+| `/wrap`              | End-of-session cleanup and summary              |
+| `/retro`             | Extract prescriptive lessons from the session   |
+| `/audit`             | On-demand project health check                  |
+| `/issue`             | Create and manage project issues                |
+| `/pr-cleanup`        | Post-merge branch and worktree cleanup          |
+| `/codacy-resolve`    | Triage and resolve Codacy dashboard findings    |
+| `/publish-templates` | Promote a template into the plugin              |
+| `/migrate-skill`     | Port a user-level skill into the plugin         |
 
 ## Knowledge Structure
 
@@ -157,12 +158,12 @@ Each project needs a thin config file (`.specflow/config.json`) pointing to the 
 
 SpecFlow is an MCP server — any agent that speaks MCP can use it. Spec state lives on disk, so you can start a spec in one agent and continue in another.
 
-| Agent           | Status   | Notes                          |
-| --------------- | -------- | ------------------------------ |
-| **Claude Code** | Verified | Full MCP + skills support      |
-| **Gemini CLI**  | Verified | MCP tools, uses GEMINI.md      |
-| **Codex CLI**   | Verified | MCP tools, uses CODEX.md       |
-| **OpenCode**    | Verified | MCP tools                      |
+| Agent           | Status   | Notes                     |
+| --------------- | -------- | ------------------------- |
+| **Claude Code** | Verified | Full MCP + skills support |
+| **Gemini CLI**  | Verified | MCP tools, uses GEMINI.md |
+| **Codex CLI**   | Verified | MCP tools, uses CODEX.md  |
+| **OpenCode**    | Verified | MCP tools                 |
 
 ## Extending the Stack
 

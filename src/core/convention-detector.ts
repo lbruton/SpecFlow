@@ -1,5 +1,5 @@
 import { readFile, readdir, stat, mkdir, writeFile } from 'fs/promises';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { PathUtils } from './path-utils.js';
 
 export interface ProjectConventions {
@@ -336,6 +336,21 @@ export async function detectConventions(projectPath: string): Promise<ProjectCon
 }
 
 /**
+ * Resolve the canonical write path of a project's `project-conventions.json`.
+ *
+ * When DocVault is configured: the DocVault specflow root.
+ * Otherwise: the local `.specflow/` directory. This is the location the writer
+ * uses; the spec-status reader checks this path first, then falls back to the
+ * local `.specflow/` copy for backward compatibility.
+ */
+export function getConventionsPath(projectPath: string): string {
+  const dir = PathUtils.isDocVaultConfigured()
+    ? PathUtils.getWorkflowRoot(projectPath)
+    : join(projectPath, '.specflow');
+  return join(dir, 'project-conventions.json');
+}
+
+/**
  * Write detected conventions to the workflow root.
  *
  * When DocVault is configured: writes to DocVault specflow root.
@@ -345,15 +360,53 @@ export async function writeConventions(
   projectPath: string,
   conventions: ProjectConventions,
 ): Promise<void> {
-  // Use DocVault workflow root when configured, otherwise local .specflow/
-  const dir = PathUtils.isDocVaultConfigured()
-    ? PathUtils.getWorkflowRoot(projectPath)
-    : join(projectPath, '.specflow');
-  try {
-    await mkdir(dir, { recursive: true });
-  } catch {
-    // Directory may already exist — ignore
-  }
-  const filePath = join(dir, 'project-conventions.json');
+  const filePath = getConventionsPath(projectPath);
+  // recursive:true is idempotent when the directory already exists; a real mkdir
+  // error (permissions, etc.) should surface and be handled at the call boundary.
+  await mkdir(dirname(filePath), { recursive: true });
   await writeFile(filePath, JSON.stringify(conventions, null, 2) + '\n', 'utf-8');
+}
+
+/**
+ * Ensure a `project-conventions.json` exists for a project.
+ *
+ * Default behavior is generate-if-missing — used at server boot to seed the
+ * file the readiness gate consumes. Pass `force: true` to regenerate from
+ * source even when the file already exists (the detect-conventions tool's
+ * on-demand refresh). Conventions are always derived from the project's source
+ * files, so the file is a regenerable artifact, never a hand-maintained copy.
+ *
+ * Never throws on absent inputs — detection treats missing files as null.
+ */
+export async function ensureConventions(
+  projectPath: string,
+  opts: { force?: boolean } = {},
+): Promise<{ created: boolean; path: string; conventions: ProjectConventions | null }> {
+  const path = getConventionsPath(projectPath);
+  if (!opts.force && (await fileExists(path))) {
+    return { created: false, path, conventions: null };
+  }
+  const conventions = await detectConventions(projectPath);
+  await writeConventions(projectPath, conventions);
+  return { created: true, path, conventions };
+}
+
+/**
+ * Boot-time seeding helper: generate `project-conventions.json` if missing.
+ *
+ * Always non-fatal — any detection/write failure is logged and swallowed so it
+ * can never break server initialization. The Phase 4.9 readiness gate degrades
+ * to its advisory path when the file is absent.
+ */
+export async function seedProjectConventions(projectPath: string): Promise<void> {
+  try {
+    const seed = await ensureConventions(projectPath);
+    if (seed.created) {
+      console.error(`Generated project-conventions.json at ${seed.path}`);
+    }
+  } catch (error) {
+    console.error(
+      `Convention detection skipped: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 }

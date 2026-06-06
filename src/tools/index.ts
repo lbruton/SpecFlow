@@ -6,6 +6,7 @@ import { approvalsTool, approvalsHandler } from './approvals.js';
 import { logImplementationTool, logImplementationHandler } from './log-implementation.js';
 import { specListTool, specListHandler } from './spec-list.js';
 import { writeSpecDocTool, writeSpecDocHandler } from './write-spec-doc.js';
+import { detectConventionsTool, detectConventionsHandler } from './detect-conventions.js';
 import { ToolContext, ToolResponse, MCPToolResponse, toMCPResponse } from '../types.js';
 
 export function registerTools(): Tool[] {
@@ -17,6 +18,7 @@ export function registerTools(): Tool[] {
     logImplementationTool,
     specListTool,
     writeSpecDocTool,
+    detectConventionsTool,
   ];
 }
 
@@ -50,6 +52,9 @@ export async function handleToolCall(
         break;
       case 'write-spec-doc':
         response = await writeSpecDocHandler(args, context);
+        break;
+      case 'detect-conventions':
+        response = await detectConventionsHandler(args, context);
         break;
       default:
         throw new Error(`Unknown tool: ${name}`);
