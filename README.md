@@ -38,7 +38,7 @@ Built on [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mc
 
 **The GitHub repo** additionally ships:
 
-- 13 lifecycle skills (`/spec`, `/start`, `/prime`, `/wrap`, `/retro`, `/audit`, `/discover`, `/chat`, `/issue`, `/pr-cleanup`, `/codacy-resolve`, `/publish-templates`, `/migrate-skill`)
+- 12 lifecycle skills (`/spec`, `/start`, `/prime`, `/wrap`, `/retro`, `/audit`, `/discover`, `/chat`, `/issue`, `/pr-cleanup`, `/publish-templates`, `/migrate-skill`)
 - 11 slash commands and background subagent definitions
 - Agent-specific instruction files (CLAUDE.md, GEMINI.md, CODEX.md)
 
@@ -131,7 +131,6 @@ These are markdown skill definitions installed by copying from the repo, not MCP
 | `/audit`             | On-demand project health check                  |
 | `/issue`             | Create and manage project issues                |
 | `/pr-cleanup`        | Post-merge branch and worktree cleanup          |
-| `/codacy-resolve`    | Triage and resolve Codacy dashboard findings    |
 | `/publish-templates` | Promote a template into the plugin              |
 | `/migrate-skill`     | Port a user-level skill into the plugin         |
 
