@@ -360,11 +360,9 @@ export async function writeConventions(
   conventions: ProjectConventions,
 ): Promise<void> {
   const filePath = getConventionsPath(projectPath);
-  try {
-    await mkdir(dirname(filePath), { recursive: true });
-  } catch {
-    // Directory may already exist — ignore
-  }
+  // recursive:true is idempotent when the directory already exists; a real mkdir
+  // error (permissions, etc.) should surface and be handled at the call boundary.
+  await mkdir(dirname(filePath), { recursive: true });
   await writeFile(filePath, JSON.stringify(conventions, null, 2) + '\n', 'utf-8');
 }
 
@@ -390,4 +388,24 @@ export async function ensureConventions(
   const conventions = await detectConventions(projectPath);
   await writeConventions(projectPath, conventions);
   return { created: true, path, conventions };
+}
+
+/**
+ * Boot-time seeding helper: generate `project-conventions.json` if missing.
+ *
+ * Always non-fatal — any detection/write failure is logged and swallowed so it
+ * can never break server initialization. The Phase 4.9 readiness gate degrades
+ * to its advisory path when the file is absent.
+ */
+export async function seedProjectConventions(projectPath: string): Promise<void> {
+  try {
+    const seed = await ensureConventions(projectPath);
+    if (seed.created) {
+      console.error(`Generated project-conventions.json at ${seed.path}`);
+    }
+  } catch (error) {
+    console.error(
+      `Convention detection skipped: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 }

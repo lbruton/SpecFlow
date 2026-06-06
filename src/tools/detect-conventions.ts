@@ -1,7 +1,7 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { ToolContext, ToolResponse } from '../types.js';
-import { PathUtils } from '../core/path-utils.js';
-import { ensureConventions } from '../core/convention-detector.js';
+import { PathUtils, validateProjectPath } from '../core/path-utils.js';
+import { ensureConventions, type ProjectConventions } from '../core/convention-detector.js';
 
 export const detectConventionsTool: Tool = {
   name: 'detect-conventions',
@@ -46,29 +46,39 @@ export async function detectConventionsHandler(
 
   try {
     const translatedPath = PathUtils.translatePath(projectPath);
+    // Validate before any filesystem writes — mirrors write-spec-doc / approvals.
+    // validateProjectPath resolves to the canonical, security-checked absolute path.
+    const validatedPath = await validateProjectPath(translatedPath);
     const force = args.force ?? true;
-    const { created, path, conventions } = await ensureConventions(translatedPath, { force });
-
-    const summary = conventions
-      ? `framework: ${conventions.testing.framework ?? 'none'}, version-lock: ${conventions.versioning.hasVersionLock}, changelog: ${conventions.changelog.hasChangelog}`
-      : 'unchanged';
-
-    return {
-      success: true,
-      message: created
-        ? `Wrote project-conventions.json to ${path} (${summary})`
-        : `project-conventions.json already exists at ${path} — pass force:true to regenerate`,
-      data: { path, created, conventions },
-      nextSteps: [
-        'Run /vault-drift to check these conventions against steering / Foundation / CLAUDE.md claims',
-      ],
-    };
+    return buildResult(await ensureConventions(validatedPath, { force }));
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       success: false,
       message: `Failed to detect conventions: ${errorMessage}`,
-      nextSteps: ['Verify the project path is correct'],
+      nextSteps: ['Verify the project path is correct and accessible'],
     };
   }
+}
+
+/** Build the success response from an ensureConventions result. */
+function buildResult(result: {
+  created: boolean;
+  path: string;
+  conventions: ProjectConventions | null;
+}): ToolResponse {
+  const { created, path, conventions } = result;
+  const summary = conventions
+    ? `framework: ${conventions.testing.framework ?? 'none'}, version-lock: ${conventions.versioning.hasVersionLock}, changelog: ${conventions.changelog.hasChangelog}`
+    : 'unchanged';
+  return {
+    success: true,
+    message: created
+      ? `Wrote project-conventions.json to ${path} (${summary})`
+      : `project-conventions.json already exists at ${path} — pass force:true to regenerate`,
+    data: { path, created, conventions },
+    nextSteps: [
+      'These conventions drive the Phase 4.9 readiness gate and spec-status. Re-run with force:true to refresh after the test framework, version lock, or changelog changes.',
+    ],
+  };
 }

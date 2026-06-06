@@ -8,14 +8,16 @@ vi.mock('../../core/path-utils.js', () => ({
   PathUtils: {
     translatePath: vi.fn((p: string) => p),
   },
+  validateProjectPath: vi.fn(),
 }));
 
 import { detectConventionsHandler } from '../detect-conventions.js';
 import { ensureConventions } from '../../core/convention-detector.js';
-import { PathUtils } from '../../core/path-utils.js';
+import { PathUtils, validateProjectPath } from '../../core/path-utils.js';
 
 const mockEnsure = vi.mocked(ensureConventions);
 const mockTranslate = vi.mocked(PathUtils.translatePath);
+const mockValidate = vi.mocked(validateProjectPath);
 
 const sampleConventions = {
   schemaVersion: 1 as const,
@@ -47,6 +49,7 @@ describe('detectConventionsHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockTranslate.mockImplementation((p: string) => p);
+    mockValidate.mockImplementation(async (p: string) => p);
   });
 
   it('returns an error when no project path is available', async () => {
@@ -54,6 +57,16 @@ describe('detectConventionsHandler', () => {
 
     expect(res.success).toBe(false);
     expect(res.message).toContain('Project path is required');
+    expect(mockEnsure).not.toHaveBeenCalled();
+  });
+
+  it('returns a failure response when the project path fails validation', async () => {
+    mockValidate.mockRejectedValueOnce(new Error('Path not permitted'));
+
+    const res = await detectConventionsHandler({}, ctx);
+
+    expect(res.success).toBe(false);
+    expect(res.message).toContain('Path not permitted');
     expect(mockEnsure).not.toHaveBeenCalled();
   });
 

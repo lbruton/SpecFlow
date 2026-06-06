@@ -16,6 +16,7 @@ import {
   writeConventions,
   ensureConventions,
   getConventionsPath,
+  seedProjectConventions,
   type ProjectConventions,
 } from '../convention-detector.js';
 
@@ -300,5 +301,33 @@ describe('ensureConventions', () => {
       expect.stringContaining('"schemaVersion": 1'),
       'utf-8',
     );
+  });
+});
+
+describe('seedProjectConventions', () => {
+  it('generates the file when missing and logs the path', async () => {
+    mockMkdir.mockResolvedValue(undefined);
+    mockWriteFile.mockResolvedValue(undefined);
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await seedProjectConventions('/fake/project');
+
+    expect(mockWriteFile).toHaveBeenCalled();
+    expect(errSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Generated project-conventions.json'),
+    );
+    errSpy.mockRestore();
+  });
+
+  it('never throws when generation fails — logs and continues', async () => {
+    // writeFile rejects → writeConventions throws → seed must swallow it so that
+    // a detection failure can never break server initialization.
+    mockMkdir.mockResolvedValue(undefined);
+    mockWriteFile.mockRejectedValue(new Error('EACCES'));
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await expect(seedProjectConventions('/fake/project')).resolves.toBeUndefined();
+    expect(errSpy).toHaveBeenCalledWith(expect.stringContaining('Convention detection skipped'));
+    errSpy.mockRestore();
   });
 });
