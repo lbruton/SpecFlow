@@ -1,6 +1,6 @@
-# Codacy CLOUD PLATFORM config — read by dashboard scans only.
-# The local CLI (codacy-cli-v2) does NOT read this file.
-# Local CLI exclusions live per-tool in .codacy/tools-configs/.
+# Codacy CLOUD PLATFORM config — read by dashboard scans.
+# Also respected by the Gen-3 local CLI (codacy-analysis) via `init --remote`.
+# Local config lives in .codacy/codacy.config.json (a 1:1 dashboard mirror).
 ---
 exclude_paths:
   - "SFLW-37-HANDOFF.md"
