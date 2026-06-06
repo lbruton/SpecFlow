@@ -371,7 +371,7 @@ flowchart TD
      - If version lock detected: verify a task covers version bump. Missing → FAIL.
      - If changelog detected: verify a task covers changelog entry. Missing → FAIL.
      - Verify a task covers DocVault documentation update. Missing → FAIL.
-     - If no conventions file exists: note "No project conventions detected — consider running convention detection" as an advisory finding (not a failure).
+     - If no conventions file exists: note "No project conventions detected — consider running the \`detect-conventions\` tool" as an advisory finding (not a failure).
 3. Save the report as \`readiness-report.md\` in the spec folder using the output format below.
 4. Request dashboard approval using approvals tool with action:'request', filePath pointing to readiness-report.md
 5. Poll status using approvals with action:'status' until responded — the user has THREE options on the dashboard:

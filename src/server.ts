@@ -15,6 +15,7 @@ import { validateProjectPath, PathUtils } from './core/path-utils.js';
 import { WorkspaceInitializer } from './core/workspace-initializer.js';
 import { loadOrCreateConfig, loadConfig, ResolvedConfig } from './core/config-loader.js';
 import { needsMigration, migrateToDocVault } from './core/migration.js';
+import { ensureConventions } from './core/convention-detector.js';
 import { ProjectRegistry } from './core/project-registry.js';
 import { DashboardSessionManager } from './core/dashboard-session.js';
 import { readFileSync } from 'fs';
@@ -113,6 +114,18 @@ export class SpecWorkflowMCPServer {
         console.error(
           `Migration complete: ${migrationResult.migratedDirs.length} migrated, ${migrationResult.skippedDirs.length} skipped, ${migrationResult.errors.length} errors`,
         );
+      }
+
+      // Seed project-conventions.json from source when missing (SFLW-42).
+      // Non-fatal: the Phase 4.9 readiness gate falls back to advisory mode if
+      // this is absent, so a detection failure must never break initialization.
+      try {
+        const seed = await ensureConventions(this.projectPath);
+        if (seed.created) {
+          console.error(`Generated project-conventions.json at ${seed.path}`);
+        }
+      } catch (convError: any) {
+        console.error(`Convention detection skipped: ${convError?.message ?? convError}`);
       }
 
       // Register this project in the global registry (non-essential — see method).

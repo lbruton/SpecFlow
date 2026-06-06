@@ -14,6 +14,8 @@ import { readFile, readdir, stat, mkdir, writeFile } from 'fs/promises';
 import {
   detectConventions,
   writeConventions,
+  ensureConventions,
+  getConventionsPath,
   type ProjectConventions,
 } from '../convention-detector.js';
 
@@ -230,6 +232,69 @@ describe('writeConventions', () => {
     await writeConventions('/fake/project', conventions);
 
     expect(mockMkdir).toHaveBeenCalledWith('/fake/project/.specflow', { recursive: true });
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      '/fake/project/.specflow/project-conventions.json',
+      expect.stringContaining('"schemaVersion": 1'),
+      'utf-8',
+    );
+  });
+});
+
+describe('getConventionsPath', () => {
+  it('should resolve to local .specflow when DocVault is not configured', () => {
+    // In the test environment PathUtils has no DocVault config, so the path
+    // falls back to the local .specflow/ directory (same target writeConventions uses).
+    expect(getConventionsPath('/fake/project')).toBe(
+      '/fake/project/.specflow/project-conventions.json',
+    );
+  });
+});
+
+describe('ensureConventions', () => {
+  it('should detect and write when the file is missing', async () => {
+    // Default mocks: every stat/readFile rejects with ENOENT, so the conventions
+    // file is absent and detection yields an all-null (empty project) result.
+    mockMkdir.mockResolvedValue(undefined);
+    mockWriteFile.mockResolvedValue(undefined);
+
+    const result = await ensureConventions('/fake/project');
+
+    expect(result.created).toBe(true);
+    expect(result.path).toBe('/fake/project/.specflow/project-conventions.json');
+    expect(result.conventions?.schemaVersion).toBe(1);
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      '/fake/project/.specflow/project-conventions.json',
+      expect.stringContaining('"schemaVersion": 1'),
+      'utf-8',
+    );
+  });
+
+  it('should be a no-op when the file already exists and force is not set', async () => {
+    // The conventions file exists — stat resolves as a file for that path.
+    mockStat.mockImplementation(async (p) => {
+      if (String(p).endsWith('project-conventions.json')) return fakeFileStat();
+      throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+    });
+
+    const result = await ensureConventions('/fake/project');
+
+    expect(result.created).toBe(false);
+    expect(result.conventions).toBeNull();
+    expect(mockWriteFile).not.toHaveBeenCalled();
+  });
+
+  it('should rewrite when force is true even if the file exists', async () => {
+    // force bypasses the existence check entirely and regenerates from source.
+    mockStat.mockImplementation(async (p) => {
+      if (String(p).endsWith('project-conventions.json')) return fakeFileStat();
+      throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+    });
+    mockMkdir.mockResolvedValue(undefined);
+    mockWriteFile.mockResolvedValue(undefined);
+
+    const result = await ensureConventions('/fake/project', { force: true });
+
+    expect(result.created).toBe(true);
     expect(mockWriteFile).toHaveBeenCalledWith(
       '/fake/project/.specflow/project-conventions.json',
       expect.stringContaining('"schemaVersion": 1'),
