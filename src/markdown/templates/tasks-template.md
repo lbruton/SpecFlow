@@ -244,12 +244,12 @@ If ANY tool is missing, report the missing tools to the user and STOP.
 
 - [ ] N+2. Security Review — Codacy CLI
   - File: (no file changes — review only, fixes happen via loop-back if needed)
-  - Run the `codacy-cli` skill — local SAST/quality scan via `.codacy/cli.sh analyze` against changed files (SARIF output). Bootstraps `.codacy/cli.sh` if missing.
+  - Run the `codacy-analysis-cli` skill — local SAST/quality scan via `codacy-analysis analyze --diff` against changed files (SARIF output). Installed machine-wide (no per-repo bootstrap).
   - Triage: Critical/High -> MUST fix, Medium -> fix or document waiver, Low/Info -> advisory
   - Purpose: Catch security + quality regressions BEFORE PR.
-  - _Leverage: `codacy-cli` skill (local Codacy CLI v2 scanner — NOT the Codacy MCP), branch git diff_
+  - _Leverage: `codacy-analysis-cli` skill (Gen-3 `codacy-analysis` local scanner — NOT the Codacy MCP), branch git diff_
   - _Requirements: Security NFR from requirements.md_
-  - _Prompt: Role: Security Engineer | Task: Run a pre-PR security + quality scan by dispatching the codacy-cli skill against files changed in this spec. For each Critical/High finding: read the code, determine real vs false positive, fix or add inline suppression with justification. Medium: fix or waiver. Low/Info: advisory. | Restrictions: Do NOT call mcp__codacy__* tools — use the local Codacy CLI skill. Do not blanket-disable rules. | Success: Scan completed. Zero unaddressed Critical/High findings. All triage decisions logged._
+  - _Prompt: Role: Security Engineer | Task: Run a pre-PR security + quality scan by dispatching the codacy-analysis-cli skill against files changed in this spec. For each Critical/High finding: read the code, determine real vs false positive, fix or add inline suppression with justification. Medium: fix or waiver. Low/Info: advisory. | Restrictions: Do NOT call mcp__codacy__* tools — use the local codacy-analysis CLI. Do not blanket-disable rules. | Success: Scan completed. Zero unaddressed Critical/High findings. All triage decisions logged._
 
 - [ ] N+3. Cross-Model Peer Review — CodeRabbit
   - File: (no file changes — review only, fixes happen via loop-back if needed)
