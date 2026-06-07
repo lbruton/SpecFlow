@@ -134,6 +134,16 @@ These are markdown skill definitions installed by copying from the repo, not MCP
 | `/publish-templates` | Promote a template into the plugin              |
 | `/migrate-skill`     | Port a user-level skill into the plugin         |
 
+## Quality & Security Gates
+
+SpecFlow's shipped templates, skills, and subagents come wired to the author's default gates — **Codacy** (security + code quality) via its official Gen-3 skills, and **CodeRabbit** for cross-model review:
+
+- **Templates** — `tasks-template` closing gates run the `codacy-analysis-cli` skill (local Gen-3 `codacy-analysis` SAST/quality scan) and the `coderabbit:review` skill; `design-template` and `code-quality-reviewer-template` include a Codacy SRM security pre-check and cross-reference.
+- **Skills** — `/audit` and `/prime` query Codacy for live security and quality findings.
+- **Subagents** — `code-oracle` and `session-digest` use Codacy for repository analysis.
+
+These are **defaults, not requirements.** The MCP server itself bundles no scanner — every reference lives in the markdown you copy and control, and reaches Codacy or CodeRabbit only when you've installed the matching skill, CLI, or MCP server. To run a different toolchain (SonarQube, Semgrep, Snyk, GitHub Advanced Security, or a different reviewer), edit the corresponding template, skill, or subagent after installing it.
+
 ## Knowledge Structure
 
 Spec documents, steering docs, and templates are stored as structured markdown in an Obsidian-compatible layout. If you use [Obsidian](https://obsidian.md), you get graph visualization and wikilink navigation for free. If not, it's still just a folder of markdown files.

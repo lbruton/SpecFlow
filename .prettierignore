@@ -19,6 +19,9 @@ commands/
 agents/
 src/markdown/templates/
 
+# Authored docs site — hand-aligned HTML, not auto-reflowed
+docs/
+
 # Obsidian / DocVault artifacts
 .specflow/
 
