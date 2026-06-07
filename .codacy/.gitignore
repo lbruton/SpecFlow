@@ -3,3 +3,4 @@ logs/
 *.sarif
 *.log
 .cache/
+generated/
