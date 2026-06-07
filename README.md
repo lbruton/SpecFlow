@@ -38,7 +38,7 @@ Built on [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spec-workflow-mc
 
 **The GitHub repo** additionally ships:
 
-- 13 lifecycle skills (`/spec`, `/start`, `/prime`, `/wrap`, `/retro`, `/audit`, `/discover`, `/chat`, `/issue`, `/pr-cleanup`, `/codacy-resolve`, `/publish-templates`, `/migrate-skill`)
+- 12 lifecycle skills (`/spec`, `/start`, `/prime`, `/wrap`, `/retro`, `/audit`, `/discover`, `/chat`, `/issue`, `/pr-cleanup`, `/publish-templates`, `/migrate-skill`)
 - 11 slash commands and background subagent definitions
 - Agent-specific instruction files (CLAUDE.md, GEMINI.md, CODEX.md)
 
@@ -131,9 +131,18 @@ These are markdown skill definitions installed by copying from the repo, not MCP
 | `/audit`             | On-demand project health check                  |
 | `/issue`             | Create and manage project issues                |
 | `/pr-cleanup`        | Post-merge branch and worktree cleanup          |
-| `/codacy-resolve`    | Triage and resolve Codacy dashboard findings    |
 | `/publish-templates` | Promote a template into the plugin              |
 | `/migrate-skill`     | Port a user-level skill into the plugin         |
+
+## Quality & Security Gates
+
+SpecFlow's shipped templates, skills, and subagents reference specific code-quality and security tools as part of the spec lifecycle. These are **the gates the author uses internally** — not hard dependencies:
+
+- **Templates** — `tasks-template` closing gates run a SAST/quality scan (Codacy CLI) and a cross-model peer review (CodeRabbit); `design-template` and `code-quality-reviewer-template` reference a Codacy SRM security pre-check.
+- **Skills** — `/audit` and `/prime` query Codacy for live security and quality findings.
+- **Subagents** — `code-oracle` and `session-digest` cite Codacy for repository analysis.
+
+Treat these as a **guide, not a contract.** The MCP server bundles no scanner and calls no external gate — the references live only in the markdown you copy and control. Swap in whatever your environment uses (SonarQube, Semgrep, Snyk, GitHub Advanced Security, or your own reviewer) by editing the corresponding template, skill, or subagent text after installing it.
 
 ## Knowledge Structure
 
