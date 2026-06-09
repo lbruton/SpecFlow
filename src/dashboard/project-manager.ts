@@ -28,6 +28,20 @@ export interface ProjectContext {
   archiveService: SpecArchiveService;
 }
 
+/**
+ * Resolve the workspace (worktree) path for a registry entry.
+ *
+ * Prefers the first tracked worktree; falls back to entry.projectPath only when
+ * no worktrees are tracked. In the registry, entry.projectPath is the workflow
+ * root (the DocVault specflow root, === entry.workflowRootPath), NOT the
+ * worktree. Used by both addProject() and syncWithRegistry() — keep it the
+ * single source of truth so the two never drift: using projectPath for an entry
+ * that HAS worktrees breaks approval file resolution.
+ */
+export function selectWorkspacePath(entry: ProjectRegistryEntry): string {
+  return entry.worktrees && entry.worktrees.length > 0 ? entry.worktrees[0] : entry.projectPath;
+}
+
 export class ProjectManager extends EventEmitter {
   private registry: ProjectRegistry;
   private projects: Map<string, ProjectContext> = new Map();
@@ -120,7 +134,11 @@ export class ProjectManager extends EventEmitter {
             project.originalProjectPath = entry.projectPath;
             project.workflowRootPath = entry.workflowRootPath;
             project.projectPath = PathUtils.translatePath(entry.workflowRootPath);
-            project.workspacePath = PathUtils.translatePath(entry.projectPath);
+            // Mirror addProject(): workspacePath is the worktree, not the workflow
+            // root. Without selectWorkspacePath()'s worktrees[0] preference this
+            // clobbers workspacePath to the DocVault root on every re-sync and
+            // breaks approval file resolution for worktree projects.
+            project.workspacePath = PathUtils.translatePath(selectWorkspacePath(entry));
             project.instances = entry.instances || [];
             project.worktrees = entry.worktrees || [];
           }
@@ -148,8 +166,7 @@ export class ProjectManager extends EventEmitter {
     try {
       // Translate paths once at entry point (components should not know about Docker)
       // Use first worktree as workspace path when available, otherwise fall back to projectPath
-      const workspacePath =
-        entry.worktrees && entry.worktrees.length > 0 ? entry.worktrees[0] : entry.projectPath;
+      const workspacePath = selectWorkspacePath(entry);
       const translatedWorkspacePath = PathUtils.translatePath(workspacePath);
       let translatedWorkflowRootPath = PathUtils.translatePath(entry.workflowRootPath);
 

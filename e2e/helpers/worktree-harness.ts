@@ -1,7 +1,7 @@
 import { ChildProcess, spawn } from 'child_process';
 import { mkdtemp, mkdir, realpath, rm, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { basename, join } from 'path';
 
 export interface RegisteredProject {
   projectId: string;
@@ -154,6 +154,14 @@ export class WorktreeHarness {
     this.wtAPath = await realpath(this.wtAPath);
     this.wtBPath = await realpath(this.wtBPath);
 
+    // SFLW-50: the post-migration MCP auto-detects a sibling DocVault via
+    // `resolve(projectPath, '..', 'DocVault')`. wt-a and wt-b are siblings, so
+    // both resolve ../DocVault to this single directory. Without it the server
+    // boots in degraded mode and registers no projects. Created under the
+    // realpath'd tempRoot to match how the spawned MCP resolves worktree paths.
+    this.tempRoot = await realpath(this.tempRoot);
+    await mkdir(join(this.tempRoot, 'DocVault'), { recursive: true });
+
     await this.seedWorktreeA();
     await this.seedWorktreeB();
   }
@@ -255,9 +263,13 @@ export class WorktreeHarness {
         if (response.ok) {
           const body = (await response.json()) as RegisteredProject[];
           lastBody = JSON.stringify(body);
-          const worktreeProjects = body.filter((project) => {
-            return project.projectPath === this.wtAPath || project.projectPath === this.wtBPath;
-          });
+          // SFLW-50: post-migration the dashboard reports projectPath as the
+          // DocVault specflowRoot (…/specflow/wt-a), not the worktree path, so
+          // an exact projectPath === wtAPath match never succeeds. Match on
+          // projectName instead — it is derived from the worktree basename
+          // (deriveProjectName → basename(worktreePath)) and is layout-stable.
+          const expectedNames = new Set([basename(this.wtAPath), basename(this.wtBPath)]);
+          const worktreeProjects = body.filter((project) => expectedNames.has(project.projectName));
 
           if (worktreeProjects.length === expectedCount) {
             return worktreeProjects;
