@@ -120,7 +120,16 @@ export class ProjectManager extends EventEmitter {
             project.originalProjectPath = entry.projectPath;
             project.workflowRootPath = entry.workflowRootPath;
             project.projectPath = PathUtils.translatePath(entry.workflowRootPath);
-            project.workspacePath = PathUtils.translatePath(entry.projectPath);
+            // Mirror addProject(): workspacePath is the worktree, not the workflow
+            // root. entry.projectPath === entry.workflowRootPath (DocVault specflow
+            // root), so without the worktrees[0] preference this clobbers
+            // workspacePath to the DocVault root and breaks approval file resolution
+            // for worktree projects on every re-sync.
+            const updatedWorkspacePath =
+              entry.worktrees && entry.worktrees.length > 0
+                ? entry.worktrees[0]
+                : entry.projectPath;
+            project.workspacePath = PathUtils.translatePath(updatedWorkspacePath);
             project.instances = entry.instances || [];
             project.worktrees = entry.worktrees || [];
           }
