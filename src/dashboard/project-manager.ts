@@ -31,11 +31,12 @@ export interface ProjectContext {
 /**
  * Resolve the workspace (worktree) path for a registry entry.
  *
- * Prefers the first tracked worktree; falls back to the workflow root only when
- * no worktrees are tracked. Used by both addProject() and syncWithRegistry() —
- * keep it the single source of truth so the two never drift (entry.projectPath
- * is the DocVault specflow root, NOT the worktree, so using it for an entry that
- * HAS worktrees breaks approval file resolution).
+ * Prefers the first tracked worktree; falls back to entry.projectPath only when
+ * no worktrees are tracked. In the registry, entry.projectPath is the workflow
+ * root (the DocVault specflow root, === entry.workflowRootPath), NOT the
+ * worktree. Used by both addProject() and syncWithRegistry() — keep it the
+ * single source of truth so the two never drift: using projectPath for an entry
+ * that HAS worktrees breaks approval file resolution.
  */
 export function selectWorkspacePath(entry: ProjectRegistryEntry): string {
   return entry.worktrees && entry.worktrees.length > 0 ? entry.worktrees[0] : entry.projectPath;

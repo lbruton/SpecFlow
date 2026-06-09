@@ -32,7 +32,9 @@ describe('selectWorkspacePath', () => {
   });
 
   it('falls back to projectPath when worktrees is undefined', () => {
-    const entry = makeEntry({ worktrees: undefined as unknown as string[] });
+    // Simulate a legacy registry entry that predates worktree tracking.
+    const entry = makeEntry({});
+    (entry as { worktrees?: string[] }).worktrees = undefined;
     expect(selectWorkspacePath(entry)).toBe('/vault/DocVault/specflow/wt-a');
   });
 });
