@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TextAnnotate, AnnotateTag } from 'react-text-annotate-blend';
+import { TextAnnotate, AnnotateTag } from '../../vendor/react-text-annotate-blend';
 import { hexToColorObject, isValidHex } from './colors';
 import { MDXEditorWrapper } from '../mdx-editor';
 import { TextInputModal } from '../modals/TextInputModal';
