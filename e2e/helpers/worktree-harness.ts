@@ -160,7 +160,9 @@ export class WorktreeHarness {
 
   async startMcpServers(): Promise<void> {
     await this.startMcpForPath(this.wtAPath);
-    await this.waitForProjects(1, 45000);
+    // Scope the first readiness gate to wt-a specifically — a leaked wt-b
+    // registration from a previous run must not satisfy this wait.
+    await this.waitForProjects(1, 45000, [basename(this.wtAPath)]);
     await this.startMcpForPath(this.wtBPath);
   }
 
@@ -180,13 +182,17 @@ export class WorktreeHarness {
     this.mcpProcesses.push(child);
   }
 
-  async waitForProjects(expectedCount = 2, timeoutMs = 60000): Promise<RegisteredProject[]> {
+  async waitForProjects(
+    expectedCount = 2,
+    timeoutMs = 60000,
+    expectedProjectNames = [basename(this.wtAPath), basename(this.wtBPath)],
+  ): Promise<RegisteredProject[]> {
     // SFLW-50: post-migration the dashboard reports projectPath as the
     // DocVault specflowRoot (…/specflow/wt-a), not the worktree path, so
     // an exact projectPath === wtAPath match never succeeds. Match on
     // projectName instead — it is derived from the worktree basename
     // (deriveProjectName → basename(worktreePath)) and is layout-stable.
-    const expectedNames = new Set([basename(this.wtAPath), basename(this.wtBPath)]);
+    const expectedNames = new Set(expectedProjectNames);
 
     return await pollProjectsList(
       {

@@ -101,7 +101,7 @@ export function spawnMcpProcess(params: {
   });
 
   const appendLog = (chunk: Buffer, source: 'stdout' | 'stderr') => {
-    logs.push(`[${source}] ${chunk.toString().trimEnd()}`);
+    logs.push(`[${logLabel}][${source}] ${chunk.toString().trimEnd()}`);
     if (logs.length > 200) {
       logs.shift();
     }
@@ -135,8 +135,13 @@ export async function pollProjectsList<T>(
   let lastBody = '';
 
   while (Date.now() - startedAt < timeoutMs) {
+    // Abort each attempt so a hung request can't outlive the overall deadline.
+    const remainingMs = timeoutMs - (Date.now() - startedAt);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), Math.max(1, Math.min(remainingMs, 5000)));
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: controller.signal });
       if (response.ok) {
         const body = (await response.json()) as RegisteredProject[];
         lastBody = JSON.stringify(body);
@@ -150,9 +155,14 @@ export async function pollProjectsList<T>(
     } catch (error) {
       // Dashboard may still be starting — record the failure for the timeout report.
       lastBody = `fetch failed: ${error instanceof Error ? error.message : String(error)}`;
+    } finally {
+      clearTimeout(timer);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const remainingAfterAttempt = timeoutMs - (Date.now() - startedAt);
+    if (remainingAfterAttempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, Math.min(500, remainingAfterAttempt)));
+    }
   }
 
   throw new Error(

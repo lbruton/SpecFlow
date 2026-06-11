@@ -59,17 +59,19 @@ export async function selectProject(page: Page, projectId: string): Promise<void
 }
 
 /**
- * Standard smoke-spec opening: load the dashboard, select the seeded project,
- * and start collecting console errors (SFLW-51 pattern filtered).
+ * Standard smoke-spec opening: start collecting console errors (SFLW-51
+ * pattern filtered) BEFORE the first navigation so app-boot errors are
+ * captured too, then load the dashboard and select the seeded project.
  * Returns the console-error sink for the spec's final assertion.
  */
 export async function openSeededDashboard(page: Page, projectId: string): Promise<string[]> {
+  const consoleErrors: string[] = [];
+  collectConsoleErrors(page, consoleErrors);
+
   await page.goto('/');
   await expect(page.getByTestId('project-dropdown-toggle')).toBeVisible();
   await selectProject(page, projectId);
 
-  const consoleErrors: string[] = [];
-  collectConsoleErrors(page, consoleErrors);
   return consoleErrors;
 }
 
