@@ -4,6 +4,7 @@ import {
   DashboardSmokeHarness,
   RegisteredProject,
   SMOKE_SPEC_NAME,
+  selectProject,
 } from './helpers/dashboard-smoke-harness';
 
 const DASHBOARD_API_BASE_URL = 'http://127.0.0.1:5085';
@@ -19,15 +20,6 @@ const ROUTES: Array<{ path: string; hash: string }> = [
   { path: '/approvals', hash: '#/approvals' },
   { path: '/settings', hash: '#/settings' },
 ];
-
-async function selectProject(page: Page, projectId: string): Promise<void> {
-  const toggle = page.getByTestId('project-dropdown-toggle');
-  await toggle.click();
-  await expect(page.getByTestId('project-dropdown-menu')).toBeVisible();
-
-  await page.getByTestId(`project-dropdown-item-${projectId}`).click();
-  await expect(page.getByTestId('project-dropdown-menu')).toBeHidden();
-}
 
 // SFLW-51 (pre-existing on React 18, dev mode only): the vite dev proxy
 // targets ws://localhost:<port> while the backend binds 127.0.0.1, so every

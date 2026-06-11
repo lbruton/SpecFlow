@@ -1,3 +1,4 @@
+import { expect, Page } from '@playwright/test';
 import { ChildProcess, spawn } from 'child_process';
 import { mkdtemp, mkdir, realpath, rm, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
@@ -30,6 +31,16 @@ const GIT_CMD = IS_WINDOWS ? 'git.exe' : 'git';
 
 /** Spec fixture name the smoke specs assert against. */
 export const SMOKE_SPEC_NAME = 'smoke-fixture-spec';
+
+/** Selects a project in the dashboard header dropdown (shared by the smoke specs). */
+export async function selectProject(page: Page, projectId: string): Promise<void> {
+  const toggle = page.getByTestId('project-dropdown-toggle');
+  await toggle.click();
+  await expect(page.getByTestId('project-dropdown-menu')).toBeVisible();
+
+  await page.getByTestId(`project-dropdown-item-${projectId}`).click();
+  await expect(page.getByTestId('project-dropdown-menu')).toBeHidden();
+}
 
 /** Unique strings the smoke specs look for in rendered output. */
 export const SMOKE_HEADING = 'Smoke Fixture Requirements';
@@ -223,6 +234,9 @@ export class DashboardSmokeHarness {
         ...process.env,
         SPEC_WORKFLOW_HOME: this.options.specWorkflowHome,
       },
+      // stdin MUST stay 'pipe' (open): the stdio MCP server exits on stdin
+      // EOF, so 'ignore' (/dev/null) would kill it immediately after boot.
+      // Same pattern as WorktreeHarness.
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 

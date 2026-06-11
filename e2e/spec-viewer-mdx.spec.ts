@@ -1,4 +1,4 @@
-import { expect, Page, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { mkdir, rm } from 'fs/promises';
 import {
   DashboardSmokeHarness,
@@ -6,18 +6,10 @@ import {
   SMOKE_HEADING,
   SMOKE_LIST_ITEM,
   SMOKE_SPEC_NAME,
+  selectProject,
 } from './helpers/dashboard-smoke-harness';
 
 const DASHBOARD_API_BASE_URL = 'http://127.0.0.1:5085';
-
-async function selectProject(page: Page, projectId: string): Promise<void> {
-  const toggle = page.getByTestId('project-dropdown-toggle');
-  await toggle.click();
-  await expect(page.getByTestId('project-dropdown-menu')).toBeVisible();
-
-  await page.getByTestId(`project-dropdown-item-${projectId}`).click();
-  await expect(page.getByTestId('project-dropdown-menu')).toBeHidden();
-}
 
 test.describe.serial('Spec viewer MDX rendering (seeded backend)', () => {
   test.skip(
