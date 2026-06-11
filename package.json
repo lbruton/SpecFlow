@@ -30,6 +30,7 @@
     "test:e2e": "playwright test",
     "test:e2e:worktree": "playwright test -c playwright.worktree.config.ts",
     "test:e2e:smoke": "playwright test -c playwright.smoke.config.ts",
+    "typecheck:dashboard": "tsc --noEmit -p src/dashboard_frontend/tsconfig.json",
     "test:e2e:ui": "playwright test --ui",
     "test:generate-approvals": "node scripts/generate-test-approvals.cjs",
     "prepare": "husky || true",

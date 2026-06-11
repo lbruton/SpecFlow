@@ -51,7 +51,7 @@ function ArtifactSection({
   color,
 }: {
   title: string;
-  icon: React.ComponentType<{ className: string }>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   items: any[];
   type: 'api' | 'component' | 'function' | 'class' | 'integration' | 'test';
   color: string;
