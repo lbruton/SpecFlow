@@ -32,6 +32,28 @@ const GIT_CMD = IS_WINDOWS ? 'git.exe' : 'git';
 /** Spec fixture name the smoke specs assert against. */
 export const SMOKE_SPEC_NAME = 'smoke-fixture-spec';
 
+/** Dashboard backend base URL — must match DASHBOARD_PORT in playwright.smoke.config.ts. */
+export const DASHBOARD_API_BASE_URL = 'http://127.0.0.1:5085';
+
+// SFLW-51 (pre-existing on React 18, dev mode only): the vite dev proxy
+// targets ws://localhost:<port> while the backend binds 127.0.0.1, so every
+// /ws upgrade fails with a handshake 500 and the provider retries forever.
+// This exact pattern is filtered with justification; ALL other console errors
+// (render errors, React warnings-as-errors, route failures) still fail tests.
+export const PRE_EXISTING_WS_PROXY_ERROR = /WebSocket connection to 'ws:\/\/[^']*\/ws[^']*' failed/;
+
+/** Attaches console.error + pageerror collectors, filtering only the SFLW-51 pattern. */
+export function collectConsoleErrors(page: Page, sink: string[]): void {
+  page.on('console', (message) => {
+    if (message.type() === 'error' && !PRE_EXISTING_WS_PROXY_ERROR.test(message.text())) {
+      sink.push(`[console.error] ${message.text()}`);
+    }
+  });
+  page.on('pageerror', (error) => {
+    sink.push(`[pageerror] ${error.message}`);
+  });
+}
+
 /** Selects a project in the dashboard header dropdown (shared by the smoke specs). */
 export async function selectProject(page: Page, projectId: string): Promise<void> {
   const toggle = page.getByTestId('project-dropdown-toggle');
@@ -276,9 +298,12 @@ export class DashboardSmokeHarness {
           if (project) {
             return project;
           }
+        } else {
+          lastBody = `HTTP ${response.status}: ${await response.text().catch(() => '<unreadable>')}`;
         }
-      } catch {
-        // Dashboard may still be starting.
+      } catch (error) {
+        // Dashboard may still be starting — record the failure for the timeout report.
+        lastBody = `fetch failed: ${error instanceof Error ? error.message : String(error)}`;
       }
 
       await new Promise((resolve) => setTimeout(resolve, 500));

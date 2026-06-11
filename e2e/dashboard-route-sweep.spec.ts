@@ -1,13 +1,13 @@
-import { expect, Page, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { mkdir, rm } from 'fs/promises';
 import {
+  DASHBOARD_API_BASE_URL,
   DashboardSmokeHarness,
   RegisteredProject,
   SMOKE_SPEC_NAME,
+  collectConsoleErrors,
   selectProject,
 } from './helpers/dashboard-smoke-harness';
-
-const DASHBOARD_API_BASE_URL = 'http://127.0.0.1:5085';
 
 // The app uses HashRouter — client routes live in the URL hash.
 const ROUTES: Array<{ path: string; hash: string }> = [
@@ -20,24 +20,6 @@ const ROUTES: Array<{ path: string; hash: string }> = [
   { path: '/approvals', hash: '#/approvals' },
   { path: '/settings', hash: '#/settings' },
 ];
-
-// SFLW-51 (pre-existing on React 18, dev mode only): the vite dev proxy
-// targets ws://localhost:<port> while the backend binds 127.0.0.1, so every
-// /ws upgrade fails with a handshake 500 and the provider retries forever.
-// This exact pattern is filtered with justification; ALL other console errors
-// (render errors, React warnings-as-errors, route failures) still fail the test.
-const PRE_EXISTING_WS_PROXY_ERROR = /WebSocket connection to 'ws:\/\/[^']*\/ws[^']*' failed/;
-
-function collectConsoleErrors(page: Page, sink: string[]): void {
-  page.on('console', (message) => {
-    if (message.type() === 'error' && !PRE_EXISTING_WS_PROXY_ERROR.test(message.text())) {
-      sink.push(`[console.error] ${message.text()}`);
-    }
-  });
-  page.on('pageerror', (error) => {
-    sink.push(`[pageerror] ${error.message}`);
-  });
-}
 
 test.describe.serial('Dashboard route sweep (seeded backend)', () => {
   test.skip(

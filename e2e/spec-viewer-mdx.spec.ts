@@ -1,15 +1,15 @@
 import { expect, test } from '@playwright/test';
 import { mkdir, rm } from 'fs/promises';
 import {
+  DASHBOARD_API_BASE_URL,
   DashboardSmokeHarness,
   RegisteredProject,
   SMOKE_HEADING,
   SMOKE_LIST_ITEM,
   SMOKE_SPEC_NAME,
+  collectConsoleErrors,
   selectProject,
 } from './helpers/dashboard-smoke-harness';
-
-const DASHBOARD_API_BASE_URL = 'http://127.0.0.1:5085';
 
 test.describe.serial('Spec viewer MDX rendering (seeded backend)', () => {
   test.skip(
@@ -57,20 +57,8 @@ test.describe.serial('Spec viewer MDX rendering (seeded backend)', () => {
     await expect(page.getByTestId('project-dropdown-toggle')).toBeVisible();
     await selectProject(page, project.projectId);
 
-    // SFLW-51 (pre-existing on React 18, dev mode only): the vite dev proxy
-    // targets ws://localhost:<port> while the backend binds 127.0.0.1, so the
-    // /ws upgrade fails with a handshake 500 on every retry. That one pattern
-    // is filtered with justification; all other console errors fail the test.
-    const PRE_EXISTING_WS_PROXY_ERROR = /WebSocket connection to 'ws:\/\/[^']*\/ws[^']*' failed/;
     const consoleErrors: string[] = [];
-    page.on('console', (message) => {
-      if (message.type() === 'error' && !PRE_EXISTING_WS_PROXY_ERROR.test(message.text())) {
-        consoleErrors.push(`[console.error] ${message.text()}`);
-      }
-    });
-    page.on('pageerror', (error) => {
-      consoleErrors.push(`[pageerror] ${error.message}`);
-    });
+    collectConsoleErrors(page, consoleErrors);
 
     await page.goto(`/#/specs/view?name=${SMOKE_SPEC_NAME}`);
 
