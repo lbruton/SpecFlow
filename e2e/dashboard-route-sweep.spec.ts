@@ -1,12 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { mkdir, rm } from 'fs/promises';
 import {
-  DASHBOARD_API_BASE_URL,
   DashboardSmokeHarness,
   RegisteredProject,
   SMOKE_SPEC_NAME,
-  collectConsoleErrors,
-  selectProject,
+  bootSmokeHarness,
+  openSeededDashboard,
 } from './helpers/dashboard-smoke-harness';
 
 // The app uses HashRouter — client routes live in the URL hash.
@@ -34,24 +32,7 @@ test.describe.serial('Dashboard route sweep (seeded backend)', () => {
 
   test.beforeAll(async ({}, testInfo) => {
     testInfo.setTimeout(180000);
-
-    const specWorkflowHome = process.env.SPEC_WORKFLOW_HOME;
-    if (!specWorkflowHome) {
-      throw new Error('SPEC_WORKFLOW_HOME must be set by playwright.smoke.config.ts');
-    }
-
-    await rm(specWorkflowHome, { recursive: true, force: true });
-    await mkdir(specWorkflowHome, { recursive: true });
-
-    harness = new DashboardSmokeHarness({
-      serverRoot: process.cwd(),
-      dashboardApiBaseUrl: DASHBOARD_API_BASE_URL,
-      specWorkflowHome,
-      projectDirName: 'smoke-routes',
-    });
-
-    await harness.setup();
-    project = await harness.startMcpServer();
+    ({ harness, project } = await bootSmokeHarness('smoke-routes'));
   });
 
   test.afterAll(async () => {
@@ -61,12 +42,7 @@ test.describe.serial('Dashboard route sweep (seeded backend)', () => {
   });
 
   test('all 8 routes render seeded content with no console errors', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByTestId('project-dropdown-toggle')).toBeVisible();
-    await selectProject(page, project.projectId);
-
-    const consoleErrors: string[] = [];
-    collectConsoleErrors(page, consoleErrors);
+    const consoleErrors = await openSeededDashboard(page, project.projectId);
 
     for (const route of ROUTES) {
       await page.goto(`/${route.hash}`);

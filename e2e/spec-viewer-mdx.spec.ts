@@ -1,14 +1,12 @@
 import { expect, test } from '@playwright/test';
-import { mkdir, rm } from 'fs/promises';
 import {
-  DASHBOARD_API_BASE_URL,
   DashboardSmokeHarness,
   RegisteredProject,
   SMOKE_HEADING,
   SMOKE_LIST_ITEM,
   SMOKE_SPEC_NAME,
-  collectConsoleErrors,
-  selectProject,
+  bootSmokeHarness,
+  openSeededDashboard,
 } from './helpers/dashboard-smoke-harness';
 
 test.describe.serial('Spec viewer MDX rendering (seeded backend)', () => {
@@ -24,24 +22,7 @@ test.describe.serial('Spec viewer MDX rendering (seeded backend)', () => {
 
   test.beforeAll(async ({}, testInfo) => {
     testInfo.setTimeout(180000);
-
-    const specWorkflowHome = process.env.SPEC_WORKFLOW_HOME;
-    if (!specWorkflowHome) {
-      throw new Error('SPEC_WORKFLOW_HOME must be set by playwright.smoke.config.ts');
-    }
-
-    await rm(specWorkflowHome, { recursive: true, force: true });
-    await mkdir(specWorkflowHome, { recursive: true });
-
-    harness = new DashboardSmokeHarness({
-      serverRoot: process.cwd(),
-      dashboardApiBaseUrl: DASHBOARD_API_BASE_URL,
-      specWorkflowHome,
-      projectDirName: 'smoke-mdx',
-    });
-
-    await harness.setup();
-    project = await harness.startMcpServer();
+    ({ harness, project } = await bootSmokeHarness('smoke-mdx'));
   });
 
   test.afterAll(async () => {
@@ -53,12 +34,7 @@ test.describe.serial('Spec viewer MDX rendering (seeded backend)', () => {
   test('renders the seeded spec markdown and mermaid block via the MDX editor', async ({
     page,
   }) => {
-    await page.goto('/');
-    await expect(page.getByTestId('project-dropdown-toggle')).toBeVisible();
-    await selectProject(page, project.projectId);
-
-    const consoleErrors: string[] = [];
-    collectConsoleErrors(page, consoleErrors);
+    const consoleErrors = await openSeededDashboard(page, project.projectId);
 
     await page.goto(`/#/specs/view?name=${SMOKE_SPEC_NAME}`);
 

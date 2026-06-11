@@ -1,15 +1,19 @@
 import { expect, Page } from '@playwright/test';
-import { ChildProcess, spawn } from 'child_process';
+import { ChildProcess } from 'child_process';
 import { mkdtemp, mkdir, realpath, rm, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { basename, join } from 'path';
+import {
+  GIT_CMD,
+  NPM_CMD,
+  RegisteredProject,
+  cleanupProcessesAndTemp,
+  pollProjectsList,
+  runCommand,
+  spawnMcpProcess,
+} from './process-utils';
 
-export interface RegisteredProject {
-  projectId: string;
-  projectName: string;
-  projectPath: string;
-  instances: Array<{ pid: number; registeredAt: string }>;
-}
+export type { RegisteredProject } from './process-utils';
 
 interface DashboardSmokeHarnessOptions {
   serverRoot: string;
@@ -18,16 +22,6 @@ interface DashboardSmokeHarnessOptions {
   /** Directory name for the seeded project — becomes the dashboard projectName. */
   projectDirName: string;
 }
-
-interface CommandResult {
-  code: number;
-  stdout: string;
-  stderr: string;
-}
-
-const IS_WINDOWS = process.platform === 'win32';
-const NPM_CMD = IS_WINDOWS ? 'npm.cmd' : 'npm';
-const GIT_CMD = IS_WINDOWS ? 'git.exe' : 'git';
 
 /** Spec fixture name the smoke specs assert against. */
 export const SMOKE_SPEC_NAME = 'smoke-fixture-spec';
@@ -62,6 +56,21 @@ export async function selectProject(page: Page, projectId: string): Promise<void
 
   await page.getByTestId(`project-dropdown-item-${projectId}`).click();
   await expect(page.getByTestId('project-dropdown-menu')).toBeHidden();
+}
+
+/**
+ * Standard smoke-spec opening: load the dashboard, select the seeded project,
+ * and start collecting console errors (SFLW-51 pattern filtered).
+ * Returns the console-error sink for the spec's final assertion.
+ */
+export async function openSeededDashboard(page: Page, projectId: string): Promise<string[]> {
+  await page.goto('/');
+  await expect(page.getByTestId('project-dropdown-toggle')).toBeVisible();
+  await selectProject(page, projectId);
+
+  const consoleErrors: string[] = [];
+  collectConsoleErrors(page, consoleErrors);
+  return consoleErrors;
 }
 
 /** Unique strings the smoke specs look for in rendered output. */
@@ -107,62 +116,6 @@ const FIXTURE_TASKS = `# Smoke Fixture Tasks
   - File: src/service.ts
   - _Requirements: REQ-1_
 `;
-
-async function runCommand(
-  command: string,
-  args: string[],
-  cwd: string,
-  env?: NodeJS.ProcessEnv,
-): Promise<CommandResult> {
-  return await new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      cwd,
-      env: env ?? process.env,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    child.stdout.on('data', (chunk) => {
-      stdout += chunk.toString();
-    });
-
-    child.stderr.on('data', (chunk) => {
-      stderr += chunk.toString();
-    });
-
-    child.on('error', reject);
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve({ code: 0, stdout, stderr });
-        return;
-      }
-      reject(new Error(`Command failed (${command} ${args.join(' ')}):\n${stderr || stdout}`));
-    });
-  });
-}
-
-async function killProcess(child: ChildProcess): Promise<void> {
-  if (child.killed || child.exitCode !== null) {
-    return;
-  }
-
-  child.kill('SIGTERM');
-  await new Promise<void>((resolve) => {
-    const timer = setTimeout(() => {
-      if (child.exitCode === null) {
-        child.kill('SIGKILL');
-      }
-      resolve();
-    }, 5000);
-
-    child.once('exit', () => {
-      clearTimeout(timer);
-      resolve();
-    });
-  });
-}
 
 /**
  * Single-project simplification of WorktreeHarness (e2e/helpers/worktree-harness.ts).
@@ -250,81 +203,64 @@ export class DashboardSmokeHarness {
   }
 
   async startMcpServer(): Promise<RegisteredProject> {
-    const child = spawn(NPM_CMD, ['run', 'dev', '--', this.projectPath], {
+    const child = spawnMcpProcess({
+      command: NPM_CMD,
+      args: ['run', 'dev', '--', this.projectPath],
       cwd: this.options.serverRoot,
       env: {
         ...process.env,
         SPEC_WORKFLOW_HOME: this.options.specWorkflowHome,
       },
-      // stdin MUST stay 'pipe' (open): the stdio MCP server exits on stdin
-      // EOF, so 'ignore' (/dev/null) would kill it immediately after boot.
-      // Same pattern as WorktreeHarness.
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-
-    const appendLog = (chunk: Buffer, source: 'stdout' | 'stderr') => {
-      this.mcpLogs.push(`[${source}] ${chunk.toString().trimEnd()}`);
-      if (this.mcpLogs.length > 200) {
-        this.mcpLogs.shift();
-      }
-    };
-
-    child.stdout.on('data', (chunk) => appendLog(chunk, 'stdout'));
-    child.stderr.on('data', (chunk) => appendLog(chunk, 'stderr'));
-    child.on('error', (error) => {
-      this.mcpLogs.push(`[error] Failed to spawn MCP for ${this.projectPath}: ${error.message}`);
+      logs: this.mcpLogs,
+      logLabel: this.projectPath,
     });
 
     this.mcpProcesses.push(child);
 
-    return await this.waitForProject(90000);
-  }
-
-  private async waitForProject(timeoutMs: number): Promise<RegisteredProject> {
-    const startedAt = Date.now();
-    const url = `${this.options.dashboardApiBaseUrl}/api/projects/list`;
     const expectedName = basename(this.projectPath);
-    let lastBody = '';
-
-    while (Date.now() - startedAt < timeoutMs) {
-      try {
-        const response = await fetch(url);
-        if (response.ok) {
-          const body = (await response.json()) as RegisteredProject[];
-          lastBody = JSON.stringify(body);
-          // SFLW-50: projectPath is reported as the DocVault specflowRoot, not
-          // the seeded path — match on projectName (basename-derived, stable).
-          const project = body.find((entry) => entry.projectName === expectedName);
-          if (project) {
-            return project;
-          }
-        } else {
-          lastBody = `HTTP ${response.status}: ${await response.text().catch(() => '<unreadable>')}`;
-        }
-      } catch (error) {
-        // Dashboard may still be starting — record the failure for the timeout report.
-        lastBody = `fetch failed: ${error instanceof Error ? error.message : String(error)}`;
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-
-    throw new Error(
-      `Timed out waiting for smoke project "${expectedName}".\n` +
-        `Last /api/projects/list payload: ${lastBody}\n` +
-        `Recent MCP logs:\n${this.getCapturedLogs()}`,
+    // SFLW-50: projectPath is reported as the DocVault specflowRoot, not the
+    // seeded path — match on projectName (basename-derived, stable).
+    return await pollProjectsList(
+      {
+        url: `${this.options.dashboardApiBaseUrl}/api/projects/list`,
+        timeoutMs: 90000,
+        description: `smoke project "${expectedName}"`,
+        getLogs: () => this.getCapturedLogs(),
+      },
+      (projects) => projects.find((entry) => entry.projectName === expectedName),
     );
   }
 
   async cleanup(): Promise<void> {
-    for (const child of this.mcpProcesses) {
-      await killProcess(child);
-    }
-    this.mcpProcesses.length = 0;
-
-    if (this.tempRoot) {
-      await rm(this.tempRoot, { recursive: true, force: true });
-      this.tempRoot = '';
-    }
+    await cleanupProcessesAndTemp(this.mcpProcesses, this.tempRoot);
+    this.tempRoot = '';
   }
+}
+
+/**
+ * Boots a fresh seeded smoke environment for a spec file: clears the isolated
+ * SPEC_WORKFLOW_HOME, seeds one project, and waits for dashboard registration.
+ * Shared by dashboard-route-sweep.spec.ts and spec-viewer-mdx.spec.ts.
+ */
+export async function bootSmokeHarness(
+  projectDirName: string,
+): Promise<{ harness: DashboardSmokeHarness; project: RegisteredProject }> {
+  const specWorkflowHome = process.env.SPEC_WORKFLOW_HOME;
+  if (!specWorkflowHome) {
+    throw new Error('SPEC_WORKFLOW_HOME must be set by playwright.smoke.config.ts');
+  }
+
+  await rm(specWorkflowHome, { recursive: true, force: true });
+  await mkdir(specWorkflowHome, { recursive: true });
+
+  const harness = new DashboardSmokeHarness({
+    serverRoot: process.cwd(),
+    dashboardApiBaseUrl: DASHBOARD_API_BASE_URL,
+    specWorkflowHome,
+    projectDirName,
+  });
+
+  await harness.setup();
+  const project = await harness.startMcpServer();
+  return { harness, project };
 }

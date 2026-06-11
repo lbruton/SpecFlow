@@ -1,30 +1,24 @@
-import { ChildProcess, spawn } from 'child_process';
-import { mkdtemp, mkdir, realpath, rm, writeFile } from 'fs/promises';
+import { ChildProcess } from 'child_process';
+import { mkdtemp, mkdir, realpath, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { basename, join } from 'path';
+import {
+  GIT_CMD,
+  NPM_CMD,
+  RegisteredProject,
+  cleanupProcessesAndTemp,
+  pollProjectsList,
+  runCommand,
+  spawnMcpProcess,
+} from './process-utils';
 
-export interface RegisteredProject {
-  projectId: string;
-  projectName: string;
-  projectPath: string;
-  instances: Array<{ pid: number; registeredAt: string }>;
-}
+export type { RegisteredProject } from './process-utils';
 
 interface WorktreeHarnessOptions {
   serverRoot: string;
   dashboardApiBaseUrl: string;
   specWorkflowHome: string;
 }
-
-interface CommandResult {
-  code: number;
-  stdout: string;
-  stderr: string;
-}
-
-const IS_WINDOWS = process.platform === 'win32';
-const NPM_CMD = IS_WINDOWS ? 'npm.cmd' : 'npm';
-const GIT_CMD = IS_WINDOWS ? 'git.exe' : 'git';
 
 function buildApprovalPayload(params: {
   id: string;
@@ -42,62 +36,6 @@ function buildApprovalPayload(params: {
     category: 'spec',
     categoryName: params.categoryName,
   };
-}
-
-async function runCommand(
-  command: string,
-  args: string[],
-  cwd: string,
-  env?: NodeJS.ProcessEnv,
-): Promise<CommandResult> {
-  return await new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      cwd,
-      env: env ?? process.env,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    child.stdout.on('data', (chunk) => {
-      stdout += chunk.toString();
-    });
-
-    child.stderr.on('data', (chunk) => {
-      stderr += chunk.toString();
-    });
-
-    child.on('error', reject);
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve({ code: 0, stdout, stderr });
-        return;
-      }
-      reject(new Error(`Command failed (${command} ${args.join(' ')}):\n${stderr || stdout}`));
-    });
-  });
-}
-
-async function killProcess(child: ChildProcess): Promise<void> {
-  if (child.killed || child.exitCode !== null) {
-    return;
-  }
-
-  child.kill('SIGTERM');
-  await new Promise<void>((resolve) => {
-    const timer = setTimeout(() => {
-      if (child.exitCode === null) {
-        child.kill('SIGKILL');
-      }
-      resolve();
-    }, 5000);
-
-    child.once('exit', () => {
-      clearTimeout(timer);
-      resolve();
-    });
-  });
 }
 
 export class WorktreeHarness {
@@ -227,77 +165,47 @@ export class WorktreeHarness {
   }
 
   private async startMcpForPath(projectPath: string): Promise<void> {
-    const child = spawn(NPM_CMD, ['run', 'dev', '--', projectPath, '--no-shared-worktree-specs'], {
+    const child = spawnMcpProcess({
+      command: NPM_CMD,
+      args: ['run', 'dev', '--', projectPath, '--no-shared-worktree-specs'],
       cwd: this.options.serverRoot,
       env: {
         ...process.env,
         SPEC_WORKFLOW_HOME: this.options.specWorkflowHome,
       },
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-
-    const appendLog = (chunk: Buffer, source: 'stdout' | 'stderr') => {
-      this.mcpLogs.push(`[${source}] ${chunk.toString().trimEnd()}`);
-      if (this.mcpLogs.length > 200) {
-        this.mcpLogs.shift();
-      }
-    };
-
-    child.stdout.on('data', (chunk) => appendLog(chunk, 'stdout'));
-    child.stderr.on('data', (chunk) => appendLog(chunk, 'stderr'));
-    child.on('error', (error) => {
-      this.mcpLogs.push(`[error] Failed to spawn MCP for ${projectPath}: ${error.message}`);
+      logs: this.mcpLogs,
+      logLabel: projectPath,
     });
 
     this.mcpProcesses.push(child);
   }
 
   async waitForProjects(expectedCount = 2, timeoutMs = 60000): Promise<RegisteredProject[]> {
-    const startedAt = Date.now();
-    const url = `${this.options.dashboardApiBaseUrl}/api/projects/list`;
-    let lastBody = '';
+    // SFLW-50: post-migration the dashboard reports projectPath as the
+    // DocVault specflowRoot (…/specflow/wt-a), not the worktree path, so
+    // an exact projectPath === wtAPath match never succeeds. Match on
+    // projectName instead — it is derived from the worktree basename
+    // (deriveProjectName → basename(worktreePath)) and is layout-stable.
+    const expectedNames = new Set([basename(this.wtAPath), basename(this.wtBPath)]);
 
-    while (Date.now() - startedAt < timeoutMs) {
-      try {
-        const response = await fetch(url);
-        if (response.ok) {
-          const body = (await response.json()) as RegisteredProject[];
-          lastBody = JSON.stringify(body);
-          // SFLW-50: post-migration the dashboard reports projectPath as the
-          // DocVault specflowRoot (…/specflow/wt-a), not the worktree path, so
-          // an exact projectPath === wtAPath match never succeeds. Match on
-          // projectName instead — it is derived from the worktree basename
-          // (deriveProjectName → basename(worktreePath)) and is layout-stable.
-          const expectedNames = new Set([basename(this.wtAPath), basename(this.wtBPath)]);
-          const worktreeProjects = body.filter((project) => expectedNames.has(project.projectName));
-
-          if (worktreeProjects.length === expectedCount) {
-            return worktreeProjects;
-          }
-        }
-      } catch {
-        // Dashboard may still be starting.
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-
-    throw new Error(
-      `Timed out waiting for ${expectedCount} MCP projects.\n` +
-        `Last /api/projects/list payload: ${lastBody}\n` +
-        `Recent MCP logs:\n${this.getCapturedLogs()}`,
+    return await pollProjectsList(
+      {
+        url: `${this.options.dashboardApiBaseUrl}/api/projects/list`,
+        timeoutMs,
+        description: `${expectedCount} MCP projects`,
+        getLogs: () => this.getCapturedLogs(),
+      },
+      (projects) => {
+        const worktreeProjects = projects.filter((project) =>
+          expectedNames.has(project.projectName),
+        );
+        return worktreeProjects.length === expectedCount ? worktreeProjects : undefined;
+      },
     );
   }
 
   async cleanup(): Promise<void> {
-    for (const child of this.mcpProcesses) {
-      await killProcess(child);
-    }
-    this.mcpProcesses.length = 0;
-
-    if (this.tempRoot) {
-      await rm(this.tempRoot, { recursive: true, force: true });
-      this.tempRoot = '';
-    }
+    await cleanupProcessesAndTemp(this.mcpProcesses, this.tempRoot);
+    this.tempRoot = '';
   }
 }
