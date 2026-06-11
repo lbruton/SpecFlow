@@ -12,3 +12,18 @@ exclude_paths:
   - "vscode-extension/webview-dist/**"
   - "node_modules/**"
   - "assets/**"
+  # Vendored third-party source (ExternalCode): MIT copy of the dead
+  # react-text-annotate-blend package (SFLW-47) — graded upstream, not here.
+  - "src/dashboard_frontend/src/vendor/**"
+
+# The complexity ("metric") and duplication engines have their OWN exclusion
+# lists — the top-level exclude_paths covers tool/issue analysis only.
+# Without these, vendored code still counts toward the PR deltaComplexity /
+# deltaClones quality gates (observed on PR #31).
+engines:
+  metric:
+    exclude_paths:
+      - "src/dashboard_frontend/src/vendor/**"
+  duplication:
+    exclude_paths:
+      - "src/dashboard_frontend/src/vendor/**"

@@ -3719,6 +3719,7 @@
     "coverage/**",
     "vscode-extension/webview-dist/**",
     "node_modules/**",
-    "assets/**"
+    "assets/**",
+    "src/dashboard_frontend/src/vendor/**"
   ]
 }
