@@ -6,8 +6,8 @@ export interface ScrollSyncOptions {
 }
 
 export interface ScrollSyncRefs {
-  leftRef: React.RefObject<HTMLDivElement>;
-  rightRef: React.RefObject<HTMLDivElement>;
+  leftRef: React.RefObject<HTMLDivElement | null>;
+  rightRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export interface ScrollSyncHandlers {

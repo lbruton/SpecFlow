@@ -56,7 +56,7 @@ export class I18nErrorBoundary extends Component<Props, State> {
             >
               Reload Application
             </button>
-            {process.env.NODE_ENV === 'development' && (
+            {import.meta.env.DEV && (
               <details className="mt-4 text-left">
                 <summary className="cursor-pointer text-sm text-gray-500">
                   Error Details (Development)

@@ -1,5 +1,6 @@
-import { expect, Page, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { mkdir, rm } from 'fs/promises';
+import { selectProject } from './helpers/dashboard-smoke-harness';
 import { RegisteredProject, WorktreeHarness } from './helpers/worktree-harness';
 
 const DASHBOARD_API_BASE_URL = 'http://127.0.0.1:5084';
@@ -15,15 +16,6 @@ function getProjectByPathSuffix(projects: RegisteredProject[], suffix: string): 
     );
   }
   return project;
-}
-
-async function selectProject(page: Page, projectId: string): Promise<void> {
-  const toggle = page.getByTestId('project-dropdown-toggle');
-  await toggle.click();
-  await expect(page.getByTestId('project-dropdown-menu')).toBeVisible();
-
-  await page.getByTestId(`project-dropdown-item-${projectId}`).click();
-  await expect(page.getByTestId('project-dropdown-menu')).toBeHidden();
 }
 
 /**

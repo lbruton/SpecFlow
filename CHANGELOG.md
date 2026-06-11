@@ -9,12 +9,24 @@ SpecFlow is a fork of [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spe
 
 ## [Unreleased]
 
+## [3.10.0] - 2026-06-11
+
 ### Changed
 
+- Upgraded the dashboard frontend from the React 18 ecosystem to React 19 as one coordinated nine-package bump (SFLW-47): react/react-dom 19.2.7, @types/react 19.2.x, @types/react-dom 19.2.x, @vitejs/plugin-react 5.2.0, react-router-dom 7.17.0 (library mode), i18next 26.3.1, react-i18next 17.0.8, @mdxeditor/editor 4.0.2. Vite is intentionally held on the 7.x line (Vite 8 + plugin-react 6 is a separate migration).
 - Renamed `.spec-workflow` directory to `.specflow` across all projects and configuration
 - Added backward compatibility fallback for legacy `.spec-workflow/` directories
 - Enforced readiness-gate approval before implementation is considered ready in MCP status and task prompts
 - Swept live plugin skills, commands, and templates to use resolved workflow-root paths and current `specflow` runtime references
+
+### Added
+
+- Dashboard frontend type-check gate: `src/dashboard_frontend/tsconfig.json` + `npm run typecheck:dashboard` — the frontend was previously excluded from all tsconfigs and never type-checked (pre-existing type debt tracked as SFLW-52)
+- Seeded dashboard smoke E2E suite (`npm run test:e2e:smoke`): real backend + seeded project fixture, full 8-route render sweep with console-error assertions, and an MDX/mermaid render test pinning the spec viewer
+
+### Removed
+
+- `react-text-annotate-blend` npm dependency — upstream is unmaintained (final release 1.2.0) and caps peers at React 18; its MIT TypeScript source is vendored at `src/dashboard_frontend/src/vendor/react-text-annotate-blend/` (drops transitive `lodash.sortby` as well)
 
 ## [3.9.0] - 2026-06-05
 

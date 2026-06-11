@@ -1015,7 +1015,7 @@ function Content() {
     ids: string[];
     action: string;
   } | null>(null);
-  const [undoTimeoutId, setUndoTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [undoTimeoutId, setUndoTimeoutId] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   // Get unique categories from approvals
   const categories = useMemo(() => {
