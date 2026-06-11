@@ -9,6 +9,12 @@ SpecFlow is a fork of [Pimzino/spec-workflow-mcp](https://github.com/Pimzino/spe
 
 ## [Unreleased]
 
+## [3.10.1] - 2026-06-11
+
+### Fixed
+
+- Republish of 3.10.0 with a correctly built artifact: the 3.10.0 npm tarball was built against a stale `node_modules` tree and shipped a React 18.3.1 dashboard bundle despite declaring React 19 dependencies. 3.10.1 is identical source built with the proper dependency tree (dashboard bundle verified at React 19.2.7). 3.10.0 is deprecated on npm.
+
 ## [3.10.0] - 2026-06-11
 
 ### Changed
