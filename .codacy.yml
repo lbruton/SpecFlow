@@ -19,11 +19,22 @@ exclude_paths:
 # The complexity ("metric") and duplication engines have their OWN exclusion
 # lists — the top-level exclude_paths covers tool/issue analysis only.
 # Without these, vendored code still counts toward the PR deltaComplexity /
-# deltaClones quality gates (observed on PR #31).
+# deltaClones quality gates (observed on PR #31). The build-artifact and
+# generated paths from exclude_paths are mirrored here for the same reason.
 engines:
   metric:
     exclude_paths:
       - "src/dashboard_frontend/src/vendor/**"
+      - "dist/**"
+      - "coverage/**"
+      - "vscode-extension/webview-dist/**"
+      - "node_modules/**"
+      - "assets/**"
   duplication:
     exclude_paths:
       - "src/dashboard_frontend/src/vendor/**"
+      - "dist/**"
+      - "coverage/**"
+      - "vscode-extension/webview-dist/**"
+      - "node_modules/**"
+      - "assets/**"
