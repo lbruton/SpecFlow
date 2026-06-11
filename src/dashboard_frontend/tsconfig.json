@@ -13,9 +13,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types": ["vite/client"],
+    "isolatedModules": true,
 
     /* Type safety */
-    "strict": true
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src"]
 }
