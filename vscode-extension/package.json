@@ -11,7 +11,8 @@
     "url": "https://github.com/Pimzino/spec-workflow-mcp.git"
   },
   "engines": {
-    "vscode": "^1.99.0"
+    "vscode": "^1.99.0",
+    "node": "^20.19.0 || >=22.12.0"
   },
   "categories": [
     "Other"
