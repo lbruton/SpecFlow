@@ -11,7 +11,8 @@
     "url": "https://github.com/Pimzino/spec-workflow-mcp.git"
   },
   "engines": {
-    "vscode": "^1.99.0"
+    "vscode": "^1.99.0",
+    "node": "^20.19.0 || >=22.12.0"
   },
   "categories": [
     "Other"
@@ -240,7 +241,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9.21.0",
     "npm-run-all": "^4.1.5",
     "tailwindcss": "^4.0.0",
