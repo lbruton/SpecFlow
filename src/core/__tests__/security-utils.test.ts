@@ -52,6 +52,13 @@ describe('security-utils', () => {
       expect(isLocalhostAddress('myserver')).toBe(false);
     });
 
+    it('should return false for hostnames that merely start with "127." and invalid octets', () => {
+      expect(isLocalhostAddress('127.example.com')).toBe(false);
+      expect(isLocalhostAddress('127.0.0.1.evil.com')).toBe(false);
+      expect(isLocalhostAddress('127.0.0.256')).toBe(false);
+      expect(isLocalhostAddress('127.0.0')).toBe(false);
+    });
+
     it('should return false for empty string', () => {
       expect(isLocalhostAddress('')).toBe(false);
     });

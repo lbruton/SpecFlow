@@ -51,16 +51,20 @@ export function generateAllowedOrigins(port: number): string[] {
 }
 
 /**
- * Check if an IP address is localhost
+ * Check if an address is loopback: "localhost", "::1", or a literal in the
+ * IPv4 127.0.0.0/8 block. Uses a strict IPv4 match (each octet 0–255) rather
+ * than a `127.` prefix, so a hostname like "127.example.com" is NOT loopback
+ * — a prefix check would be a CORS-bypass / bindAddress-validation hole.
  * @param address - IP address or hostname to check
- * @returns true if the address is localhost (127.x.x.x, localhost, or ::1)
  */
 export function isLocalhostAddress(address: string): boolean {
-  return (
-    address === 'localhost' ||
-    address === '::1' || // IPv6 localhost
-    address.startsWith('127.')
-  ); // Any 127.x.x.x address (includes 127.0.0.1)
+  if (address === 'localhost' || address === '::1') {
+    return true;
+  }
+  // Strict IPv4 127.0.0.0/8 (each octet 0–255).
+  return /^127\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/.test(
+    address,
+  );
 }
 
 /**
@@ -72,21 +76,10 @@ export function isLocalhostAddress(address: string): boolean {
  */
 export function isLoopbackOrigin(origin: string): boolean {
   try {
-    // url.hostname keeps IPv6 in brackets ("[::1]"); strip them before checking.
+    // url.hostname keeps IPv6 literals in brackets ("[::1]"); strip them so
+    // isLocalhostAddress sees a bare "::1".
     const hostname = new URL(origin).hostname.replace(/^\[|\]$/g, '');
-    if (hostname === 'localhost' || hostname === '::1') {
-      return true;
-    }
-    // Strict IPv4 127.0.0.0/8: exactly four numeric octets, first === 127,
-    // each 0–255. Intentionally NOT isLocalhostAddress(), whose loose
-    // `startsWith('127.')` would also match a hostname like "127.example.com"
-    // — a CORS bypass we must not allow.
-    const octets = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(hostname);
-    if (!octets) {
-      return false;
-    }
-    const [, a, b, c, d] = octets;
-    return Number(a) === 127 && [a, b, c, d].every((o) => Number(o) <= 255);
+    return isLocalhostAddress(hostname);
   } catch {
     return false;
   }
