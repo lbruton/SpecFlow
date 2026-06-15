@@ -4,6 +4,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import {
   isLocalhostAddress,
+  isLoopbackOrigin,
   getSecurityConfig,
   generateAllowedOrigins,
   DEFAULT_SECURITY_CONFIG,
@@ -150,6 +151,77 @@ describe('security-utils', () => {
       };
       const config = getSecurityConfig(fullConfig);
       expect(config).toEqual(fullConfig);
+    });
+  });
+
+  describe('isLoopbackOrigin', () => {
+    it('returns true for loopback origins on any port', () => {
+      expect(isLoopbackOrigin('http://localhost:5185')).toBe(true);
+      expect(isLoopbackOrigin('http://127.0.0.1:5173')).toBe(true);
+      expect(isLoopbackOrigin('http://[::1]:5185')).toBe(true);
+    });
+
+    it('returns false for non-loopback origins', () => {
+      expect(isLoopbackOrigin('https://specdash.lbruton.cc')).toBe(false);
+      expect(isLoopbackOrigin('http://192.168.1.10:5185')).toBe(false);
+    });
+
+    it('returns false for unparseable origins', () => {
+      expect(isLoopbackOrigin('not-a-url')).toBe(false);
+      expect(isLoopbackOrigin('')).toBe(false);
+    });
+  });
+
+  describe('getCorsConfig', () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalNodeEnv;
+    });
+
+    function callOrigin(origin: string): { error: Error | null; allow?: boolean } {
+      const cors = getCorsConfig({
+        ...DEFAULT_SECURITY_CONFIG,
+        allowedOrigins: ['http://127.0.0.1:5000'],
+      });
+      // corsEnabled is true, so getCorsConfig returns an options object.
+      const corsOptions = cors as Exclude<ReturnType<typeof getCorsConfig>, false>;
+      let captured: { error: Error | null; allow?: boolean } = { error: null };
+      corsOptions.origin(origin, (error, allow) => {
+        captured = { error, allow };
+      });
+      return captured;
+    }
+
+    it('returns false when CORS is disabled', () => {
+      expect(getCorsConfig({ ...DEFAULT_SECURITY_CONFIG, corsEnabled: false })).toBe(false);
+    });
+
+    it('allows requests with no origin', () => {
+      expect(callOrigin('').allow).toBe(true);
+    });
+
+    it('allows an explicitly allowlisted origin', () => {
+      expect(callOrigin('http://127.0.0.1:5000').allow).toBe(true);
+    });
+
+    it('allows an off-allowlist loopback origin in non-production (SFLW-51)', () => {
+      process.env.NODE_ENV = 'development';
+      const result = callOrigin('http://127.0.0.1:5185');
+      expect(result.error).toBeNull();
+      expect(result.allow).toBe(true);
+    });
+
+    it('rejects an off-allowlist loopback origin in production', () => {
+      process.env.NODE_ENV = 'production';
+      const result = callOrigin('http://127.0.0.1:5185');
+      expect(result.error).toBeInstanceOf(Error);
+    });
+
+    it('rejects a non-loopback cross-origin request even in non-production', () => {
+      process.env.NODE_ENV = 'development';
+      const result = callOrigin('https://evil.example.com');
+      expect(result.error).toBeInstanceOf(Error);
     });
   });
 

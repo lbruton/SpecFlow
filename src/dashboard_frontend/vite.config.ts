@@ -22,12 +22,16 @@ async function createConfig() {
     },
     server: {
       proxy: {
+        // Target 127.0.0.1 to match the backend's IPv4 loopback bind exactly:
+        // Node >=17 may resolve "localhost" to ::1 (IPv6) first, where the
+        // backend does not listen. (The /ws upgrade itself is unblocked by the
+        // CORS fix in security-utils.ts — see SFLW-51.)
         '/api': {
-          target: `http://localhost:${dashboardPort}`,
+          target: `http://127.0.0.1:${dashboardPort}`,
           changeOrigin: true,
         },
         '/ws': {
-          target: `ws://localhost:${dashboardPort}`,
+          target: `ws://127.0.0.1:${dashboardPort}`,
           ws: true,
         },
       },

@@ -64,6 +64,23 @@ export function isLocalhostAddress(address: string): boolean {
 }
 
 /**
+ * Check if a CORS Origin header value points at the loopback interface,
+ * regardless of port (e.g. http://localhost:5185, http://127.0.0.1:5173).
+ * Used to permit the Vite dev server — which can run on any port — to reach
+ * the dashboard in non-production. Returns false for unparseable origins.
+ * @param origin - The Origin header value (e.g. "http://127.0.0.1:5185")
+ */
+export function isLoopbackOrigin(origin: string): boolean {
+  try {
+    // url.hostname keeps IPv6 in brackets ("[::1]"); strip them before checking.
+    const hostname = new URL(origin).hostname.replace(/^\[|\]$/g, '');
+    return isLocalhostAddress(hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Get security configuration with secure defaults
  * Note: Network binding validation (bindAddress/allowExternalAccess) is handled separately at the config layer
  * @param userConfig - Optional user-provided security configuration overrides
@@ -327,9 +344,20 @@ export function getCorsConfig(config: SecurityConfig) {
       // Check if origin is in allowed list
       if (config.allowedOrigins.includes(origin)) {
         callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
+        return;
       }
+
+      // In non-production, allow any loopback origin regardless of port. The
+      // Vite dev server can run on any port (e.g. the e2e harness uses 5185),
+      // and its proxied /ws upgrade carries that origin. The dashboard already
+      // binds localhost-only, so this does not widen exposure beyond the local
+      // machine. (SFLW-51)
+      if (process.env.NODE_ENV !== 'production' && isLoopbackOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
