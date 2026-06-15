@@ -74,7 +74,19 @@ export function isLoopbackOrigin(origin: string): boolean {
   try {
     // url.hostname keeps IPv6 in brackets ("[::1]"); strip them before checking.
     const hostname = new URL(origin).hostname.replace(/^\[|\]$/g, '');
-    return isLocalhostAddress(hostname);
+    if (hostname === 'localhost' || hostname === '::1') {
+      return true;
+    }
+    // Strict IPv4 127.0.0.0/8: exactly four numeric octets, first === 127,
+    // each 0–255. Intentionally NOT isLocalhostAddress(), whose loose
+    // `startsWith('127.')` would also match a hostname like "127.example.com"
+    // — a CORS bypass we must not allow.
+    const octets = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(hostname);
+    if (!octets) {
+      return false;
+    }
+    const [, a, b, c, d] = octets;
+    return Number(a) === 127 && [a, b, c, d].every((o) => Number(o) <= 255);
   } catch {
     return false;
   }
