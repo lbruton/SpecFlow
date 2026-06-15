@@ -338,6 +338,12 @@ export function getCorsConfig(config: SecurityConfig) {
     return false; // Disable CORS
   }
 
+  // Only relax for loopback dev origins when the allowlist already trusts
+  // loopback (the default config does). If a user overrode allowedOrigins to
+  // exclude loopback — e.g. a shared dev/staging box with NODE_ENV!=='production'
+  // — respect that and do NOT widen it back open. (SFLW-51)
+  const allowlistTrustsLoopback = config.allowedOrigins.some(isLoopbackOrigin);
+
   return {
     origin: (origin: string, callback: (error: Error | null, allow?: boolean) => void) => {
       // Allow requests with no origin (e.g., curl, Postman)
@@ -357,7 +363,11 @@ export function getCorsConfig(config: SecurityConfig) {
       // and its proxied /ws upgrade carries that origin. The dashboard already
       // binds localhost-only, so this does not widen exposure beyond the local
       // machine. (SFLW-51)
-      if (process.env.NODE_ENV !== 'production' && isLoopbackOrigin(origin)) {
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        allowlistTrustsLoopback &&
+        isLoopbackOrigin(origin)
+      ) {
         callback(null, true);
         return;
       }

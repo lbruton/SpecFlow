@@ -265,6 +265,17 @@ describe('security-utils', () => {
   });
 
   describe('getCorsConfig', () => {
+    const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
+    afterEach(() => {
+      // Restore precisely: assigning `undefined` would set the literal string
+      // "undefined" and leak into later tests, so delete when originally unset.
+      if (ORIGINAL_NODE_ENV === undefined) {
+        delete process.env.NODE_ENV;
+      } else {
+        process.env.NODE_ENV = ORIGINAL_NODE_ENV;
+      }
+    });
+
     it('should return false when CORS is disabled', () => {
       const config: SecurityConfig = {
         ...DEFAULT_SECURITY_CONFIG,
@@ -329,60 +340,59 @@ describe('security-utils', () => {
     });
 
     it('should allow an off-allowlist loopback origin in non-production (SFLW-51)', () => {
-      const original = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
-      try {
-        const corsConfig = getCorsConfig({
-          ...DEFAULT_SECURITY_CONFIG,
-          corsEnabled: true,
-          allowedOrigins: ['http://127.0.0.1:5000'],
-        }) as any;
+      const corsConfig = getCorsConfig({
+        ...DEFAULT_SECURITY_CONFIG,
+        corsEnabled: true,
+        allowedOrigins: ['http://127.0.0.1:5000'],
+      }) as any;
 
-        const callback = vi.fn();
-        corsConfig.origin('http://127.0.0.1:5185', callback);
+      const callback = vi.fn();
+      corsConfig.origin('http://127.0.0.1:5185', callback);
 
-        expect(callback).toHaveBeenCalledWith(null, true);
-      } finally {
-        process.env.NODE_ENV = original;
-      }
+      expect(callback).toHaveBeenCalledWith(null, true);
     });
 
     it('should reject an off-allowlist loopback origin in production', () => {
-      const original = process.env.NODE_ENV;
       process.env.NODE_ENV = 'production';
-      try {
-        const corsConfig = getCorsConfig({
-          ...DEFAULT_SECURITY_CONFIG,
-          corsEnabled: true,
-          allowedOrigins: ['http://127.0.0.1:5000'],
-        }) as any;
+      const corsConfig = getCorsConfig({
+        ...DEFAULT_SECURITY_CONFIG,
+        corsEnabled: true,
+        allowedOrigins: ['http://127.0.0.1:5000'],
+      }) as any;
 
-        const callback = vi.fn();
-        corsConfig.origin('http://127.0.0.1:5185', callback);
+      const callback = vi.fn();
+      corsConfig.origin('http://127.0.0.1:5185', callback);
 
-        expect(callback).toHaveBeenCalledWith(expect.any(Error));
-      } finally {
-        process.env.NODE_ENV = original;
-      }
+      expect(callback).toHaveBeenCalledWith(expect.any(Error));
     });
 
     it('should reject a non-loopback cross-origin request even in non-production', () => {
-      const original = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
-      try {
-        const corsConfig = getCorsConfig({
-          ...DEFAULT_SECURITY_CONFIG,
-          corsEnabled: true,
-          allowedOrigins: ['http://127.0.0.1:5000'],
-        }) as any;
+      const corsConfig = getCorsConfig({
+        ...DEFAULT_SECURITY_CONFIG,
+        corsEnabled: true,
+        allowedOrigins: ['http://127.0.0.1:5000'],
+      }) as any;
 
-        const callback = vi.fn();
-        corsConfig.origin('https://evil.example.com', callback);
+      const callback = vi.fn();
+      corsConfig.origin('https://evil.example.com', callback);
 
-        expect(callback).toHaveBeenCalledWith(expect.any(Error));
-      } finally {
-        process.env.NODE_ENV = original;
-      }
+      expect(callback).toHaveBeenCalledWith(expect.any(Error));
+    });
+
+    it('should NOT relax to loopback when the allowlist excludes loopback (Copilot review)', () => {
+      process.env.NODE_ENV = 'development';
+      const corsConfig = getCorsConfig({
+        ...DEFAULT_SECURITY_CONFIG,
+        corsEnabled: true,
+        allowedOrigins: ['https://staging.example.com'],
+      }) as any;
+
+      const callback = vi.fn();
+      corsConfig.origin('http://127.0.0.1:5185', callback);
+
+      expect(callback).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 
