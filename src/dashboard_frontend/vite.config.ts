@@ -7,6 +7,12 @@ import react from '@vitejs/plugin-react';
 // Can be overridden via VITE_DASHBOARD_PORT environment variable
 const dashboardPort = process.env.VITE_DASHBOARD_PORT || '5000';
 
+// Dashboard host that the dev proxy targets. Defaults to 127.0.0.1 to match the
+// backend's default IPv4 loopback bind (Node >=17 may resolve "localhost" to
+// ::1 first, where the backend does not listen). Override via VITE_DASHBOARD_HOST
+// for backends bound to ::1 or another address. (SFLW-51)
+const dashboardHost = process.env.VITE_DASHBOARD_HOST || '127.0.0.1';
+
 // Dynamically import Tailwind CSS v4 plugin
 async function createConfig() {
   const { default: tailwindcss } = await import('@tailwindcss/vite');
@@ -22,12 +28,15 @@ async function createConfig() {
     },
     server: {
       proxy: {
+        // Target dashboardHost (default 127.0.0.1) to match the backend's bind
+        // exactly. (The /ws upgrade itself is unblocked by the CORS fix in
+        // security-utils.ts — see SFLW-51.)
         '/api': {
-          target: `http://localhost:${dashboardPort}`,
+          target: `http://${dashboardHost}:${dashboardPort}`,
           changeOrigin: true,
         },
         '/ws': {
-          target: `ws://localhost:${dashboardPort}`,
+          target: `ws://${dashboardHost}:${dashboardPort}`,
           ws: true,
         },
       },

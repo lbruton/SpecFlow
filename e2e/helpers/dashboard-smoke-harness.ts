@@ -29,17 +29,10 @@ export const SMOKE_SPEC_NAME = 'smoke-fixture-spec';
 /** Dashboard backend base URL — must match DASHBOARD_PORT in playwright.smoke.config.ts. */
 export const DASHBOARD_API_BASE_URL = 'http://127.0.0.1:5085';
 
-// SFLW-51 (pre-existing on React 18, dev mode only): the vite dev proxy
-// targets ws://localhost:<port> while the backend binds 127.0.0.1, so every
-// /ws upgrade fails with a handshake 500 and the provider retries forever.
-// This exact pattern is filtered with justification; ALL other console errors
-// (render errors, React warnings-as-errors, route failures) still fail tests.
-export const PRE_EXISTING_WS_PROXY_ERROR = /WebSocket connection to 'ws:\/\/[^']*\/ws[^']*' failed/;
-
-/** Attaches console.error + pageerror collectors, filtering only the SFLW-51 pattern. */
+/** Attaches console.error + pageerror collectors. Any console error fails the spec. */
 export function collectConsoleErrors(page: Page, sink: string[]): void {
   page.on('console', (message) => {
-    if (message.type() === 'error' && !PRE_EXISTING_WS_PROXY_ERROR.test(message.text())) {
+    if (message.type() === 'error') {
       sink.push(`[console.error] ${message.text()}`);
     }
   });
@@ -59,9 +52,9 @@ export async function selectProject(page: Page, projectId: string): Promise<void
 }
 
 /**
- * Standard smoke-spec opening: start collecting console errors (SFLW-51
- * pattern filtered) BEFORE the first navigation so app-boot errors are
- * captured too, then load the dashboard and select the seeded project.
+ * Standard smoke-spec opening: start collecting console errors BEFORE the
+ * first navigation so app-boot errors are captured too, then load the
+ * dashboard and select the seeded project.
  * Returns the console-error sink for the spec's final assertion.
  */
 export async function openSeededDashboard(page: Page, projectId: string): Promise<string[]> {

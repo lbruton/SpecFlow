@@ -51,16 +51,38 @@ export function generateAllowedOrigins(port: number): string[] {
 }
 
 /**
- * Check if an IP address is localhost
+ * Check if an address is loopback: "localhost", "::1", or a literal in the
+ * IPv4 127.0.0.0/8 block. Uses a strict IPv4 match (each octet 0–255) rather
+ * than a `127.` prefix, so a hostname like "127.example.com" is NOT loopback
+ * — a prefix check would be a CORS-bypass / bindAddress-validation hole.
  * @param address - IP address or hostname to check
- * @returns true if the address is localhost (127.x.x.x, localhost, or ::1)
  */
 export function isLocalhostAddress(address: string): boolean {
-  return (
-    address === 'localhost' ||
-    address === '::1' || // IPv6 localhost
-    address.startsWith('127.')
-  ); // Any 127.x.x.x address (includes 127.0.0.1)
+  if (address === 'localhost' || address === '::1') {
+    return true;
+  }
+  // Strict IPv4 127.0.0.0/8 (each octet 0–255).
+  return /^127\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/.test(
+    address,
+  );
+}
+
+/**
+ * Check if a CORS Origin header value points at the loopback interface,
+ * regardless of port (e.g. http://localhost:5185, http://127.0.0.1:5173).
+ * Used to permit the Vite dev server — which can run on any port — to reach
+ * the dashboard in non-production. Returns false for unparseable origins.
+ * @param origin - The Origin header value (e.g. "http://127.0.0.1:5185")
+ */
+export function isLoopbackOrigin(origin: string): boolean {
+  try {
+    // url.hostname keeps IPv6 literals in brackets ("[::1]"); strip them so
+    // isLocalhostAddress sees a bare "::1".
+    const hostname = new URL(origin).hostname.replace(/^\[|\]$/g, '');
+    return isLocalhostAddress(hostname);
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -316,6 +338,12 @@ export function getCorsConfig(config: SecurityConfig) {
     return false; // Disable CORS
   }
 
+  // Only relax for loopback dev origins when the allowlist already trusts
+  // loopback (the default config does). If a user overrode allowedOrigins to
+  // exclude loopback — e.g. a shared dev/staging box with NODE_ENV!=='production'
+  // — respect that and do NOT widen it back open. (SFLW-51)
+  const allowlistTrustsLoopback = config.allowedOrigins.some(isLoopbackOrigin);
+
   return {
     origin: (origin: string, callback: (error: Error | null, allow?: boolean) => void) => {
       // Allow requests with no origin (e.g., curl, Postman)
@@ -327,9 +355,24 @@ export function getCorsConfig(config: SecurityConfig) {
       // Check if origin is in allowed list
       if (config.allowedOrigins.includes(origin)) {
         callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
+        return;
       }
+
+      // In non-production, allow any loopback origin regardless of port. The
+      // Vite dev server can run on any port (e.g. the e2e harness uses 5185),
+      // and its proxied /ws upgrade carries that origin. The dashboard already
+      // binds localhost-only, so this does not widen exposure beyond the local
+      // machine. (SFLW-51)
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        allowlistTrustsLoopback &&
+        isLoopbackOrigin(origin)
+      ) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

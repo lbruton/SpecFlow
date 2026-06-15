@@ -4,6 +4,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import {
   isLocalhostAddress,
+  isLoopbackOrigin,
   getSecurityConfig,
   generateAllowedOrigins,
   DEFAULT_SECURITY_CONFIG,
@@ -49,6 +50,13 @@ describe('security-utils', () => {
     it('should return false for hostnames', () => {
       expect(isLocalhostAddress('example.com')).toBe(false);
       expect(isLocalhostAddress('myserver')).toBe(false);
+    });
+
+    it('should return false for hostnames that merely start with "127." and invalid octets', () => {
+      expect(isLocalhostAddress('127.example.com')).toBe(false);
+      expect(isLocalhostAddress('127.0.0.1.evil.com')).toBe(false);
+      expect(isLocalhostAddress('127.0.0.256')).toBe(false);
+      expect(isLocalhostAddress('127.0.0')).toBe(false);
     });
 
     it('should return false for empty string', () => {
@@ -153,6 +161,30 @@ describe('security-utils', () => {
     });
   });
 
+  describe('isLoopbackOrigin', () => {
+    it('returns true for loopback origins on any port', () => {
+      expect(isLoopbackOrigin('http://localhost:5185')).toBe(true);
+      expect(isLoopbackOrigin('http://127.0.0.1:5173')).toBe(true);
+      expect(isLoopbackOrigin('http://[::1]:5185')).toBe(true);
+    });
+
+    it('returns false for non-loopback origins', () => {
+      expect(isLoopbackOrigin('https://specdash.lbruton.cc')).toBe(false);
+      expect(isLoopbackOrigin('http://192.168.1.10:5185')).toBe(false);
+    });
+
+    it('returns false for hostnames that merely start with "127." (CORS-bypass guard)', () => {
+      expect(isLoopbackOrigin('http://127.example.com:5185')).toBe(false);
+      expect(isLoopbackOrigin('http://127.0.0.1.evil.com:5185')).toBe(false);
+      expect(isLoopbackOrigin('http://127.0.0.256:5185')).toBe(false);
+    });
+
+    it('returns false for unparseable origins', () => {
+      expect(isLoopbackOrigin('not-a-url')).toBe(false);
+      expect(isLoopbackOrigin('')).toBe(false);
+    });
+  });
+
   describe('RateLimiter', () => {
     let rateLimiter: RateLimiter;
 
@@ -233,20 +265,37 @@ describe('security-utils', () => {
   });
 
   describe('getCorsConfig', () => {
-    it('should return false when CORS is disabled', () => {
-      const config: SecurityConfig = {
-        ...DEFAULT_SECURITY_CONFIG,
-        corsEnabled: false,
-      };
-      expect(getCorsConfig(config)).toBe(false);
+    const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
+    afterEach(() => {
+      // Restore precisely: assigning `undefined` would set the literal string
+      // "undefined" and leak into later tests, so delete when originally unset.
+      if (ORIGINAL_NODE_ENV === undefined) {
+        delete process.env.NODE_ENV;
+      } else {
+        process.env.NODE_ENV = ORIGINAL_NODE_ENV;
+      }
     });
 
-    it('should return config object when CORS is enabled', () => {
+    // Build the CORS config and run its origin() check for one origin; returns
+    // the mock callback so each test only asserts the outcome.
+    function checkOrigin(origin: string, allowedOrigins?: string[]) {
       const config: SecurityConfig = {
         ...DEFAULT_SECURITY_CONFIG,
         corsEnabled: true,
+        ...(allowedOrigins ? { allowedOrigins } : {}),
       };
-      const corsConfig = getCorsConfig(config);
+      const corsConfig = getCorsConfig(config) as any;
+      const callback = vi.fn();
+      corsConfig.origin(origin, callback);
+      return callback;
+    }
+
+    it('should return false when CORS is disabled', () => {
+      expect(getCorsConfig({ ...DEFAULT_SECURITY_CONFIG, corsEnabled: false })).toBe(false);
+    });
+
+    it('should return config object when CORS is enabled', () => {
+      const corsConfig = getCorsConfig({ ...DEFAULT_SECURITY_CONFIG, corsEnabled: true });
 
       expect(corsConfig).not.toBe(false);
       expect(typeof corsConfig).toBe('object');
@@ -256,44 +305,48 @@ describe('security-utils', () => {
     });
 
     it('should allow requests with no origin', () => {
-      const config: SecurityConfig = {
-        ...DEFAULT_SECURITY_CONFIG,
-        corsEnabled: true,
-      };
-      const corsConfig = getCorsConfig(config) as any;
-
-      const callback = vi.fn();
-      corsConfig.origin('', callback);
-
-      expect(callback).toHaveBeenCalledWith(null, true);
+      expect(checkOrigin('')).toHaveBeenCalledWith(null, true);
     });
 
     it('should allow requests from allowed origins', () => {
-      const config: SecurityConfig = {
-        ...DEFAULT_SECURITY_CONFIG,
-        corsEnabled: true,
-        allowedOrigins: ['http://localhost:5000', 'http://custom:3000'],
-      };
-      const corsConfig = getCorsConfig(config) as any;
-
-      const callback = vi.fn();
-      corsConfig.origin('http://localhost:5000', callback);
-
-      expect(callback).toHaveBeenCalledWith(null, true);
+      expect(
+        checkOrigin('http://localhost:5000', ['http://localhost:5000', 'http://custom:3000']),
+      ).toHaveBeenCalledWith(null, true);
     });
 
     it('should reject requests from non-allowed origins', () => {
-      const config: SecurityConfig = {
-        ...DEFAULT_SECURITY_CONFIG,
-        corsEnabled: true,
-        allowedOrigins: ['http://localhost:5000'],
-      };
-      const corsConfig = getCorsConfig(config) as any;
+      expect(checkOrigin('http://malicious:8080', ['http://localhost:5000'])).toHaveBeenCalledWith(
+        expect.any(Error),
+      );
+    });
 
-      const callback = vi.fn();
-      corsConfig.origin('http://malicious:8080', callback);
+    it('should allow an off-allowlist loopback origin in non-production (SFLW-51)', () => {
+      process.env.NODE_ENV = 'development';
+      expect(checkOrigin('http://127.0.0.1:5185', ['http://127.0.0.1:5000'])).toHaveBeenCalledWith(
+        null,
+        true,
+      );
+    });
 
-      expect(callback).toHaveBeenCalledWith(expect.any(Error));
+    it('should reject an off-allowlist loopback origin in production', () => {
+      process.env.NODE_ENV = 'production';
+      expect(checkOrigin('http://127.0.0.1:5185', ['http://127.0.0.1:5000'])).toHaveBeenCalledWith(
+        expect.any(Error),
+      );
+    });
+
+    it('should reject a non-loopback cross-origin request even in non-production', () => {
+      process.env.NODE_ENV = 'development';
+      expect(
+        checkOrigin('https://evil.example.com', ['http://127.0.0.1:5000']),
+      ).toHaveBeenCalledWith(expect.any(Error));
+    });
+
+    it('should NOT relax to loopback when the allowlist excludes loopback (Copilot review)', () => {
+      process.env.NODE_ENV = 'development';
+      expect(
+        checkOrigin('http://127.0.0.1:5185', ['https://staging.example.com']),
+      ).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 
