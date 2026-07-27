@@ -101,11 +101,11 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/ws": "^8.5.13",
-    "@vitejs/plugin-react": "^5.2.0",
+    "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "^4.0.15",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "markdownlint-cli2": "^0.22.1",
+    "markdownlint-cli2": "^0.23.0",
     "prettier": "^3.8.3",
     "rimraf": "^6.0.1",
     "stylelint": "^17.12.0",
@@ -113,7 +113,7 @@
     "tailwindcss": "^4.1.13",
     "tsx": "^4.7.0",
     "typescript": "^5.7.2",
-    "vite": "^7.2.7",
+    "vite": "^8.1.4",
     "vitest": "^4.0.15"
   },
   "lint-staged": {
