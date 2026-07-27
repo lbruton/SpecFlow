@@ -11,8 +11,6 @@ allowed-tools: >-
   Read, Glob, Grep, Agent,
   mcp__mem0__search_memories,
   mcp__claude-context__search_code,
-  mcp__code-graph-context__find_code,
-  mcp__code-graph-context__analyze_code_relationships,
   mcp__context7__resolve-library-id,
   mcp__context7__query-docs,
   mcp__brave-search__brave_web_search
@@ -66,8 +64,8 @@ Based on the conversation, dispatch research as appropriate:
 ### Codebase exploration (read-only)
 
 - `mcp__claude-context__search_code` — "find code related to X"
-- `mcp__code-graph-context__find_code` — structural search for functions/classes
-- `Grep` / `Glob` — literal matches for identifiers
+- `Grep` / `Glob` — literal matches for identifiers, and all structural questions (callers,
+  call sites, imports): grep the identifier repo-wide and read the hits
 
 ### Library/framework research
 

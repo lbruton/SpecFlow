@@ -181,9 +181,6 @@ Run these checks (all instant, run in parallel):
 # Has version lock?
 [ -f "devops/version.lock" ] && echo "hasVersionLock=true" || echo "hasVersionLock=false"
 
-# CGC running?
-docker ps --filter "name=cgc" --format "{{.Names}}" 2>/dev/null | grep -q cgc && echo "hasCGC=true" || echo "hasCGC=false"
-
 # Has security reviews?
 [ -d "${DOCVAULT_PATH}/Projects/<name>/Security Reviews" ] && echo "hasSecurityReviews=true" || echo "hasSecurityReviews=false"
 
@@ -337,10 +334,10 @@ No incremental detection, no state files, no delta reports.
 
 ### Step 1.0: Start indexes FIRST (background, instant)
 
-Kick off CGC and claude-context indexing checks immediately — these run while everything
+Kick off the claude-context indexing check immediately — it runs while everything
 else gathers data. By the time we reach the report, index results are ready.
 
-Run Phase 2 Steps 2.1, 2.2, and 2.3 (claude-context, CGC, Codacy) in parallel NOW.
+Run Phase 2 Steps 2.1 and 2.3 (claude-context, Codacy) in parallel NOW.
 
 ### Agent A: Session Digest (retired — iTerm2 logs removed)
 
@@ -359,8 +356,8 @@ Run a startup health check on the codebase:
 - project: <name>
 
 Focus on:
-1. Dead code detection (CGC if available)
-2. Top 5 most complex functions (CGC if available)
+1. Dead code detection (Grep-derived — grep each declared symbol repo-wide)
+2. Top 5 most complex functions (estimated CCN, or Codacy's Lizard metric if available)
 3. Any convention violations visible in recently changed files (last 7 days of git log)
 
 Keep the report compact — tables only, max 15 findings.
@@ -473,44 +470,16 @@ If the project has a wiki, also check:
 mcp__claude-context__get_indexing_status(path="<workingDir>/wiki")
 ```
 
-### Step 2.2: CGC index (if hasCGC=true)
+### Step 2.2: Structural search — no index required
 
-CGC MCP runs via `docker exec -i cgc-server cgc mcp start`. Restarting the container
-kills the MCP connection — never restart CGC containers during a session.
+There is one index (claude-context, Step 2.1). Structural questions — callers, call chains,
+imports, dead code, complexity — run on native Grep/Glob and need no index check, no service,
+and no health gate.
 
-The CGC workspace path is `/workspace/<name>` (not the host path), because the Docker
-volume mounts your repositories root (the directory containing all project repos) as `/workspace`.
-
-First, check if the project is indexed:
-
-```
-mcp__code-graph-context__list_indexed_repositories()
-```
-
-If the project (`/workspace/<name>`) is **not listed**, it needs to be indexed:
-
-```
-mcp__code-graph-context__add_code_to_graph(path="/workspace/<name>")
-```
-
-If the project **is listed**, check its health:
-
-```
-mcp__code-graph-context__get_repository_stats(repo_path="/workspace/<name>")
-```
-
-If the function count seems low (< 50 for a medium-sized project), re-index:
-
-```
-mcp__code-graph-context__delete_repository(repo_path="/workspace/<name>")
-mcp__code-graph-context__add_code_to_graph(path="/workspace/<name>")
-```
-
-Then poll with `check_job_status` until complete. If it fails with a Neo4j connection
-error, note it in the report as "CGC index failed — Neo4j may need heap increase" and
-move on. Do NOT restart containers.
-
-Record stats for the report (file count, function count).
+> **Retired 2026-07-27 — `code-graph-context` (CGC).** This step used to index and health-check
+> a second, structural graph backend. That backend was removed from every harness in favor of
+> native harness tools. Do not re-add it or reference `mcp__code-graph-context__*`; those tools
+> are unavailable.
 
 ### Step 2.3: Codacy SRM + Critical Issues (main context, fast)
 
@@ -657,7 +626,6 @@ Source: [[Expiration Tracker]] (DocVault/Infrastructure/)
 | Tool            | Status         | Details              |
 |-----------------|----------------|----------------------|
 | claude-context  | Fresh/Stale    | Indexed N files      |
-| CGC (Neo4j)     | Running/Down   | N nodes, N rels      |
 
 ## Code Health (code-oracle)
 
@@ -793,9 +761,7 @@ Not every project has every capability. Handle missing pieces:
 |---------|----------|
 | sessionflow MCP down | Set `hasSessionFlow=false`, fall back to mem0 for "where we left off" |
 | No `issuePrefix` | Skip vault issue queries, show GitHub issues only |
-| No CGC (Docker down) | Skip CGC stats + dead code + complexity, note in Index Health |
-| CGC MCP disconnected | Note "CGC MCP unavailable — container may have restarted" in Index Health. Do NOT restart containers. |
-| CGC index job fails | Note "CGC re-index failed — Neo4j connection error" in Index Health. Continue without. |
+| claude-context unindexed | Run `index_codebase`; note in Index Health. Structural checks still run on Grep |
 | No wiki/ | Skip wiki index check |
 | No .specflow/ | Omit spec sections entirely |
 | No version.lock | Show "n/a" for version |
@@ -817,7 +783,7 @@ Not every project has every capability. Handle missing pieces:
 
 ### Execution
 
-- Phase 2 indexes (CGC, claude-context, Codacy) start FIRST in Phase 1 Step 1.0 — they run in background while data is gathered
+- Phase 2 checks (claude-context, Codacy) start FIRST in Phase 1 Step 1.0 — they run in background while data is gathered
 - Phase 1 agents MUST run in background — do not block on them sequentially
 - NEVER run code-oracle or session-oracle in main context — always isolated agents
 - If ALL agents fail, fall back to Phase 0 local context + digest + Phase 2 indexing

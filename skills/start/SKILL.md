@@ -26,7 +26,7 @@ need to know where you left off — not when you need a full environment boot.
 | Coming back after a short break (< 1 day) | `/start` |
 | Starting fresh after days away | `/prime` |
 | First session on a new project | `/prime` |
-| Need full code indexing (Milvus/CGC) | `/prime` |
+| Need full code indexing (Milvus) | `/prime` |
 | Need comprehensive mem0 search | `/prime` |
 | Just need context from last session | `/start` |
 
@@ -175,8 +175,8 @@ Do not replace it with a custom summary or action item. It must always appear.
 
 ## Rules
 
-- **session-rag + mem0 MCP calls only.** No indexing MCPs (Milvus, CGC, Codacy). No agent dispatch.
-- **No code indexing.** Do not trigger claude-context, CGC, or any indexing operation.
+- **session-rag + mem0 MCP calls only.** No indexing MCPs (Milvus, Codacy). No agent dispatch.
+- **No code indexing.** Do not trigger claude-context or any indexing operation.
 - **Read-only.** Do not write, commit, or modify anything.
 - **If /start would take > 20 seconds, something is wrong.** The two MCP calls + git
   commands + issue scan should complete in under 10 seconds total.

@@ -1,7 +1,7 @@
 ---
 name: audit
 description: >
-  On-demand project health check — code quality (CGC), security (Codacy SRM), instruction file
+  On-demand project health check — code quality, security (Codacy SRM), instruction file
   drift (CLAUDE.md vs Agents.md vs Gemini.md), issue landscape, index health.
   Triggers: "audit", "health check", "check project health", "scan codebase", "code health",
   "instruction drift", "check for drift".
@@ -45,18 +45,11 @@ REMOTE=$(git rev-parse origin/$(git symbolic-ref --short HEAD) 2>/dev/null)
 
 ### Pre-flight: Ensure Codebase Indexes Exist
 
-Before dispatching scans, verify BOTH code intelligence indexes exist and are healthy.
-
-**Check both indexes (run in parallel):**
+Before dispatching scans, verify the code intelligence index exists and is healthy.
 
 claude-context (Milvus):
 ```
 mcp__claude-context__get_indexing_status(path="<PROJECT_PATH>")
-```
-
-CGC (Neo4j):
-```
-mcp__code-graph-context__get_repository_stats(repo_path="/workspace/<PROJECT_NAME>")
 ```
 
 **Onboard if missing:**
@@ -68,23 +61,14 @@ mcp__claude-context__index_codebase(path="<PROJECT_PATH>")
 Then poll `get_indexing_status` every 10 seconds until status is `indexed` or `indexfailed`.
 If `indexfailed`, report the error and continue the audit without claude-context data.
 
-If CGC returns an error or empty stats:
-```
-mcp__code-graph-context__add_code_to_graph(path="/workspace/<PROJECT_NAME>")
-```
-Then poll `check_job_status` with the returned job ID every 10 seconds until complete.
-If the job fails, report the error and continue the audit without CGC data.
-
-Note: Use `add_code_to_graph`, not `watch_directory` — watch has a known bug that silently fails.
-
 **Confirm readiness:**
 ```
 Index Status:
   claude-context: <indexed | failed | was already indexed>
-  CGC:            <indexed | failed | was already indexed>
 ```
 
-Do NOT skip this gate — an audit without indexes produces incomplete results.
+Do NOT skip this gate — an audit without the index produces incomplete semantic results.
+Structural checks (dead code, complexity) run on native Grep/Glob and need no index.
 
 ---
 
@@ -100,10 +84,12 @@ Run a full code health audit:
 - workingDir: <PROJECT_PATH>
 
 Checks:
-1. Dead code detection via CGC (mcp__code-graph-context__find_dead_code)
-2. Top 10 most complex functions via CGC (mcp__code-graph-context__find_most_complex_functions)
+1. Dead code detection — enumerate declarations, then grep each symbol repo-wide and flag
+   those with no reference outside their own definition. Check for dynamic references
+   (window.X, string lookups, HTML handler wiring) before calling anything dead.
+2. Top 10 most complex functions — estimated CCN via branch-point counting, or Codacy's
+   Lizard metric when the repo is on Codacy (prefer Lizard; label which was used)
 3. Convention violations in files changed in the last 14 days
-4. If CGC unavailable, fall back to grep-based analysis of unused exports
 
 Output format: tables only, no prose. Max 20 findings per category.
 ```
@@ -214,13 +200,6 @@ If stale (>24h), trigger re-index:
 mcp__claude-context__index_codebase(path="<PROJECT_PATH>")
 ```
 
-Check CGC:
-```
-mcp__code-graph-context__get_repository_stats(repo_path="/workspace/<PROJECT_NAME>")
-```
-
-If CGC function count seems low (<50 for medium+ projects), flag for re-index.
-
 ### 1.6: Vault Health (always runs)
 
 If Obsidian is running, include these checks (run in parallel):
@@ -304,7 +283,6 @@ Wait for all scans to complete. Combine results into a structured report.
 | Tool | Status | Details |
 |------|--------|---------|
 | claude-context | Fresh/Stale | N files |
-| CGC | Running/Down | N functions |
 
 ## Vault Health
 <Obsidian stats if available, otherwise "Obsidian not running — skipped">
@@ -342,7 +320,7 @@ cd ${DOCVAULT_PATH} && mkdir -p "Projects/<name>/audit" && git add "Projects/<na
 ## Rules
 
 - **Parallel by default.** All scans that can run simultaneously should.
-- **Graceful degradation.** If CGC is down, Codacy fails, or a file is missing — note it and continue. Never block the audit on a single failing check.
+- **Graceful degradation.** If the index is down, Codacy fails, or a file is missing — note it and continue. Never block the audit on a single failing check.
 - **Facts, not opinions.** Report what the tools find. Don't editorialize.
 - **Actionable output.** Every finding should map to a concrete next step.
 - **Don't fix during audit.** The audit reports; the user decides what to fix. Exception: if the user says "fix it" after seeing results, then proceed.
