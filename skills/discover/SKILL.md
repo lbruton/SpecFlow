@@ -13,9 +13,6 @@ allowed-tools: >-
   mcp__mem0__search_memories,
   mcp__mem0__add_memory,
   mcp__claude-context__search_code,
-  mcp__code-graph-context__find_code,
-  mcp__code-graph-context__find_callers,
-  mcp__code-graph-context__analyze_code_relationships,
   mcp__context7__resolve-library-id,
   mcp__context7__query-docs,
   mcp__brave-search__brave_web_search,
@@ -100,19 +97,7 @@ Present any relevant past decisions, related work, or prior discussions.
 
 Run the codebase search tier protocol (minimum tiers 1-2):
 
-### Tier 1: CGC — Structural
-
-```
-mcp__code-graph-context__find_code
-  query: "{key functions, components, or modules related to this issue}"
-```
-
-```
-mcp__code-graph-context__analyze_code_relationships
-  query: "{affected area}"
-```
-
-### Tier 2: Claude-Context — Semantic
+### Tier 1: Claude-Context — Semantic
 
 ```
 mcp__claude-context__search_code
@@ -125,9 +110,12 @@ Run 2-3 queries covering:
 2. Existing patterns that should be reused
 3. Integration points and dependencies
 
-### Tier 3: Grep/Glob — Literal
+### Tier 2: Grep/Glob — Structural and literal
 
-As needed for specific identifiers, storage keys, constants.
+Take the identifiers Tier 1 surfaced and grep each one repo-wide to find every call site,
+import, and reference. Also use Grep directly for specific identifiers, storage keys, and
+constants you already know the name of. Semantic search ranks by similarity and will not
+return all N references — Grep is what makes the impact list exhaustive.
 
 ### Produce Impact Summary
 
