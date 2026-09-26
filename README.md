@@ -6,6 +6,9 @@
   An MCP server plugin for spec-driven development with a real-time approval dashboard.
 </p>
 
+> [!WARNING]
+> **Archived: no longer maintained (2026-09-26).** SpecFlow was retired from the author's workflow because it cost far more tokens than lighter phased-markdown and plan-plus-TDD workflows for about the same results. The repository is kept read-only for reference. No further releases, fixes, or issue triage.
+
 <p align="center">
   <a href="https://www.npmjs.com/package/@lbruton/specflow"><img src="https://img.shields.io/npm/v/@lbruton/specflow" alt="npm version"></a>
   <a href="https://github.com/lbruton/specflow"><img src="https://img.shields.io/badge/license-GPL--3.0-green" alt="License"></a>
@@ -18,8 +21,6 @@
   <a href="docs/WORKFLOW.md">Workflow</a> &bull;
   <a href="CHANGELOG.md">Changelog</a>
 </p>
-
-> **Work in progress.** SpecFlow is in active development and used daily by the author across multiple projects, but the API surface, skill interfaces, and documentation are still evolving. Expect rough edges. Issues and feedback welcome.
 
 ---
 
