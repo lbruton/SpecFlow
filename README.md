@@ -22,8 +22,6 @@
   <a href="CHANGELOG.md">Changelog</a>
 </p>
 
-> **Work in progress.** SpecFlow is in active development and used daily by the author across multiple projects, but the API surface, skill interfaces, and documentation are still evolving. Expect rough edges. Issues and feedback welcome.
-
 ---
 
 SpecFlow gives AI coding agents a structured development lifecycle. Instead of jumping straight to code, features go through Requirements → Design → Tasks → Implementation, with human approval gates at each transition. A real-time web dashboard lets you review, approve, or reject at every phase.
